@@ -44,6 +44,7 @@ function Product() {
   const { product } = Route.useLoaderData();
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState<string | null>("Ingredients");
+  const similarProducts = PRODUCTS.filter((p) => p.slug !== product.slug).slice(0, 3);
 
   return (
     <SiteLayout>
@@ -123,6 +124,26 @@ function Product() {
                 <p className="italic text-sm text-on-surface-variant mb-4">"{r.q}"</p>
                 <p className="text-xs font-semibold uppercase tracking-[0.1em] text-primary">— {r.name}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Similar Products */}
+        <section className="mt-20 border-t border-soft-beige pt-16">
+          <h2 className="font-display text-3xl text-primary text-center mb-8">Similar Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {similarProducts.map((p) => (
+              <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group bg-cream-bg border border-soft-beige hover:shadow-sm transition-all rounded overflow-hidden">
+                <div className="aspect-square relative overflow-hidden bg-surface-container-low">
+                  <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <span className="absolute top-4 left-4 px-3 py-1 bg-soft-beige rounded-full text-xs text-deep-charcoal">{p.tag}</span>
+                </div>
+                <div className="p-6 text-center">
+                  <h3 className="font-display text-xl text-primary mb-1">{p.name}</h3>
+                  <p className="text-sm text-on-surface-variant mb-3">{p.subtitle}</p>
+                  <p className="text-sm font-semibold text-deep-charcoal">₹{p.price.toLocaleString("en-IN")}</p>
+                </div>
+              </Link>
             ))}
           </div>
         </section>
