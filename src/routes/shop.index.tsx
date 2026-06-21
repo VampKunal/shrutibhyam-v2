@@ -195,7 +195,16 @@ function Shop() {
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-sage-green">{p.tag}</span>
                     <h3 className="font-display text-lg text-primary mt-1">{p.name}</h3>
                     <p className="text-sm text-on-surface-variant line-clamp-1">{p.subtitle}</p>
-                    <p className="mt-3 text-sm font-semibold text-deep-charcoal">₹{p.price.toLocaleString("en-IN")}</p>
+                    <div className="flex items-center gap-2 mt-3 font-medium">
+                      {p.onSale && p.regularPrice && p.regularPrice > p.price ? (
+                        <>
+                          <span className="text-sm font-semibold text-deep-charcoal">₹{p.price.toLocaleString("en-IN")}</span>
+                          <span className="text-xs text-on-surface-variant/50 line-through">₹{p.regularPrice.toLocaleString("en-IN")}</span>
+                        </>
+                      ) : (
+                        <span className="text-sm font-semibold text-deep-charcoal">₹{p.price.toLocaleString("en-IN")}</span>
+                      )}
+                    </div>
                   </div>
                 </Link>
               ))}

@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { useState, useEffect } from "react";
 
 const links = [
+  { to: "/about", label: "About" },
   { to: "/shop", label: "Shop" },
   { to: "/yoga", label: "Yoga" },
   { to: "/events", label: "Events" },

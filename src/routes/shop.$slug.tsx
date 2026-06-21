@@ -121,7 +121,12 @@ function Product() {
               ))}
             </div>
             <h1 className="font-display text-4xl md:text-5xl text-primary leading-tight">{product.name}</h1>
-            <p className="text-2xl font-display text-primary">₹{product.price.toLocaleString("en-IN")}</p>
+            <div className="flex items-baseline gap-3">
+              <span className="text-2xl font-display text-primary">₹{product.price.toLocaleString("en-IN")}</span>
+              {product.onSale && product.regularPrice && product.regularPrice > product.price && (
+                <span className="text-base text-on-surface-variant/50 line-through">₹{product.regularPrice.toLocaleString("en-IN")}</span>
+              )}
+            </div>
             <p className="text-base text-on-surface-variant leading-relaxed">
               {details.description}
             </p>

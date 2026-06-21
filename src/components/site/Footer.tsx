@@ -11,7 +11,7 @@ export function Footer() {
             Nurturing holistic well-being through ancient Ayurvedic wisdom and mindful movement.
           </p>
         </div>
-        <FooterCol title="Explore" items={[["Shop","/shop"],["Yoga","/yoga"],["Events","/events"]]} />
+        <FooterCol title="Explore" items={[["About Us","/about"],["Shop","/shop"],["Yoga","/yoga"],["Events","/events"]]} />
         <FooterCol title="Support" items={[["Sustainability","#"],["Shipping & Returns","#"],["Contact Us","/contact"]]} />
         <FooterCol title="Legal" items={[["Privacy Policy","#"],["Terms of Service","#"],["Press","#"]]} />
         <div className="md:col-span-4 pt-8 border-t border-soft-beige/70 text-xs text-deep-charcoal/60">

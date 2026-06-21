@@ -106,9 +106,16 @@ export function CartDrawer() {
                   <p className="text-xs text-on-surface-variant truncate">
                     {item.product.subtitle}
                   </p>
-                  <p className="text-sm font-semibold text-deep-charcoal mt-1">
-                    ₹{item.product.price.toLocaleString("en-IN")}
-                  </p>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-sm font-semibold text-deep-charcoal">
+                      ₹{item.product.price.toLocaleString("en-IN")}
+                    </span>
+                    {item.product.onSale && item.product.regularPrice && item.product.regularPrice > item.product.price && (
+                      <span className="text-xs text-on-surface-variant/50 line-through">
+                        ₹{item.product.regularPrice.toLocaleString("en-IN")}
+                      </span>
+                    )}
+                  </div>
                   
                   {/* Quantity and Remove controls */}
                   <div className="flex items-center justify-between mt-3">
