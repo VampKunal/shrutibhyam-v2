@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { SiteLayout } from "@/components/site/Layout";
 import { IMG, PRODUCTS } from "@/components/site/content";
 import { ArrowRight, Leaf, Hand, Recycle, Droplets, Star, Quote } from "lucide-react";
+import { getWooProducts } from "@/lib/api/woocommerce.functions";
+import { Partners } from "@/components/site/Partners";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -12,6 +16,10 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: IMG.hero },
     ],
   }),
+  loader: async () => {
+    const products = await getWooProducts();
+    return { products };
+  },
   component: Home,
 });
 
@@ -24,12 +32,50 @@ const TRUST = [
 
 const MARQUEE = ["Vegan","Handcrafted","Hand poured","Cruelty free","Sulphate free","Paraben free","No synthetic fragrance","No synthetic colour"];
 
+const HERO_IMAGES = [IMG.hero, IMG.yoga, IMG.trust, IMG.tea];
+
 function Home() {
+  const { products: wooProducts } = Route.useLoaderData();
+  const products = wooProducts && wooProducts.length > 0 ? wooProducts : PRODUCTS;
+  const [currentImg, setCurrentImg] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImg((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <SiteLayout>
       {/* Hero */}
       <section className="relative w-full min-h-[80vh] flex items-center justify-center bg-cream-bg overflow-hidden">
-        <img src={IMG.hero} alt="Serene wellness ritual" className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply" />
+        {/* Background Image Carousel with Cross-Fade */}
+        {HERO_IMAGES.map((img, idx) => (
+          <img
+            key={img}
+            src={img}
+            alt="Serene wellness ritual"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 mix-blend-multiply ${
+              idx === currentImg ? "opacity-60 z-0" : "opacity-0 -z-10"
+            }`}
+          />
+        ))}
+
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-6 flex gap-2 z-20">
+          {HERO_IMAGES.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentImg(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                idx === currentImg ? "bg-primary w-6" : "bg-primary/30 hover:bg-primary/60"
+              }`}
+            />
+          ))}
+        </div>
+
         <div className="relative z-10 max-w-3xl text-center px-6 py-24 space-y-6">
           <span className="inline-block px-4 py-1 bg-soft-beige rounded-full text-xs font-semibold uppercase tracking-[0.15em] text-deep-charcoal">Ayurvedic Purity</span>
           <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight text-primary leading-[1.1]">
@@ -60,6 +106,9 @@ function Home() {
         </div>
       </div>
 
+      {/* Partners Logos */}
+      <Partners />
+
       {/* Trust */}
       <section className="max-w-[1200px] mx-auto px-4 md:px-6 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -84,11 +133,11 @@ function Home() {
       {/* Top Sellers */}
       <section className="max-w-[1200px] mx-auto px-4 md:px-6 py-20">
         <div className="text-center mb-12">
-          <h2 className="font-display text-3xl md:text-4xl text-primary mb-4">Ayurvedic Essentials</h2>
+          <h2 className="font-display text-3xl md:text-4xl text-primary mb-4">Skincare Products</h2>
           <div className="w-16 h-px bg-sage-green mx-auto" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {PRODUCTS.slice(0, 3).map((p) => (
+          {products.slice(0, 3).map((p) => (
             <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group bg-cream-bg border border-soft-beige hover:shadow-sm transition-all rounded overflow-hidden">
               <div className="aspect-square relative overflow-hidden bg-surface-container-low">
                 <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />

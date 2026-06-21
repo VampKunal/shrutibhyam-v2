@@ -1,14 +1,19 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/Layout";
-import { PRODUCTS } from "@/components/site/content";
 import { Minus, Plus, ChevronDown, Star, StarHalf, Leaf, Hand, Droplets, PawPrint, FlaskConical, Sparkles, Flower2, Palette } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { getWooProductBySlug, getWooProducts } from "@/lib/api/woocommerce.functions";
 
 export const Route = createFileRoute("/shop/$slug")({
-  loader: ({ params }) => {
-    const product = PRODUCTS.find((p) => p.slug === params.slug);
+  loader: async ({ params }) => {
+    const product = await getWooProductBySlug({ data: params.slug });
     if (!product) throw notFound();
-    return { product };
+
+    const allProducts = await getWooProducts();
+    const similarProducts = allProducts.filter((p) => p.slug !== params.slug).slice(0, 3);
+
+    return { product, similarProducts };
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -29,10 +34,55 @@ export const Route = createFileRoute("/shop/$slug")({
   ),
 });
 
-const ACCORDIONS = [
-  { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Unrefined Shea Butter; Organic Haldi (Turmeric) Root Extract; Essential Oils of Sandalwood, Vetiver, and Sweet Orange. Free from synthetic fragrances, dyes, and palm oil." },
-  { title: "Benefits", body: "Wild Turmeric calms redness and promotes even skin tone. Raw Shea Butter deeply moisturizes without clogging pores. Sandalwood and Vetiver provide a grounding, earthy aromatherapy." },
-  { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+interface DetailContent {
+  description: string;
+  accordions: { title: string; body: string }[];
+  purityTags: string[];
+}
+
+const PRODUCT_DETAILS: Record<string, DetailContent> = {
+  "shrutibhyam-haldi-handmade-soap": {
+    description: "Rooted in ancient Ayurvedic wisdom, this cold-processed bar is enriched with wild turmeric and raw shea butter. It gently purifies, brightens, and restores your skin's natural glow.",
+    purityTags: ["Cold-Pressed", "Vegan"],
+    accordions: [
+      { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Unrefined Shea Butter; Organic Haldi (Turmeric) Root Extract; Essential Oils of Sandalwood, Vetiver, and Sweet Orange. Free from synthetic fragrances, dyes, and palm oil." },
+      { title: "Benefits", body: "Wild Turmeric calms redness and promotes even skin tone. Raw Shea Butter deeply moisturizes without clogging pores. Sandalwood and Vetiver provide a grounding, earthy aromatherapy." },
+      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+    ]
+  },
+  "shrutibhyam-neem-handmade-soap": {
+    description: "Handcrafted with pure cold-pressed neem oil, tea tree essential oil, and rich mango butter to soothe, purify, and protect your skin while restoring balance.",
+    purityTags: ["Cold-Pressed", "Purifying"],
+    accordions: [
+      { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Mango Butter; Pure Cold-Pressed Neem Oil; Essential Oils of Tea Tree and Lavender; Vitamin E. Free from synthetic fragrances, paraben, and palm oil." },
+      { title: "Benefits", body: "Neem oil and tea tree essential oil support clear, healthy skin and soothe irritation. Mango butter provides deep hydration, while lavender essential oil calms and balances." },
+      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+    ]
+  },
+  "shrutibhyam-lavender-handmade-soap": {
+    description: "Infused with organic French lavender buds and pure lavender and chamomile essential oils to soothe the skin, calm the senses, and ease the mind.",
+    purityTags: ["Cold-Pressed", "Calming"],
+    accordions: [
+      { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Cocoa Butter; Organic French Lavender Buds; Pure Lavender and Chamomile Essential Oils. Free from synthetic fragrances, dyes, and paraben." },
+      { title: "Benefits", body: "Lavender and chamomile provide deep relaxation and calm the nervous system. Cocoa butter leaves the skin feeling silky smooth and deeply moisturized." },
+      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+    ]
+  },
+  "shrutibhyam-french-clay-handmade-soap": {
+    description: "Formulated with mineral-rich pink French clay and organic rose water to gently exfoliate, refine skin texture, draw out impurities, and tone the skin.",
+    purityTags: ["Cold-Pressed", "Detoxifying"],
+    accordions: [
+      { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Shea Butter; Pink French Clay; Organic Rose Water; Essential Oils of Damask Rose and Geranium. Free from synthetic fragrances and dyes." },
+      { title: "Benefits", body: "French clay gently detoxifies, refines pores, and removes dead skin. Rose water and rose essential oil hydrate, balance pH, and leave a delicate floral aroma." },
+      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+    ]
+  }
+};
+
+const DEFAULT_ACCORDIONS = (name: string, tag: string) => [
+  { title: "Ingredients", body: `100% natural, ethically sourced botanical extracts of ${name}. Free from synthetic fillers, parabens, and sulfates.` },
+  { title: "Benefits", body: `Enriched with natural properties of ${name} (${tag}) to nourish, restore, and maintain your skin's natural balance.` },
+  { title: "How to Use", body: "Apply a small amount to clean damp skin. Massage gently in circular motions until absorbed. Use daily in your morning or evening wellness ritual." }
 ];
 
 const PURITY = [
@@ -41,10 +91,20 @@ const PURITY = [
 ];
 
 function Product() {
-  const { product } = Route.useLoaderData();
+  const { product, similarProducts } = Route.useLoaderData();
+  const { addToCart } = useCart();
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState<string | null>("Ingredients");
-  const similarProducts = PRODUCTS.filter((p) => p.slug !== product.slug).slice(0, 3);
+
+  const handleAddToCart = () => {
+    addToCart(product, qty);
+  };
+
+  const details = PRODUCT_DETAILS[product.slug] || {
+    description: product.subtitle || "A premium Ayurvedic ritual crafted with the purest botanical ingredients to restore and balance your skin's natural radiance.",
+    purityTags: [product.tag || "Ayurvedic", "100% Vegan"],
+    accordions: DEFAULT_ACCORDIONS(product.name, product.tag || "Wellness")
+  };
 
   return (
     <SiteLayout>
@@ -56,13 +116,14 @@ function Product() {
           </div>
           <div className="space-y-6">
             <div className="flex gap-2">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.15em] bg-soft-beige px-3 py-1 rounded-full">Cold-Pressed</span>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.15em] bg-soft-beige px-3 py-1 rounded-full">Vegan</span>
+              {details.purityTags.map((tag) => (
+                <span key={tag} className="text-[10px] font-semibold uppercase tracking-[0.15em] bg-soft-beige px-3 py-1 rounded-full">{tag}</span>
+              ))}
             </div>
             <h1 className="font-display text-4xl md:text-5xl text-primary leading-tight">{product.name}</h1>
             <p className="text-2xl font-display text-primary">₹{product.price.toLocaleString("en-IN")}</p>
             <p className="text-base text-on-surface-variant leading-relaxed">
-              Rooted in ancient Ayurvedic wisdom, this cold-processed bar is enriched with wild turmeric and raw shea butter. It gently purifies, brightens, and restores your skin's natural glow.
+              {details.description}
             </p>
             <div className="flex items-center gap-4 pt-2">
               <div className="flex items-center border border-primary">
@@ -70,12 +131,15 @@ function Product() {
                 <span className="px-5 text-sm font-semibold">{qty}</span>
                 <button onClick={() => setQty(qty + 1)} className="p-3 hover:bg-soft-beige"><Plus size={14} /></button>
               </div>
-              <button className="flex-1 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors">
+              <button 
+                onClick={handleAddToCart}
+                className="flex-1 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors"
+              >
                 Add to Cart
               </button>
             </div>
             <div className="border-t border-soft-beige pt-4">
-              {ACCORDIONS.map((a) => (
+              {details.accordions.map((a) => (
                 <div key={a.title} className="border-b border-soft-beige">
                   <button onClick={() => setOpen(open === a.title ? null : a.title)} className="w-full flex justify-between items-center py-4 text-left">
                     <span className="font-display text-lg text-primary">{a.title}</span>
