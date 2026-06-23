@@ -1,6 +1,6 @@
 
-import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useState, useEffect } from "react";
 
@@ -9,6 +9,7 @@ const links = [
   { to: "/shop", label: "Shop" },
   { to: "/yoga", label: "Yoga" },
   { to: "/events", label: "Events" },
+  { to: "/faqs", label: "FAQs" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
@@ -34,6 +35,16 @@ export function MarqueeBar() {
 export function Header() {
   const { toggleCart, cartCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate({ to: "/shop", search: { search: searchQuery.trim() } });
+      setSearchQuery("");
+    }
+  };
 
   // Close mobile menu on Escape key press or resize
   useEffect(() => {
@@ -80,6 +91,18 @@ export function Header() {
             ))}
           </nav>
           <div className="flex items-center gap-4 text-primary">
+            <form onSubmit={handleSearch} className="hidden md:flex items-center border border-soft-beige rounded-full px-3 py-1.5 bg-cream-bg focus-within:border-sage-green focus-within:ring-1 focus-within:ring-sage-green transition-all">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none outline-none text-xs w-32 focus:w-48 transition-all px-2 placeholder:text-on-surface-variant/60"
+              />
+              <button type="submit" aria-label="Search" className="text-on-surface-variant hover:text-sage-green">
+                <Search size={16} />
+              </button>
+            </form>
             <button 
               aria-label="Cart" 
               onClick={() => toggleCart(true)} 

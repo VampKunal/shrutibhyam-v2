@@ -58,14 +58,29 @@ export function mapWooCommerceProduct(wpProduct: any): LocalProduct {
   }
 
   // Get categories tag
-  let tag = wpProduct.categories?.[0]?.name || "";
-  if (!tag || tag === "Uncategorized") {
-    const nameLower = (wpProduct.name || "").toLowerCase();
-    if (nameLower.includes("soap")) {
-      tag = "Cold-Pressed";
-    } else {
-      tag = "Ayurvedic";
-    }
+  let rawTag = wpProduct.categories?.[0]?.name || "";
+  const nameLower = (wpProduct.name || "").toLowerCase();
+  let tag = "Others";
+
+  if (
+    rawTag.toLowerCase().includes("skin") || 
+    rawTag.toLowerCase().includes("soap") || 
+    rawTag.toLowerCase().includes("cold") ||
+    nameLower.includes("soap") ||
+    nameLower.includes("cream") ||
+    nameLower.includes("mist") ||
+    nameLower.includes("elixir") ||
+    nameLower.includes("oil")
+  ) {
+    tag = "Skincare";
+  } else if (
+    rawTag.toLowerCase().includes("yoga") || 
+    rawTag.toLowerCase().includes("mat") ||
+    nameLower.includes("yoga") ||
+    nameLower.includes("mat") ||
+    nameLower.includes("block")
+  ) {
+    tag = "Yoga";
   }
 
   // Extract first image, or try to fallback to the first image inside description HTML or keyword

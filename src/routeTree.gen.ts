@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as YogaRouteImport } from './routes/yoga'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
@@ -26,6 +27,11 @@ const YogaRoute = YogaRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqsRoute = FaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsRoute = EventsRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/faqs': typeof FaqsRoute
   '/shop': typeof ShopRouteWithChildren
   '/yoga': typeof YogaRoute
   '/shop/$slug': typeof ShopSlugRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/faqs': typeof FaqsRoute
   '/yoga': typeof YogaRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop': typeof ShopIndexRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/faqs': typeof FaqsRoute
   '/shop': typeof ShopRouteWithChildren
   '/yoga': typeof YogaRoute
   '/shop/$slug': typeof ShopSlugRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/events'
+    | '/faqs'
     | '/shop'
     | '/yoga'
     | '/shop/$slug'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/events'
+    | '/faqs'
     | '/yoga'
     | '/shop/$slug'
     | '/shop'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/events'
+    | '/faqs'
     | '/shop'
     | '/yoga'
     | '/shop/$slug'
@@ -126,6 +138,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
+  FaqsRoute: typeof FaqsRoute
   ShopRoute: typeof ShopRouteWithChildren
   YogaRoute: typeof YogaRoute
 }
@@ -144,6 +157,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faqs': {
+      id: '/faqs'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof FaqsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events': {
@@ -208,6 +228,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
+  FaqsRoute: FaqsRoute,
   ShopRoute: ShopRouteWithChildren,
   YogaRoute: YogaRoute,
 }

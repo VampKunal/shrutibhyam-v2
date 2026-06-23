@@ -17,7 +17,7 @@ export function Partners() {
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-7 w-auto"
+              className="h-10 w-auto"
             >
               {/* Stylized Spade Emblem */}
               <path
@@ -50,7 +50,7 @@ export function Partners() {
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
-              className="h-7 w-auto"
+              className="h-10 w-auto"
             >
               {/* Wheel/Gear Emblem */}
               <circle cx="16" cy="16" r="8" strokeWidth="1.5" />
@@ -92,7 +92,7 @@ export function Partners() {
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
-              className="h-7 w-auto"
+              className="h-10 w-auto"
             >
               {/* Three Slanted Buildings */}
               <path d="M5 22L11 7h4L9 22H5z" fill="currentColor" stroke="none" />
@@ -121,7 +121,7 @@ export function Partners() {
               fill="none"
               stroke="currentColor"
               strokeWidth="1.2"
-              className="h-7 w-auto"
+              className="h-10 w-auto"
             >
               {/* Ayush Lotus/Yoga Sun Circle */}
               <circle cx="16" cy="16" r="10" strokeDasharray="3 2" />

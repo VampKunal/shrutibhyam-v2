@@ -12,11 +12,11 @@ export const IMG = {
 };
 
 export const PRODUCTS = [
-  { slug: "haldi-soap", name: "Handcrafted Haldi Soap", tag: "Cold-Pressed", subtitle: "Turmeric & Shea Brightening Bar", price: 1850, image: IMG.faceOil, wooId: 101 },
-  { slug: "ashwagandha-churna", name: "Ashwagandha Churna", tag: "Organic", subtitle: "Adaptogenic Support", price: 950, image: IMG.powder, wooId: 102 },
-  { slug: "bhringraj-elixir", name: "Bhringraj Elixir", tag: "Vegan", subtitle: "Revitalizing Hair Serum", price: 1400, image: IMG.serum, wooId: 103 },
-  { slug: "neem-tulsi-bar", name: "Neem & Tulsi Bar", tag: "Purifying", subtitle: "Cold-Process Soap", price: 1500, image: IMG.faceOil, wooId: 104 },
-  { slug: "brahmi-radiance-cream", name: "Brahmi Radiance Cream", tag: "Hydrating", subtitle: "Deep Hydration", price: 3500, image: IMG.powder, wooId: 105 },
-  { slug: "damask-rose-mist", name: "Damask Rose Mist", tag: "Toning", subtitle: "Facial Spritz", price: 2000, image: IMG.serum, wooId: 106 },
+  { slug: "haldi-soap", name: "Handcrafted Haldi Soap", tag: "Skincare", subtitle: "Turmeric & Shea Brightening Bar", price: 1850, image: IMG.faceOil, wooId: 101 },
+  { slug: "ashwagandha-churna", name: "Ashwagandha Churna", tag: "Others", subtitle: "Adaptogenic Support", price: 950, image: IMG.powder, wooId: 102 },
+  { slug: "bhringraj-elixir", name: "Bhringraj Elixir", tag: "Skincare", subtitle: "Revitalizing Hair Serum", price: 1400, image: IMG.serum, wooId: 103 },
+  { slug: "neem-tulsi-bar", name: "Neem & Tulsi Bar", tag: "Skincare", subtitle: "Cold-Process Soap", price: 1500, image: IMG.faceOil, wooId: 104 },
+  { slug: "brahmi-radiance-cream", name: "Brahmi Radiance Cream", tag: "Skincare", subtitle: "Deep Hydration", price: 3500, image: IMG.powder, wooId: 105 },
+  { slug: "cork-yoga-mat", name: "Cork Yoga Mat", tag: "Yoga", subtitle: "Natural & Eco-Friendly", price: 2000, image: IMG.yoga, wooId: 106 },
 ];
 

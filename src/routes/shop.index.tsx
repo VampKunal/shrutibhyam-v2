@@ -4,7 +4,18 @@ import { Quote, Star } from "lucide-react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 import { useState, useMemo, useEffect } from "react";
 
+type ShopSearch = {
+  search?: string;
+  category?: string;
+};
+
 export const Route = createFileRoute("/shop/")({
+  validateSearch: (search: Record<string, unknown>): ShopSearch => {
+    return {
+      search: search.search as string | undefined,
+      category: search.category as string | undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Shop Collections — Shrutibhyam Wellness" },
@@ -16,27 +27,50 @@ export const Route = createFileRoute("/shop/")({
     const products = await getWooProducts();
     return { products };
   },
+  staleTime: 1000 * 60 * 5, // 5 minutes cache
   component: Shop,
 });
 
 function Shop() {
   const { products } = Route.useLoaderData();
+  const searchParams = Route.useSearch();
   
-  const [selectedCategory, setSelectedCategory] = useState("All Products");
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.category || "All Products");
   const [priceLimit, setPriceLimit] = useState(5000);
   const [sortBy, setSortBy] = useState("Featured");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Extract categories dynamically from active products list
-  const categories = useMemo(() => {
-    return ["All Products", ...Array.from(new Set(products.map((p) => p.tag).filter(Boolean)))];
+  useEffect(() => {
+    if (searchParams.category) {
+      setSelectedCategory(searchParams.category);
+    }
+  }, [searchParams.category]);
+
+  // Clean up products tags from cache or unexpected backend values
+  const normalizedProducts = useMemo(() => {
+    return products.map(p => {
+      let newTag = "Others";
+      const nameL = p.name.toLowerCase();
+      const rawTagL = (p.tag || "").toLowerCase();
+      
+      if (rawTagL.includes("skin") || rawTagL.includes("soap") || rawTagL.includes("cold") || 
+          nameL.includes("soap") || nameL.includes("cream") || nameL.includes("mist") || nameL.includes("elixir") || nameL.includes("oil")) {
+        newTag = "Skincare";
+      } else if (rawTagL.includes("yoga") || rawTagL.includes("mat") || nameL.includes("yoga") || nameL.includes("mat") || nameL.includes("block")) {
+        newTag = "Yoga";
+      }
+      return { ...p, tag: newTag };
+    });
   }, [products]);
+
+  // Fixed categories as requested
+  const categories = ["All Products", "Skincare", "Yoga", "Others"];
 
   // Determine highest product price to scale slider dynamically
   const maxPrice = useMemo(() => {
-    const highest = products.reduce((max, p) => (p.price > max ? p.price : max), 0);
+    const highest = normalizedProducts.reduce((max, p) => (p.price > max ? p.price : max), 0);
     return Math.ceil(highest / 500) * 500 || 5000;
-  }, [products]);
+  }, [normalizedProducts]);
 
   useEffect(() => {
     setPriceLimit(maxPrice);
@@ -44,12 +78,16 @@ function Shop() {
 
   // Filter products by category and max price
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
+    return normalizedProducts.filter((p) => {
       const matchCategory = selectedCategory === "All Products" || p.tag === selectedCategory;
       const matchPrice = p.price <= priceLimit;
-      return matchCategory && matchPrice;
+      const matchSearch = searchParams.search 
+        ? p.name.toLowerCase().includes(searchParams.search.toLowerCase()) || 
+          p.subtitle.toLowerCase().includes(searchParams.search.toLowerCase())
+        : true;
+      return matchCategory && matchPrice && matchSearch;
     });
-  }, [products, selectedCategory, priceLimit]);
+  }, [normalizedProducts, selectedCategory, priceLimit, searchParams.search]);
 
   // Sort products based on criteria
   const sortedProducts = useMemo(() => {
@@ -100,8 +138,8 @@ function Shop() {
             <ul className="space-y-2">
               {categories.map((cat) => {
                 const count = cat === "All Products" 
-                  ? products.length 
-                  : products.filter((p) => p.tag === cat).length;
+                  ? normalizedProducts.length 
+                  : normalizedProducts.filter((p) => p.tag === cat).length;
                 return (
                   <li key={cat}>
                     <button
@@ -135,16 +173,6 @@ function Shop() {
               <span>₹0</span>
               <span className="text-primary font-semibold">Max: ₹{priceLimit.toLocaleString("en-IN")}</span>
             </div>
-          </div>
-          <div className="border-t border-soft-beige pt-6">
-            <h4 className="font-display text-lg text-primary mb-3">Brand Purity</h4>
-            <ul className="space-y-2 text-sm text-on-surface-variant font-medium">
-              <li>✦ 100% Vegan</li>
-              <li>✦ Handcrafted in Small Batches</li>
-              <li>✦ Cruelty Free</li>
-              <li>✦ Sulphate & Paraben Free</li>
-              <li>✦ No Synthetic Fragrance</li>
-            </ul>
           </div>
         </aside>
 

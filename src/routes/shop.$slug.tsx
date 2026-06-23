@@ -23,6 +23,7 @@ export const Route = createFileRoute("/shop/$slug")({
       { property: "og:image", content: loaderData?.product.image },
     ],
   }),
+  staleTime: 1000 * 60 * 5, // 5 minutes cache
   component: Product,
   notFoundComponent: () => (
     <SiteLayout>

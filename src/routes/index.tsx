@@ -20,6 +20,7 @@ export const Route = createFileRoute("/")({
     const products = await getWooProducts();
     return { products };
   },
+  staleTime: 1000 * 60 * 5, // 5 minutes cache
   component: Home,
 });
 
@@ -32,7 +33,12 @@ const TRUST = [
 
 const MARQUEE = ["Vegan","Handcrafted","Hand poured","Cruelty free","Sulphate free","Paraben free","No synthetic fragrance","No synthetic colour"];
 
-const HERO_IMAGES = [IMG.hero, IMG.yoga, IMG.trust, IMG.tea];
+const HERO_CAROUSEL = [
+  { img: IMG.hero, to: "/about" },
+  { img: IMG.yoga, to: "/shop" },
+  { img: IMG.trust, to: "/yoga" },
+  { img: IMG.tea, to: "/events" }
+];
 
 function Home() {
   const { products: wooProducts } = Route.useLoaderData();
@@ -41,7 +47,7 @@ function Home() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImg((prev) => (prev + 1) % HERO_IMAGES.length);
+      setCurrentImg((prev) => (prev + 1) % HERO_CAROUSEL.length);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -49,22 +55,27 @@ function Home() {
   return (
     <SiteLayout>
       {/* Hero */}
-      <section className="relative w-full min-h-[80vh] flex items-center justify-center bg-cream-bg overflow-hidden">
+      <section className="relative w-full min-h-[80vh] flex items-center justify-center bg-cream-bg overflow-hidden group">
         {/* Background Image Carousel with Cross-Fade */}
-        {HERO_IMAGES.map((img, idx) => (
-          <img
+        {HERO_CAROUSEL.map(({ img, to }, idx) => (
+          <Link
             key={img}
-            src={img}
-            alt="Serene wellness ritual"
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 mix-blend-multiply ${
-              idx === currentImg ? "opacity-60 z-0" : "opacity-0 -z-10"
+            to={to as any}
+            className={`absolute inset-0 w-full h-full cursor-pointer transition-opacity duration-1000 mix-blend-multiply ${
+              idx === currentImg ? "opacity-60 z-0 pointer-events-auto" : "opacity-0 -z-10 pointer-events-none"
             }`}
-          />
+          >
+            <img
+              src={img}
+              alt="Serene wellness ritual"
+              className="w-full h-full object-cover"
+            />
+          </Link>
         ))}
 
         {/* Carousel Indicators */}
         <div className="absolute bottom-6 flex gap-2 z-20">
-          {HERO_IMAGES.map((_, idx) => (
+          {HERO_CAROUSEL.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentImg(idx)}
@@ -130,35 +141,56 @@ function Home() {
         </div>
       </section>
 
-      {/* Top Sellers */}
+      {/* Introduction to About */}
+      <section className="bg-surface-container-low py-24 border-t border-b border-soft-beige">
+        <div className="max-w-[800px] mx-auto px-4 md:px-6 text-center space-y-8">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sage-green">Our Essence</span>
+          <h2 className="font-display text-4xl md:text-5xl text-primary leading-tight">Rooted in Ancient Purity</h2>
+          <p className="text-base md:text-lg text-on-surface-variant leading-relaxed">
+            Shrutibhyam is more than just a store—it is a slow-beauty wellness sanctuary. Born on the sacred banks of the Ganges, our creations bridge ancient Ayurvedic wisdom with the rhythm of modern life. We believe in uncompromised purity, intentional craftsmanship, and honoring the earth through every ritual.
+          </p>
+          <div className="pt-4">
+            <Link to="/about" className="inline-block bg-transparent border border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+              Discover Our Journey
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Products Categories */}
       <section className="max-w-[1200px] mx-auto px-4 md:px-6 py-20">
         <div className="text-center mb-12">
-          <h2 className="font-display text-3xl md:text-4xl text-primary mb-4">Skincare Products</h2>
+          <h2 className="font-display text-3xl md:text-4xl text-primary mb-4">Products</h2>
           <div className="w-16 h-px bg-sage-green mx-auto" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {products.slice(0, 3).map((p) => (
-            <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group bg-cream-bg border border-soft-beige hover:shadow-sm transition-all rounded overflow-hidden">
-              <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-                <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <span className="absolute top-4 left-4 px-3 py-1 bg-soft-beige rounded-full text-xs text-deep-charcoal">{p.tag}</span>
-              </div>
-              <div className="p-6 text-center">
-                <h3 className="font-display text-xl text-primary mb-1">{p.name}</h3>
-                <p className="text-sm text-on-surface-variant mb-3">{p.subtitle}</p>
-                <div className="flex items-center justify-center gap-2">
-                  {p.onSale && p.regularPrice && p.regularPrice > p.price ? (
-                    <>
-                      <span className="text-sm font-semibold text-deep-charcoal">₹{p.price.toLocaleString("en-IN")}</span>
-                      <span className="text-xs text-on-surface-variant/50 line-through">₹{p.regularPrice.toLocaleString("en-IN")}</span>
-                    </>
-                  ) : (
-                    <span className="text-sm font-semibold text-deep-charcoal">₹{p.price.toLocaleString("en-IN")}</span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
+          <Link to="/shop" search={{ category: "Skincare" } as any} className="group bg-cream-bg border border-soft-beige hover:shadow-sm transition-all rounded overflow-hidden">
+            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
+              <img src={IMG.faceOil} alt="Skincare" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            </div>
+            <div className="p-6 text-center">
+              <h3 className="font-display text-xl text-primary mb-1">Skincare</h3>
+              <p className="text-sm text-on-surface-variant">Explore our natural skincare collection</p>
+            </div>
+          </Link>
+          <Link to="/shop" search={{ category: "Yoga" } as any} className="group bg-cream-bg border border-soft-beige hover:shadow-sm transition-all rounded overflow-hidden">
+            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
+              <img src={IMG.yoga} alt="Yoga Products" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            </div>
+            <div className="p-6 text-center">
+              <h3 className="font-display text-xl text-primary mb-1">Yoga Products</h3>
+              <p className="text-sm text-on-surface-variant">Mats, blocks and spiritual accessories</p>
+            </div>
+          </Link>
+          <div className="group bg-cream-bg border border-soft-beige transition-all rounded overflow-hidden opacity-80">
+            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
+              <img src={IMG.powder} alt="Coming Soon" className="absolute inset-0 w-full h-full object-cover grayscale" />
+            </div>
+            <div className="p-6 text-center">
+              <h3 className="font-display text-xl text-primary mb-1">More Categories</h3>
+              <p className="text-sm text-on-surface-variant">Coming soon to our apothecary</p>
+            </div>
+          </div>
         </div>
         <div className="text-center mt-12">
           <Link to="/shop" className="border-b border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] pb-1 hover:text-sage-green hover:border-sage-green transition-colors">
@@ -168,24 +200,32 @@ function Home() {
       </section>
 
       {/* Testimonials (Moved after products) */}
-      <section className="bg-surface-container-low py-20 border-t border-b border-soft-beige">
-        <div className="max-w-[1200px] mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+      <section className="bg-surface-container-low py-20 border-t border-b border-soft-beige overflow-hidden">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6 mb-12">
+          <div className="text-center">
             <Quote className="text-sage-green mx-auto mb-3" size={40} strokeWidth={1.5} />
             <h2 className="font-display text-3xl md:text-4xl text-primary">Community Voices</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {[
-              { quote: "The purity of these products is unmatched. Integrating them into my daily routine feels less like skincare and more like a grounding ritual.", name: "Akratu", role: "Verified Buyer" },
-              { quote: "Morning yoga sessions have transformed my week. The environment is serene and the instructors are deeply rooted in tradition.", name: "Abhinav", role: "Studio Member" },
-            ].map((t) => (
-              <div key={t.name} className="bg-cream-bg p-8 border border-soft-beige rounded-lg">
-                <div className="flex text-sage-green mb-4">
-                  {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={16} fill="currentColor" strokeWidth={0} />)}
-                </div>
-                <p className="text-sm md:text-base italic text-on-surface-variant mb-6 leading-relaxed">"{t.quote}"</p>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">{t.name}</p>
-                <p className="text-xs text-outline">{t.role}</p>
+        </div>
+        <div className="flex w-full overflow-hidden">
+          <div className="animate-marquee whitespace-nowrap flex gap-6 px-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex gap-6">
+                {[
+                  { quote: "The purity of these products is unmatched. Integrating them into my daily routine feels less like skincare and more like a grounding ritual.", name: "Akratu", role: "Verified Buyer" },
+                  { quote: "Morning yoga sessions have transformed my week. The environment is serene and the instructors are deeply rooted in tradition.", name: "Abhinav", role: "Studio Member" },
+                  { quote: "The Bhringraj hair oil changed my hair care entirely. Smells so natural and feels so pure.", name: "Priya M.", role: "Repeat Customer" },
+                  { quote: "Their workshops are enlightening. Connecting with my roots while taking care of my body.", name: "Rishabh", role: "Retreat Guest" },
+                ].map((t, idx) => (
+                  <div key={`${i}-${idx}`} className="bg-cream-bg p-8 border border-soft-beige rounded-lg w-[400px] flex-shrink-0 whitespace-normal">
+                    <div className="flex text-sage-green mb-4">
+                      {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={16} fill="currentColor" strokeWidth={0} />)}
+                    </div>
+                    <p className="text-sm md:text-base italic text-on-surface-variant mb-6 leading-relaxed">"{t.quote}"</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">{t.name}</p>
+                    <p className="text-xs text-outline">{t.role}</p>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
