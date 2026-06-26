@@ -1,7 +1,6 @@
-
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
-import { IMG } from "@/components/site/content";
+import { IMG, PRACTICES, SCHEDULE, YOGA_TESTIMONIALS } from "@/constant";
 import { ArrowRight, Star, User } from "lucide-react";
 
 export const Route = createFileRoute("/yoga")({
@@ -14,18 +13,6 @@ export const Route = createFileRoute("/yoga")({
   }),
   component: Yoga,
 });
-
-const PRACTICES = [
-  { tag: "Grounding", name: "Hatha Earth", desc: "Static postures, deep breathing, and mindful alignment. Build stability and reconnect with the earth's rhythm." },
-  { tag: "Fluidity", name: "Vinyasa Flow", desc: "A dynamic sequence syncing breath with movement. Builds heat, cultivates flexibility, and clears the mind." },
-  { tag: "Restorative", name: "Yin & Restore", desc: "Long-held postures held in stillness. A meditative practice for deep tissue release and nervous system calm." },
-];
-
-const SCHEDULE = [
-  { time: "07:00", period: "AM", name: "Morning Vinyasa", duration: "60 Min", teacher: "Elena Woods", state: "open" },
-  { time: "12:30", period: "PM", name: "Midday Hatha Restore", duration: "45 Min", teacher: "Marcus Lin", state: "open" },
-  { time: "18:00", period: "PM", name: "Sunset Yin Yoga", duration: "75 Min", teacher: "Sarah Jenkins", state: "waitlist" },
-];
 
 function Yoga() {
   return (
@@ -107,11 +94,7 @@ function Yoga() {
           <p className="text-on-surface-variant">Stories of alignment and serenity from our community.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { q: "It's not just a workout; it's a profound grounding experience. The integration of Ayurvedic wisdom makes every breath feel intentional.", name: "Amanda T.", role: "Hatha Regular" },
-            { q: "Elena's Vinyasa classes flow like water, leaving me feeling cleansed and thoroughly revitalized.", name: "Julian R.", role: "Vinyasa Practitioner" },
-            { q: "A true sanctuary in the city. The Yin classes have been transformative for my sleep.", name: "Claire M.", role: "Yin Enthusiast" },
-          ].map((t) => (
+          {YOGA_TESTIMONIALS.map((t) => (
             <div key={t.name} className="bg-cream-bg border border-soft-beige rounded p-6">
               <div className="flex text-sage-green mb-3">
                 {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} />)}

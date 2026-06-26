@@ -2,10 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { mapWooCommerceProduct, LocalProduct } from "../woocommerce";
 import process from "node:process";
+import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
 
 // Safe helper to run fetch requests to WooCommerce REST API on the server
 async function fetchWooCommerce(endpoint: string) {
-  const siteUrl = process.env.WOOCOMMERCE_URL || "https://your-woocommerce-store.com";
+  const siteUrl = process.env.WOOCOMMERCE_URL || WOOCOMMERCE_DEFAULT_URL;
   const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY || "";
   const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET || "";
 

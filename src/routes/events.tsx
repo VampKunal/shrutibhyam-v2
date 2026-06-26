@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { Calendar, MapPin } from "lucide-react";
+import { EVENTS, EVENT_TESTIMONIALS } from "@/constant";
 
 export const Route = createFileRoute("/events")({
   head: () => ({
@@ -11,12 +12,6 @@ export const Route = createFileRoute("/events")({
   }),
   component: Events,
 });
-
-const EVENTS = [
-  { date: "Oct 15, 2024", name: "Wellness Retreat @ Capgemini", desc: "A day of mindfulness, Ayurvedic practices, and deep relaxation designed for corporate wellness.", location: "Capgemini Campus, Pune" },
-  { date: "Nov 02, 2024", name: "Holistic Living Workshop @ DLF", desc: "Explore cold-processed beauty, mindful nutrition, and grounding techniques for everyday life.", location: "DLF Cyber City, Gurugram" },
-  { date: "Dec 10, 2024", name: "Mindful Flow @ Signature Global", desc: "A guided yoga and somatic movement session focusing on breathwork and emotional release.", location: "Signature Global Park, NCR" },
-];
 
 function Events() {
   return (
@@ -57,11 +52,7 @@ function Events() {
             <p className="text-on-surface-variant">Reflections from our community on their journey towards balance.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { q: "The retreat at Capgemini was a breath of fresh air. It re-centered my focus and introduced me to practices I now use daily.", name: "Anjali S." },
-              { q: "Attending the DLF workshop completely shifted my perspective on wellness. The holistic approach felt genuine and rooted.", name: "Vikram R." },
-              { q: "Beautifully organized and grounding. The Signature Global event was exactly the pause I needed in my busy life.", name: "Priya M." },
-            ].map((t) => (
+            {EVENT_TESTIMONIALS.map((t) => (
               <div key={t.name} className="bg-cream-bg border border-soft-beige rounded p-6">
                 <p className="italic text-sm text-on-surface-variant mb-3 leading-relaxed">"{t.q}"</p>
                 <p className="text-xs font-semibold uppercase tracking-[0.1em] text-primary">— {t.name}</p>

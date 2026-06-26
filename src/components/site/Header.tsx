@@ -1,16 +1,17 @@
-
-import { Link, useNavigate } from "@tanstack/react-router";
-import { ShoppingBag, Menu, X, Search } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useState, useEffect } from "react";
+import { CONTACT_INFO } from "@/constant";
+import { SearchDialog } from "./SearchDialog";
+import { LoginDialog } from "./LoginDialog";
 
 const links = [
-  { to: "/about", label: "About" },
-  { to: "/shop", label: "Shop" },
-  { to: "/yoga", label: "Yoga" },
-  { to: "/events", label: "Events" },
-  { to: "/faqs", label: "FAQs" },
-  { to: "/contact", label: "Contact" },
+  { to: "/about", label: "About", hash: undefined },
+  { to: "/shop", label: "Shop", hash: undefined },
+  { to: "/yoga", label: "Yoga", hash: undefined },
+  { to: "/events", label: "Events", hash: undefined },
+  { to: "/contact", label: "Contact", hash: undefined },
 ] as const;
 
 export function MarqueeBar() {
@@ -35,16 +36,6 @@ export function MarqueeBar() {
 export function Header() {
   const { toggleCart, cartCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate({ to: "/shop", search: { search: searchQuery.trim() } });
-      setSearchQuery("");
-    }
-  };
 
   // Close mobile menu on Escape key press or resize
   useEffect(() => {
@@ -81,8 +72,9 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-8">
             {links.map((l) => (
               <Link
-                key={l.to}
-                to={l.to}
+                key={l.to + (l.hash || "")}
+                to={l.to as any}
+                hash={l.hash}
                 className="text-sm font-semibold uppercase tracking-[0.08em] text-on-surface-variant hover:text-sage-green transition-colors"
                 activeProps={{ className: "text-primary" }}
               >
@@ -91,18 +83,8 @@ export function Header() {
             ))}
           </nav>
           <div className="flex items-center gap-4 text-primary">
-            <form onSubmit={handleSearch} className="hidden md:flex items-center border border-soft-beige rounded-full px-3 py-1.5 bg-cream-bg focus-within:border-sage-green focus-within:ring-1 focus-within:ring-sage-green transition-all">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-xs w-32 focus:w-48 transition-all px-2 placeholder:text-on-surface-variant/60"
-              />
-              <button type="submit" aria-label="Search" className="text-on-surface-variant hover:text-sage-green">
-                <Search size={16} />
-              </button>
-            </form>
+            <SearchDialog />
+            <LoginDialog />
             <button 
               aria-label="Cart" 
               onClick={() => toggleCart(true)} 
@@ -159,8 +141,9 @@ export function Header() {
           <nav className="flex-1 p-6 flex flex-col gap-6">
             {links.map((l) => (
               <Link
-                key={l.to}
-                to={l.to}
+                key={l.to + (l.hash || "")}
+                to={l.to as any}
+                hash={l.hash}
                 onClick={() => setIsMenuOpen(false)}
                 className="text-base font-semibold uppercase tracking-[0.1em] text-on-surface-variant hover:text-sage-green transition-colors"
                 activeProps={{ className: "text-primary font-bold" }}
@@ -172,9 +155,9 @@ export function Header() {
 
           {/* Footer Contact Info */}
           <div className="p-6 border-t border-soft-beige bg-white/50 text-xs text-on-surface-variant space-y-2">
-            <p className="font-semibold text-primary">Shrutibhyam Wellness</p>
-            <p>108 Ayurvedic Lane, Rishikesh, India</p>
-            <p>namaste@shrutibhyam.com</p>
+            <p className="font-semibold text-primary">{CONTACT_INFO.name}</p>
+            <p>{CONTACT_INFO.addressShort}</p>
+            <p>{CONTACT_INFO.email}</p>
           </div>
         </div>
       </div>

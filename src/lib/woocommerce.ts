@@ -4,8 +4,10 @@
 
 // Define your WordPress/WooCommerce site base URL here.
 // You can override this using the VITE_WOOCOMMERCE_URL environment variable in your production build.
+import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
+
 export const WOOCOMMERCE_BASE_URL =
-  (import.meta.env.VITE_WOOCOMMERCE_URL as string) || "https://your-woocommerce-store.com";
+  (import.meta.env.VITE_WOOCOMMERCE_URL as string) || WOOCOMMERCE_DEFAULT_URL;
 
 export interface LocalProduct {
   slug: string;
@@ -17,6 +19,7 @@ export interface LocalProduct {
   onSale?: boolean;
   image: string;
   wooId: number;
+  descriptionHtml?: string;
 }
 
 const A = "https://lh3.googleusercontent.com/aida-public/";
@@ -113,6 +116,7 @@ export function mapWooCommerceProduct(wpProduct: any): LocalProduct {
     onSale: !!wpProduct.on_sale,
     image: image,
     wooId: wpProduct.id,
+    descriptionHtml: wpProduct.description || "",
   };
 }
 
@@ -149,4 +153,97 @@ export function getMultiProductCheckoutUrl(items: { wooId: number; quantity: num
     .join(",");
     
   return `${normalizedBaseUrl}/checkout/?add-to-cart=${cartQuery}&clear-cart=1`;
+}
+
+export interface ParsedProductContent {
+  description: string;
+  accordions: { title: string; body: string }[];
+}
+
+/**
+ * Dynamically parses a WooCommerce HTML description into a clean description paragraph
+ * and structured accordions based on standard heading formats (e.g. bold titles inside paragraphs).
+ */
+export function parseProductDescription(html: string, productName: string): ParsedProductContent {
+  if (!html) return { description: "", accordions: [] };
+
+  const sections: { title: string; body: string }[] = [];
+  let description = "";
+
+  // Normalize headings (e.g. h1-h6) to <p><strong> for parsing consistency
+  let cleanHtml = html
+    .replace(/<h[1-6][^>]*>/g, '<p><strong>')
+    .replace(/<\/h[1-6]>/g, '</strong></p>');
+
+  // Find headings: <p><strong>Title</strong></p>
+  const headingRegex = /<p[^>]*>\s*<strong>(.*?)<\/strong>\s*<\/p>/gi;
+  
+  let match;
+  const headings: { title: string; index: number; length: number }[] = [];
+  while ((match = headingRegex.exec(cleanHtml)) !== null) {
+    headings.push({
+      title: match[1].replace(/<[^>]*>/g, '').trim(),
+      index: match.index,
+      length: match[0].length
+    });
+  }
+
+  // Fallback to searching inline strong elements (e.g. <strong>Title:</strong>)
+  if (headings.length === 0) {
+    const inlineHeadingRegex = /<strong>(Why choose Neem Soap\?|Why Haldi Soap\?|Why Lavender Soap\?|Key Ingredients|Ingredients|Directions for Use|Safety &amp; Precautions|Safety Precautions|Storage &amp; Shelf Life|Skin Type Suitability|Additional Information)<\/strong>/gi;
+    let inlineMatch;
+    while ((inlineMatch = inlineHeadingRegex.exec(cleanHtml)) !== null) {
+      headings.push({
+        title: inlineMatch[1].replace(/<[^>]*>/g, '').trim(),
+        index: inlineMatch.index,
+        length: inlineMatch[0].length
+      });
+    }
+  }
+
+  headings.sort((a, b) => a.index - b.index);
+
+  if (headings.length > 0) {
+    description = cleanHtml.substring(0, headings[0].index).trim();
+
+    for (let i = 0; i < headings.length; i++) {
+      const current = headings[i];
+      const start = current.index + current.length;
+      const end = (i + 1 < headings.length) ? headings[i + 1].index : cleanHtml.length;
+      
+      const contentHtml = cleanHtml.substring(start, end).trim();
+      const bodyHtml = contentHtml.replace(/^(?:\s*<p>&nbsp;<\/p>|\s*<br\s*\/?>)+|(?:\s*<p>&nbsp;<\/p>|\s*<br\s*\/?>)+$/g, '').trim();
+
+      const titleDecoded = current.title
+        .replace(/&amp;/g, '&')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/:/g, '')
+        .trim();
+
+      if (titleDecoded && bodyHtml) {
+        sections.push({
+          title: titleDecoded,
+          body: bodyHtml
+        });
+      }
+    }
+  } else {
+    description = cleanHtml;
+  }
+
+  // If the first section title matches the product name or "shrutibhyam", make its body the description and remove it from accordions
+  if (sections.length > 0) {
+    const firstTitle = sections[0].title.toLowerCase();
+    const prodNameLower = productName.toLowerCase();
+    if (firstTitle.includes("shrutibhyam") || firstTitle.includes(prodNameLower) || prodNameLower.includes(firstTitle)) {
+      description = sections[0].body;
+      sections.shift();
+    }
+  }
+
+  if (!description.trim()) {
+    description = cleanHtml;
+  }
+
+  return { description, accordions: sections };
 }

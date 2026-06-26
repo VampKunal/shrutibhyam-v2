@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/Layout";
 import { Mail, MapPin, Phone, Star } from "lucide-react";
+import { CONTACT_INFO } from "@/constant";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -46,9 +47,9 @@ function Contact() {
 
         <aside className="space-y-6">
           <h2 className="font-display text-2xl text-primary">Our Sanctuary</h2>
-          <InfoRow icon={MapPin} title="Shrutibhyam Wellness Center" body="108 Ayurvedic Lane, Rishikesh, Uttarakhand 249201, India" />
-          <InfoRow icon={Mail} title="Email Us" body="namaste@shrutibhyam.com" />
-          <InfoRow icon={Phone} title="Call Us" body="+91 98765 43210 — Mon-Fri, 9am – 5pm IST" />
+          <InfoRow icon={MapPin} title={CONTACT_INFO.name} body={CONTACT_INFO.address} />
+          <InfoRow icon={Mail} title="Email Us" body={CONTACT_INFO.email} />
+          <InfoRow icon={Phone} title="Call Us" body={CONTACT_INFO.phone} />
           <div className="bg-cream-bg border border-soft-beige rounded p-6 mt-6">
             <div className="flex text-sage-green mb-3">
               {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} />)}

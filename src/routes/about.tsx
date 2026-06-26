@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
-import { IMG } from "@/components/site/content";
+import { IMG } from "@/constant";
 import { Leaf, HandHeart, Sparkles, MapPin, Flower2, Heart } from "lucide-react";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";

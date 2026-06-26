@@ -3,6 +3,7 @@ import { SiteLayout } from "@/components/site/Layout";
 import { Quote, Star } from "lucide-react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 import { useState, useMemo, useEffect } from "react";
+import { SHOP_TESTIMONIAL } from "@/constant";
 
 type ShopSearch = {
   search?: string;
@@ -242,12 +243,12 @@ function Shop() {
           <div className="mt-12 bg-surface-container-low border border-soft-beige rounded-lg p-8 text-center">
             <Quote className="mx-auto text-sage-green mb-3" size={32} strokeWidth={1.5} />
             <p className="italic text-on-surface-variant max-w-2xl mx-auto mb-3">
-              "Switching to Shrutibhyam's cold-pressed soaps has completely transformed my daily ritual. My skin has never felt so pure and balanced."
+              "{SHOP_TESTIMONIAL.quote}"
             </p>
             <div className="flex items-center justify-center gap-1 text-sage-green mb-1">
               {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} />)}
             </div>
-            <p className="text-xs uppercase tracking-[0.12em] text-primary">— Elena M., Verified Buyer</p>
+            <p className="text-xs uppercase tracking-[0.12em] text-primary">— {SHOP_TESTIMONIAL.author}, {SHOP_TESTIMONIAL.role}</p>
           </div>
 
           {totalPages > 1 && (
