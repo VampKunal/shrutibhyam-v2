@@ -92,7 +92,7 @@ export async function serverGetCurrentUser(): Promise<UserProfile | null> {
 
     const siteUrl = process.env.WOOCOMMERCE_URL || WOOCOMMERCE_DEFAULT_URL;
 
-    const response = await fetch(`${siteUrl.replace(/\/$/, "")}/wp-json/wp/v2/users/me`, {
+    const response = await fetch(`${siteUrl.replace(/\/$/, "")}/wp-json/wp/v2/users/me?context=edit`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

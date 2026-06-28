@@ -32,7 +32,7 @@ export const addComment = createServerFn({ method: "POST" })
     comment: z.string().min(1, "Comment cannot be empty"),
     user: z.object({
       id: z.number(),
-      email: z.string().email(),
+      email: z.string(),
       displayName: z.string()
     })
   }))
