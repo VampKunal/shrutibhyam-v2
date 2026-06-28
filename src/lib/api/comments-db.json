@@ -68,5 +68,15 @@
     "rating": 3,
     "comment": "Nice Product",
     "date": "2026-06-28T05:00:01.894Z"
+  },
+  {
+    "id": "comment_1782665613944_tbvu0prv3",
+    "productSlug": "shrutibhyam-lavender-handmade-soap",
+    "userId": 5,
+    "userName": "Anuj Joshi",
+    "userEmail": "anujjoshi3105@gmail.com",
+    "rating": 5,
+    "comment": "Nice",
+    "date": "2026-06-28T16:53:33.944Z"
   }
 ]

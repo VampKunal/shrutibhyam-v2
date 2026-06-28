@@ -18,7 +18,7 @@ export const CONTACT_INFO = {
   name: "Shrutibhyam Wellness Center",
   address: "108 Ayurvedic Lane, Rishikesh, Uttarakhand 249201, India",
   addressShort: "108 Ayurvedic Lane, Rishikesh, India",
-  email: "namaste@shrutibhyam.com",
+  email: "customercare@shrutibhyam.com",
   phone: "+91 98765 43210 — Mon-Fri, 9am – 5pm IST",
   instagram: "https://www.instagram.com/shrutibhyam?igsh=bmJ0dm8xZXY3cjUx&utm_source=qr",
   facebook: "https://www.facebook.com/people/Shrutibhyam/61590584156475/",
@@ -136,7 +136,7 @@ export const SHOP_REVIEWS = [
 
 const testimonialModules = import.meta.glob(
   "/public/testimonials/*.{jpg,jpeg,png,JPG,JPEG,PNG}",
-  { eager: true }
+  { eager: true, query: "?url", import: "default" }
 );
 
 export const SCREENSHOT_TESTIMONIALS = Object.keys(testimonialModules).map((path) =>

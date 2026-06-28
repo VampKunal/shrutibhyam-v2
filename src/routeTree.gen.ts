@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as YogaRouteImport } from './routes/yoga'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -24,9 +26,19 @@ const YogaRoute = YogaRouteImport.update({
   path: '/yoga',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsRoute = EventsRouteImport.update({
@@ -71,7 +83,9 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRouteWithChildren
+  '/terms': typeof TermsRoute
   '/yoga': typeof YogaRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/': typeof ShopIndexRoute
@@ -82,6 +96,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/yoga': typeof YogaRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop': typeof ShopIndexRoute
@@ -93,7 +109,9 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRouteWithChildren
+  '/terms': typeof TermsRoute
   '/yoga': typeof YogaRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/': typeof ShopIndexRoute
@@ -106,7 +124,9 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/events'
+    | '/privacy'
     | '/shop'
+    | '/terms'
     | '/yoga'
     | '/shop/$slug'
     | '/shop/'
@@ -117,6 +137,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/events'
+    | '/privacy'
+    | '/terms'
     | '/yoga'
     | '/shop/$slug'
     | '/shop'
@@ -127,7 +149,9 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/events'
+    | '/privacy'
     | '/shop'
+    | '/terms'
     | '/yoga'
     | '/shop/$slug'
     | '/shop/'
@@ -139,7 +163,9 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   EventsRoute: typeof EventsRoute
+  PrivacyRoute: typeof PrivacyRoute
   ShopRoute: typeof ShopRouteWithChildren
+  TermsRoute: typeof TermsRoute
   YogaRoute: typeof YogaRoute
 }
 
@@ -152,11 +178,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof YogaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events': {
@@ -229,7 +269,9 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   EventsRoute: EventsRoute,
+  PrivacyRoute: PrivacyRoute,
   ShopRoute: ShopRouteWithChildren,
+  TermsRoute: TermsRoute,
   YogaRoute: YogaRoute,
 }
 export const routeTree = rootRouteImport

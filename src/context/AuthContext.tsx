@@ -14,6 +14,8 @@ interface AuthContextType {
   login: (idToken: string) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  isLoginOpen: boolean;
+  setLoginOpen: (open: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoginOpen, setLoginOpen] = useState(false);
 
   // Function to check if a user is logged in
   const refreshUser = useCallback(async () => {
@@ -85,6 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         refreshUser,
+        isLoginOpen,
+        setLoginOpen,
       }}
     >
       {children}

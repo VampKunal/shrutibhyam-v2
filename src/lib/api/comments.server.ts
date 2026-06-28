@@ -149,6 +149,13 @@ export async function serverAddComment(
 ): Promise<CommentItem> {
   const allComments = await readComments();
   
+  const hasAlreadyReviewed = allComments.some(
+    (c) => c.productSlug === productSlug && c.userId === user.id
+  );
+  if (hasAlreadyReviewed) {
+    throw new Error("You have already reviewed this product.");
+  }
+  
   const newComment: CommentItem = {
     id: `comment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     productSlug,

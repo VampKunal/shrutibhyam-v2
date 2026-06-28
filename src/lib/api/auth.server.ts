@@ -52,7 +52,7 @@ export async function serverAuthenticateWithGoogle(idToken: string): Promise<Aut
       
       const rawUser = authData.user || {};
       const normalizedUser: UserProfile = {
-        id: rawUser.id || 0,
+        id: rawUser.id ? Number(rawUser.id) : 0,
         email: rawUser.email || rawUser.user_email || rawUser.user_mail || "",
         displayName: rawUser.displayName || rawUser.name || rawUser.display_name || rawUser.slug || "",
       };
@@ -107,7 +107,7 @@ export async function serverGetCurrentUser(): Promise<UserProfile | null> {
 
     const wpUser = await response.json();
     return {
-      id: wpUser.id,
+      id: Number(wpUser.id),
       email: wpUser.email || wpUser.user_email || wpUser.user_mail || "",
       displayName: wpUser.name || wpUser.display_name || wpUser.slug || "",
     };

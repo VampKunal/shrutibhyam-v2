@@ -22,14 +22,13 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function LoginDialog() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { user, login, logout, isLoading, error } = useAuth();
+  const { user, login, logout, isLoading, error, isLoginOpen, setLoginOpen } = useAuth();
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     if (credentialResponse.credential) {
       const success = await login(credentialResponse.credential);
       if (success) {
-        setIsOpen(false);
+        setLoginOpen(false);
       }
     }
   };
@@ -113,11 +112,12 @@ export function LoginDialog() {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isLoginOpen} onOpenChange={setLoginOpen}>
       <DialogTrigger asChild>
         <button
           aria-label="Account Login"
           className="hover:text-sage-green p-1.5 transition-colors cursor-pointer text-primary"
+          onClick={() => setLoginOpen(true)}
         >
           <User size={20} />
         </button>

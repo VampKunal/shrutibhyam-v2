@@ -218,7 +218,7 @@ interface ReviewsSectionProps {
 }
 
 function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
-  const { user } = useAuth();
+  const { user, setLoginOpen } = useAuth();
   const router = useRouter();
   
   const [rating, setRating] = useState(5);
@@ -238,6 +238,9 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
   const averageRating = reviewCount > 0 
     ? parseFloat((comments.reduce((sum, c) => sum + c.rating, 0) / reviewCount).toFixed(1))
     : 5;
+
+  // Check if current user has already submitted a review
+  const hasAlreadyReviewed = user && comments.some((c) => c.userId === user.id);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -360,10 +363,21 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
                   Have you experienced this Ayurvedic ritual? Share your thoughts with the community.
                 </p>
                 <div className="inline-block">
-                  <p className="text-xs text-primary font-semibold uppercase tracking-wider bg-primary text-white hover:bg-sage-green px-5 py-2.5 rounded-full transition-colors cursor-pointer shadow-xs">
+                  <p
+                    onClick={() => setLoginOpen(true)}
+                    className="text-xs text-primary font-semibold uppercase tracking-wider bg-primary text-white hover:bg-sage-green px-5 py-2.5 rounded-full transition-colors cursor-pointer shadow-xs"
+                  >
                     Please Log In to Review
                   </p>
                 </div>
+              </div>
+            ) : hasAlreadyReviewed ? (
+              <div className="bg-soft-beige/40 border border-soft-beige/80 rounded-xl p-6 text-center space-y-3">
+                <Check className="mx-auto text-sage-green" size={24} strokeWidth={2} />
+                <h3 className="font-display text-base text-primary font-semibold">Review Submitted</h3>
+                <p className="text-xs text-on-surface-variant leading-relaxed">
+                  You have already reviewed this product. You can update or delete your review in the list below.
+                </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="bg-cream-bg border border-soft-beige rounded-xl p-6 space-y-4">

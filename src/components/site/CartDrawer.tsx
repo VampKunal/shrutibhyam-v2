@@ -2,9 +2,11 @@ import { useCart } from "@/context/CartContext";
 import { getMultiProductCheckoutUrl } from "@/lib/woocommerce";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export function CartDrawer() {
   const { cartItems, isOpen, toggleCart, updateQuantity, removeFromCart, cartTotal } = useCart();
+  const { user, setLoginOpen } = useAuth();
 
   // Close cart on Escape key press
   useEffect(() => {
@@ -22,6 +24,10 @@ export function CartDrawer() {
   }, [isOpen, toggleCart]);
 
   const handleCheckout = () => {
+    if (!user) {
+      setLoginOpen(true);
+      return;
+    }
     const checkoutItems = cartItems.map((item) => ({
       wooId: item.product.wooId,
       quantity: item.quantity,
@@ -166,9 +172,9 @@ export function CartDrawer() {
             <div className="space-y-3">
               <button
                 onClick={handleCheckout}
-                className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors flex items-center justify-center"
+                className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors flex items-center justify-center cursor-pointer animate-fade-in"
               >
-                Proceed to Checkout
+                {user ? "Proceed to Checkout" : "Sign In to Checkout"}
               </button>
               <button
                 onClick={() => toggleCart(false)}
