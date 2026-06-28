@@ -24,6 +24,8 @@ import {
   Calendar 
 } from "lucide-react";
 import { getCommentsByUser, updateComment, deleteComment } from "@/lib/api/comments.functions";
+import { getCustomerProfile, updateCustomerProfile, getCustomerOrders, getWooProducts } from "@/lib/api/woocommerce.functions";
+import { getWishlist, removeFromWishlist } from "@/lib/api/wishlist.functions";
 
 export const Route = createFileRoute("/dashboard")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -36,52 +38,6 @@ export const Route = createFileRoute("/dashboard")({
 
 type ActiveTab = "profile" | "orders" | "wishlist" | "comments";
 
-// Mock Orders
-const MOCK_ORDERS = [
-  {
-    id: "SB-10492",
-    date: "2026-06-18",
-    total: 1048,
-    status: "Processing",
-    statusColor: "text-amber-600 bg-amber-50 border-amber-200",
-    items: [
-      { name: "Neem Handmade Soap", qty: 2, price: 349, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAQfRJwv1Xb6I-IFnyy2EKoulNGjLvUulC9Crl07IpYwNWfK0A2v3Eo8HorTKTW0Bbz0V2gb5pXWD_jdzEXt3es1HW6uP3MxMC4mcD4tbrvBZaS6ynqe0twAYtIHtWzneYQwj95nwMUitNW5gjOmsUm2eJad7x4zjR03EqzRhFJ50qgH5QwWN1Aa2FZdHIPUGcRpEmeFzw6LXP9CpfQ6pQV6d2xHUD_0bT0Q9JA7v16T0I9r2uDm-mX3tWA_-mCBp739zahIqTAkvs" },
-      { name: "Lavender Handmade Soap", qty: 1, price: 350, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAoAfn-VZ12KVYMg0ZLJFQGmnX9lcnvGabBwCF_Gwzt04aHBai61-0dS5-furtqtFwTSg12LQwWMjR3O1zS3X_nqNqgl0dQHSjwYDJV0drhn8g7BnoI2vKyhbHNx5d-ss38KdeRFU_ae2MFvGOoaWFGrTxduaAaITp_jwGC7Y0noaEwVwPUuNOTCijqOpE-2H2x_BSEn4ef7n0HBO7C9w6x6MO3b5TxeVBn5uUzLJUUgiN2ujrXFLN2Hry-jXWrvPZAC1zacp25wfM" }
-    ],
-    tracking: {
-      carrier: "Delhivery",
-      number: "DEL1284910482",
-      step: 2 // Processed, Shipped
-    }
-  },
-  {
-    id: "SB-10381",
-    date: "2026-05-12",
-    total: 349,
-    status: "Delivered",
-    statusColor: "text-sage-green bg-green-50 border-green-200",
-    items: [
-      { name: "Haldi Handmade Soap", qty: 1, price: 349, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAQfRJwv1Xb6I-IFnyy2EKoulNGjLvUulC9Crl07IpYwNWfK0A2v3Eo8HorTKTW0Bbz0V2gb5pXWD_jdzEXt3es1HW6uP3MxMC4mcD4tbrvBZaS6ynqe0twAYtIHtWzneYQwj95nwMUitNW5gjOmsUm2eJad7x4zjR03EqzRhFJ50qgH5QwWN1Aa2FZdHIPUGcRpEmeFzw6LXP9CpfQ6pQV6d2xHUD_0bT0Q9JA7v16T0I9r2uDm-mX3tWA_-mCBp739zahIqTAkvs" }
-    ],
-    tracking: {
-      carrier: "BlueDart",
-      number: "BD994827104",
-      step: 4 // Delivered
-    }
-  }
-];
-
-// Mock Wishlist Slugs (users will see these pre-populated and can click through to products)
-const MOCK_WISHLIST_PRODUCTS = [
-  {
-    slug: "shrutibhyam-french-clay-handmade-soap",
-    name: "French Clay Handmade Soap",
-    subtitle: "Detoxifying and refining botanical skin cleanser",
-    price: 349,
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB05hpJLG59gXzTieixMZePrnSgzi3wIA3HG432wz1VVUF3smdlsorH-q7VBhr9m66l2RnF7Z4zjvyxTgDojz7MwJhxBokMAs_4NIZO-QKXSz0gwMcafyPRhj_e2bJ9cRGgYtFz7QS_fUFRUkRi5UDedAqYavMN98-iYVpFIbv_2VwwQ0vxKGQ7KPgqcaXzqFFHFhfFSnKdx5_Xqn0urJ-4MMex9mgJQ62F82kgzXoJ2MAb2mv7a0FHp6rXaIbfL7fJUY6-TMsqkug"
-  }
-];
-
 export default function UserDashboard() {
   const { tab } = Route.useSearch();
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -92,10 +48,19 @@ export default function UserDashboard() {
   const [userComments, setUserComments] = useState<any[]>([]);
   const [isCommentsLoading, setIsCommentsLoading] = useState(false);
 
+  // WooCommerce Actual Orders
+  const [orders, setOrders] = useState<any[]>([]);
+  const [isOrdersLoading, setIsOrdersLoading] = useState(false);
+
+  // WooCommerce/Database Actual Wishlist
+  const [wishlist, setWishlist] = useState<any[]>([]);
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+
   // Profile Form States
   const [displayName, setDisplayName] = useState("");
-  const [phone, setPhone] = useState("+91 98765 43210");
-  const [address, setAddress] = useState("123, Wellness Marg, Near Yoga Sanctuary, Rishikesh, Uttarakhand - 249201");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileSuccess, setProfileSuccess] = useState(false);
 
@@ -111,11 +76,14 @@ export default function UserDashboard() {
     }
   }, [tab]);
 
-  // Load User Comments and Setup Form Values
+  // Load User Comments, Profile, Orders and Wishlist
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName);
       fetchComments();
+      fetchProfile();
+      fetchOrders();
+      fetchWishlist();
     }
   }, [user]);
 
@@ -129,6 +97,65 @@ export default function UserDashboard() {
       console.error("Error fetching user comments:", err);
     } finally {
       setIsCommentsLoading(false);
+    }
+  };
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    setIsProfileLoading(true);
+    try {
+      const data = await getCustomerProfile({ data: user.id });
+      if (data) {
+        if (data.phone) setPhone(data.phone);
+        if (data.address) setAddress(data.address);
+      }
+    } catch (err) {
+      console.error("Error fetching customer profile:", err);
+    } finally {
+      setIsProfileLoading(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    if (!user) return;
+    setIsOrdersLoading(true);
+    try {
+      const data = await getCustomerOrders({ data: user.id });
+      setOrders(data || []);
+    } catch (err) {
+      console.error("Error fetching customer orders:", err);
+    } finally {
+      setIsOrdersLoading(false);
+    }
+  };
+
+  const fetchWishlist = async () => {
+    if (!user) return;
+    setIsWishlistLoading(true);
+    try {
+      const slugs = await getWishlist({ data: user.id });
+      const products = await getWooProducts();
+      const filtered = products.filter(p => slugs.includes(p.slug));
+      setWishlist(filtered);
+    } catch (err) {
+      console.error("Error fetching wishlist:", err);
+    } finally {
+      setIsWishlistLoading(false);
+    }
+  };
+
+  const handleRemoveFromWishlist = async (productSlug: string) => {
+    if (!user) return;
+    try {
+      await removeFromWishlist({
+        data: {
+          userId: user.id,
+          productSlug,
+        }
+      });
+      fetchWishlist();
+    } catch (err) {
+      console.error("Error removing item from wishlist:", err);
     }
   };
 
@@ -178,15 +205,27 @@ export default function UserDashboard() {
     : user.email.slice(0, 2).toUpperCase();
 
   // Profile Save Handler
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setIsSavingProfile(true);
     setProfileSuccess(false);
-    setTimeout(() => {
-      setIsSavingProfile(false);
+    try {
+      await updateCustomerProfile({
+        data: {
+          userId: user.id,
+          displayName,
+          phone,
+          address,
+        }
+      });
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
-    }, 1000);
+    } catch (err) {
+      console.error("Error saving profile details:", err);
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   // Dashboard Comment Edit Handler
@@ -264,7 +303,7 @@ export default function UserDashboard() {
             </div>
             <div className="text-center bg-white px-4 py-2 border border-soft-beige rounded-xl min-w-[90px]">
               <p className="text-xs font-semibold text-on-surface-variant tracking-wider uppercase">Orders</p>
-              <p className="text-xl font-bold text-primary font-display mt-0.5">{MOCK_ORDERS.length}</p>
+              <p className="text-xl font-bold text-primary font-display mt-0.5">{isOrdersLoading ? "..." : orders.length}</p>
             </div>
           </div>
         </div>
@@ -440,105 +479,117 @@ export default function UserDashboard() {
                   </p>
                 </div>
 
-                <div className="space-y-6">
-                  {MOCK_ORDERS.map((o) => (
-                    <div key={o.id} className="bg-cream-bg border border-soft-beige rounded-2xl p-6 space-y-6 shadow-2xs">
-                      {/* Header info */}
-                      <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-soft-beige/80">
-                        <div className="space-y-1">
-                          <p className="text-xs font-bold uppercase tracking-wider text-primary">{o.id}</p>
-                          <p className="text-[10px] text-on-surface-variant/80 flex items-center gap-1">
-                            <Calendar size={12} />
-                            <span>Ordered on {new Date(o.date).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                          </p>
+                {isOrdersLoading ? (
+                  <div className="flex items-center justify-center gap-2 text-sage-green py-12">
+                    <Loader2 className="animate-spin" size={24} />
+                    <span className="text-sm font-semibold">Retrieving your orders...</span>
+                  </div>
+                ) : orders.length === 0 ? (
+                  <div className="text-center py-12 border border-dashed border-soft-beige rounded-xl bg-white/40 text-on-surface-variant/80">
+                    <ShoppingBag className="mx-auto text-on-surface-variant/30 mb-2" size={28} />
+                    <p className="text-sm italic">You haven't placed any orders yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {orders.map((o) => (
+                      <div key={o.id} className="bg-cream-bg border border-soft-beige rounded-2xl p-6 space-y-6 shadow-2xs">
+                        {/* Header info */}
+                        <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-soft-beige/80">
+                          <div className="space-y-1">
+                            <p className="text-xs font-bold uppercase tracking-wider text-primary">{o.id}</p>
+                            <p className="text-[10px] text-on-surface-variant/80 flex items-center gap-1">
+                              <Calendar size={12} />
+                              <span>Ordered on {new Date(o.date).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-sm font-bold text-primary font-display">Total: ₹{o.total.toLocaleString("en-IN")}</span>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider border px-3 py-1 rounded-full ${o.statusColor}`}>
+                              {o.status}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-sm font-bold text-primary font-display">Total: ₹{o.total.toLocaleString("en-IN")}</span>
-                          <span className={`text-[10px] font-bold uppercase tracking-wider border px-3 py-1 rounded-full ${o.statusColor}`}>
-                            {o.status}
-                          </span>
+
+                        {/* Items List */}
+                        <div className="space-y-4">
+                          {o.items.map((item: any, idx: number) => (
+                            <div key={idx} className="flex gap-4 items-center">
+                              <div className="h-14 w-14 rounded-lg bg-white border border-soft-beige/60 overflow-hidden shrink-0 flex items-center justify-center p-1">
+                                <img src={item.image} alt={item.name} className="h-full w-full object-cover rounded-md" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-primary">{item.name}</p>
+                                <p className="text-xs text-on-surface-variant font-medium mt-0.5">Quantity: {item.qty} | Price: ₹{item.price}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Tracking / Stepper */}
+                        <div className="bg-white/60 border border-soft-beige/50 rounded-xl p-4 space-y-4">
+                          <div className="flex justify-between items-center flex-wrap gap-2 text-xs">
+                            <p className="text-on-surface-variant font-medium">Carrier: <span className="font-bold text-primary">{o.tracking.carrier}</span></p>
+                            <p className="text-on-surface-variant font-medium">Tracking: <span className="font-bold text-primary font-mono">{o.tracking.number}</span></p>
+                          </div>
+
+                          {/* Visual Stepper */}
+                          <div className="grid grid-cols-4 gap-2 pt-2 relative">
+                            {/* Progress Line */}
+                            <div className="absolute top-[9px] left-[12%] right-[12%] h-[2px] bg-soft-beige -z-1" />
+                            <div 
+                              className="absolute top-[9px] left-[12%] h-[2px] bg-sage-green -z-1 transition-all duration-500" 
+                              style={{ width: `${(o.tracking.step - 1) * 25.33}%` }}
+                            />
+
+                            <div className="text-center space-y-1">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center mx-auto text-[10px] font-bold ${
+                                o.tracking.step >= 1 ? "bg-sage-green text-white" : "bg-soft-beige text-on-surface-variant/40"
+                              }`}>
+                                {o.tracking.step > 1 ? <Check size={10} /> : "1"}
+                              </div>
+                              <span className={`text-[9px] font-bold uppercase tracking-wider block ${o.tracking.step >= 1 ? "text-primary" : "text-on-surface-variant/40"}`}>
+                                Confirmed
+                              </span>
+                            </div>
+
+                            <div className="text-center space-y-1">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center mx-auto text-[10px] font-bold ${
+                                o.tracking.step >= 2 ? "bg-sage-green text-white" : "bg-soft-beige text-on-surface-variant/40"
+                              }`}>
+                                {o.tracking.step > 2 ? <Check size={10} /> : "2"}
+                              </div>
+                              <span className={`text-[9px] font-bold uppercase tracking-wider block ${o.tracking.step >= 2 ? "text-primary" : "text-on-surface-variant/40"}`}>
+                                Processed
+                              </span>
+                            </div>
+
+                            <div className="text-center space-y-1">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center mx-auto text-[10px] font-bold ${
+                                o.tracking.step >= 3 ? "bg-sage-green text-white" : "bg-soft-beige text-on-surface-variant/40"
+                              }`}>
+                                {o.tracking.step > 3 ? <Check size={10} /> : "3"}
+                              </div>
+                              <span className={`text-[9px] font-bold uppercase tracking-wider block ${o.tracking.step >= 3 ? "text-primary" : "text-on-surface-variant/40"}`}>
+                                Shipped
+                              </span>
+                            </div>
+
+                            <div className="text-center space-y-1">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center mx-auto text-[10px] font-bold ${
+                                o.tracking.step >= 4 ? "bg-sage-green text-white" : "bg-soft-beige text-on-surface-variant/40"
+                              }`}>
+                                {o.tracking.step > 4 ? <Check size={10} /> : "4"}
+                              </div>
+                              <span className={`text-[9px] font-bold uppercase tracking-wider block ${o.tracking.step >= 4 ? "text-primary" : "text-on-surface-variant/40"}`}>
+                                Delivered
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-
-                      {/* Items List */}
-                      <div className="space-y-4">
-                        {o.items.map((item, idx) => (
-                          <div key={idx} className="flex gap-4 items-center">
-                            <div className="h-14 w-14 rounded-lg bg-white border border-soft-beige/60 overflow-hidden shrink-0 flex items-center justify-center p-1">
-                              <img src={item.image} alt={item.name} className="h-full w-full object-cover rounded-md" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold text-primary">{item.name}</p>
-                              <p className="text-xs text-on-surface-variant font-medium mt-0.5">Quantity: {item.qty} | Price: ₹{item.price}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Tracking / Stepper */}
-                      <div className="bg-white/60 border border-soft-beige/50 rounded-xl p-4 space-y-4">
-                        <div className="flex justify-between items-center flex-wrap gap-2 text-xs">
-                          <p className="text-on-surface-variant font-medium">Carrier: <span className="font-bold text-primary">{o.tracking.carrier}</span></p>
-                          <p className="text-on-surface-variant font-medium">Tracking: <span className="font-bold text-primary font-mono">{o.tracking.number}</span></p>
-                        </div>
-
-                        {/* Visual Stepper */}
-                        <div className="grid grid-cols-4 gap-2 pt-2 relative">
-                          {/* Progress Line */}
-                          <div className="absolute top-[9px] left-[12%] right-[12%] h-[2px] bg-soft-beige -z-1" />
-                          <div 
-                            className="absolute top-[9px] left-[12%] h-[2px] bg-sage-green -z-1 transition-all duration-500" 
-                            style={{ width: `${(o.tracking.step - 1) * 25.33}%` }}
-                          />
-
-                          <div className="text-center space-y-1">
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center mx-auto text-[10px] font-bold ${
-                              o.tracking.step >= 1 ? "bg-sage-green text-white" : "bg-soft-beige text-on-surface-variant/40"
-                            }`}>
-                              {o.tracking.step > 1 ? <Check size={10} /> : "1"}
-                            </div>
-                            <span className={`text-[9px] font-bold uppercase tracking-wider block ${o.tracking.step >= 1 ? "text-primary" : "text-on-surface-variant/40"}`}>
-                              Confirmed
-                            </span>
-                          </div>
-
-                          <div className="text-center space-y-1">
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center mx-auto text-[10px] font-bold ${
-                              o.tracking.step >= 2 ? "bg-sage-green text-white" : "bg-soft-beige text-on-surface-variant/40"
-                            }`}>
-                              {o.tracking.step > 2 ? <Check size={10} /> : "2"}
-                            </div>
-                            <span className={`text-[9px] font-bold uppercase tracking-wider block ${o.tracking.step >= 2 ? "text-primary" : "text-on-surface-variant/40"}`}>
-                              Processed
-                            </span>
-                          </div>
-
-                          <div className="text-center space-y-1">
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center mx-auto text-[10px] font-bold ${
-                              o.tracking.step >= 3 ? "bg-sage-green text-white" : "bg-soft-beige text-on-surface-variant/40"
-                            }`}>
-                              {o.tracking.step > 3 ? <Check size={10} /> : "3"}
-                            </div>
-                            <span className={`text-[9px] font-bold uppercase tracking-wider block ${o.tracking.step >= 3 ? "text-primary" : "text-on-surface-variant/40"}`}>
-                              Shipped
-                            </span>
-                          </div>
-
-                          <div className="text-center space-y-1">
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center mx-auto text-[10px] font-bold ${
-                              o.tracking.step >= 4 ? "bg-sage-green text-white" : "bg-soft-beige text-on-surface-variant/40"
-                            }`}>
-                              {o.tracking.step > 4 ? <Check size={10} /> : "4"}
-                            </div>
-                            <span className={`text-[9px] font-bold uppercase tracking-wider block ${o.tracking.step >= 4 ? "text-primary" : "text-on-surface-variant/40"}`}>
-                              Delivered
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -552,29 +603,47 @@ export default function UserDashboard() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {MOCK_WISHLIST_PRODUCTS.map((p) => (
-                    <div key={p.slug} className="bg-white border border-soft-beige rounded-xl p-4 flex gap-4 items-center">
-                      <div className="h-16 w-16 bg-cream-bg border border-soft-beige rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
-                        <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                {isWishlistLoading ? (
+                  <div className="flex items-center justify-center gap-2 text-sage-green py-12">
+                    <Loader2 className="animate-spin" size={24} />
+                    <span className="text-sm font-semibold">Retrieving your wishlist...</span>
+                  </div>
+                ) : wishlist.length === 0 ? (
+                  <div className="text-center py-12 border border-dashed border-soft-beige rounded-xl bg-white/40 text-on-surface-variant/80">
+                    <Heart className="mx-auto text-on-surface-variant/30 mb-2" size={28} />
+                    <p className="text-sm italic">Your wishlist is empty.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {wishlist.map((p) => (
+                      <div key={p.slug} className="bg-white border border-soft-beige rounded-xl p-4 flex gap-4 items-center">
+                        <div className="h-16 w-16 bg-cream-bg border border-soft-beige rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                          <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                        </div>
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <h3 className="text-sm font-semibold text-primary truncate">{p.name}</h3>
+                          <p className="text-[11px] text-on-surface-variant/80 truncate leading-relaxed">{p.subtitle}</p>
+                          <p className="text-xs font-bold text-primary font-display">₹{p.price}</p>
+                        </div>
+                        <div className="flex flex-col gap-2 shrink-0">
+                          <Link 
+                            to="/shop/$slug" 
+                            params={{ slug: p.slug }}
+                            className="bg-primary text-white hover:bg-sage-green py-1.5 px-3 text-center text-[10px] font-bold uppercase tracking-wider rounded-md transition-colors"
+                          >
+                            View
+                          </Link>
+                          <button 
+                            onClick={() => handleRemoveFromWishlist(p.slug)}
+                            className="text-red-600 hover:text-red-700 text-[10px] font-bold uppercase tracking-wider text-center cursor-pointer transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex-1 space-y-1 min-w-0">
-                        <h3 className="text-sm font-semibold text-primary truncate">{p.name}</h3>
-                        <p className="text-[11px] text-on-surface-variant/80 truncate leading-relaxed">{p.subtitle}</p>
-                        <p className="text-xs font-bold text-primary font-display">₹{p.price}</p>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Link 
-                          to="/shop/$slug" 
-                          params={{ slug: p.slug }}
-                          className="bg-primary text-white hover:bg-sage-green p-2 text-center text-[10px] font-bold uppercase tracking-wider rounded-md transition-colors"
-                        >
-                          View
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

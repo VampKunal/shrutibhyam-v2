@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
-import { Quote, Star } from "lucide-react";
+import { Quote, Star, Heart } from "lucide-react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 import { useState, useMemo, useEffect } from "react";
 import { SHOP_TESTIMONIAL } from "@/constant";
+import { useAuth } from "@/context/AuthContext";
+import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/api/wishlist.functions";
 
 type ShopSearch = {
   search?: string;
@@ -35,11 +37,42 @@ export const Route = createFileRoute("/shop/")({
 function Shop() {
   const { products } = Route.useLoaderData();
   const searchParams = Route.useSearch();
+  const { user } = useAuth();
   
   const [selectedCategory, setSelectedCategory] = useState(searchParams.category || "All Products");
   const [priceLimit, setPriceLimit] = useState(5000);
   const [sortBy, setSortBy] = useState("Featured");
   const [currentPage, setCurrentPage] = useState(1);
+  const [wishlistSlugs, setWishlistSlugs] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      getWishlist({ data: user.id }).then(setWishlistSlugs).catch(console.error);
+    } else {
+      setWishlistSlugs([]);
+    }
+  }, [user]);
+
+  const handleToggleWishlist = async (e: React.MouseEvent, slug: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      alert("Please log in using the profile icon at the top right to manage your wishlist.");
+      return;
+    }
+    const isWishlisted = wishlistSlugs.includes(slug);
+    try {
+      if (isWishlisted) {
+        await removeFromWishlist({ data: { userId: user.id, productSlug: slug } });
+        setWishlistSlugs(prev => prev.filter(s => s !== slug));
+      } else {
+        await addToWishlist({ data: { userId: user.id, productSlug: slug } });
+        setWishlistSlugs(prev => [...prev, slug]);
+      }
+    } catch (err) {
+      console.error("Error toggling wishlist:", err);
+    }
+  };
 
   useEffect(() => {
     if (searchParams.category) {
@@ -219,6 +252,16 @@ function Shop() {
                   <div className="aspect-square relative overflow-hidden bg-surface-container-low">
                     <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     {idx === 0 && <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider px-2 py-1">New</span>}
+                    <button
+                      onClick={(e) => handleToggleWishlist(e, p.slug)}
+                      className="absolute top-3 right-3 bg-white/80 hover:bg-white p-2 rounded-full shadow-sm text-primary hover:text-sage-green transition-colors cursor-pointer z-10 flex items-center justify-center"
+                      aria-label="Toggle Wishlist"
+                    >
+                      <Heart 
+                        size={16} 
+                        className={wishlistSlugs.includes(p.slug) ? "fill-red-500 text-red-500" : "text-primary hover:text-sage-green"} 
+                      />
+                    </button>
                   </div>
                   <div className="p-5">
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-sage-green">{p.tag}</span>

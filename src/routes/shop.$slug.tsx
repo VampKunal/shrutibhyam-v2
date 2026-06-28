@@ -1,13 +1,14 @@
 import { createFileRoute, notFound, Link, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SiteLayout } from "@/components/site/Layout";
-import { Minus, Plus, ChevronDown, Star, StarHalf, Edit3, Trash2, Loader2, MessageSquare, Check, X } from "lucide-react";
+import { Minus, Plus, ChevronDown, Star, StarHalf, Edit3, Trash2, Loader2, MessageSquare, Check, X, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { getWooProductBySlug, getWooProducts } from "@/lib/api/woocommerce.functions";
 import { PRODUCT_DETAILS, DEFAULT_ACCORDIONS, PURITY } from "@/constant";
 import { getComments, addComment, updateComment, deleteComment } from "@/lib/api/comments.functions";
 import { useAuth } from "@/context/AuthContext";
 import { parseProductDescription } from "@/lib/woocommerce";
+import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/api/wishlist.functions";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
@@ -45,8 +46,41 @@ export const Route = createFileRoute("/shop/$slug")({
 function Product() {
   const { product, similarProducts, comments } = Route.useLoaderData();
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState<string | null>("Ingredients");
+  const [isInWishlist, setIsInWishlist] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      getWishlist({ data: user.id })
+        .then((slugs) => {
+          setIsInWishlist(slugs.includes(product.slug));
+        })
+        .catch(console.error);
+    } else {
+      setIsInWishlist(false);
+    }
+  }, [user, product.slug]);
+
+  const handleToggleWishlist = async () => {
+    if (!user) {
+      alert("Please log in using the profile icon at the top right to manage your wishlist.");
+      return;
+    }
+    try {
+      if (isInWishlist) {
+        await removeFromWishlist({ data: { userId: user.id, productSlug: product.slug } });
+        setIsInWishlist(false);
+      } else {
+        await addToWishlist({ data: { userId: user.id, productSlug: product.slug } });
+        setIsInWishlist(true);
+      }
+    } catch (err) {
+      console.error("Error toggling wishlist:", err);
+    }
+  };
 
   const handleAddToCart = () => {
     addToCart(product, qty);
@@ -103,9 +137,16 @@ function Product() {
               </div>
               <button 
                 onClick={handleAddToCart}
-                className="flex-1 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors"
+                className="flex-1 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors cursor-pointer"
               >
                 Add to Cart
+              </button>
+              <button
+                onClick={handleToggleWishlist}
+                className="p-4 border border-primary hover:bg-soft-beige transition-colors flex items-center justify-center shrink-0 cursor-pointer"
+                aria-label="Toggle Wishlist"
+              >
+                <Heart size={18} className={isInWishlist ? "fill-red-500 text-red-500" : "text-primary"} />
               </button>
             </div>
             <div className="border-t border-soft-beige pt-4">
