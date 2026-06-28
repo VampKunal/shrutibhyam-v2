@@ -40,7 +40,7 @@ type ActiveTab = "profile" | "orders" | "wishlist" | "comments";
 
 export default function UserDashboard() {
   const { tab } = Route.useSearch();
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading, refreshUser } = useAuth();
   const router = useRouter();
   const { addToCart } = useCart();
 
@@ -219,6 +219,7 @@ export default function UserDashboard() {
           address,
         }
       });
+      await refreshUser();
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
     } catch (err) {

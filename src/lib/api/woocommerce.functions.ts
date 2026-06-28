@@ -5,7 +5,7 @@ import process from "node:process";
 import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
 
 // Safe helper to run fetch requests to WooCommerce REST API on the server
-async function fetchWooCommerce(endpoint: string, method: "GET" | "POST" | "PUT" | "DELETE" = "GET", body?: any) {
+export async function fetchWooCommerce(endpoint: string, method: "GET" | "POST" | "PUT" | "DELETE" = "GET", body?: any) {
   const siteUrl = process.env.WOOCOMMERCE_URL || WOOCOMMERCE_DEFAULT_URL;
   const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY || "";
   const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET || "";
@@ -125,6 +125,25 @@ export const updateCustomerProfile = createServerFn({ method: "POST" })
           address_1: address,
         }
       });
+
+      // Update WordPress user profile (name, display name)
+      const { getCookie } = await import("@tanstack/react-start/server");
+      const token = getCookie("wp_jwt_token");
+      if (token) {
+        const siteUrl = process.env.WOOCOMMERCE_URL || WOOCOMMERCE_DEFAULT_URL;
+        await fetch(`${siteUrl.replace(/\/$/, "")}/wp-json/wp/v2/users/me`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: displayName,
+            first_name,
+            last_name,
+          }),
+        });
+      }
 
       return { success: true };
     } catch (error) {

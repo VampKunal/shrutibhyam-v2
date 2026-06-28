@@ -1,76 +1,72 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import process from "node:process";
+import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
 
-export interface WishlistItem {
-  userId: number;
-  productSlug: string;
+/**
+ * Helper to call custom WordPress Wishlist REST API.
+ */
+async function fetchWordPressWishlist(endpoint: string, method: "GET" | "POST" = "GET", body?: any) {
+  const siteUrl = process.env.WOOCOMMERCE_URL || WOOCOMMERCE_DEFAULT_URL;
+  const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY || "";
+  const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET || "";
+
+  const separator = endpoint.includes("?") ? "&" : "?";
+  const url = `${siteUrl.replace(/\/$/, "")}/wp-json/wishlist/v1/${endpoint}${separator}consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    let errorMsg = `WordPress Wishlist API Error: ${response.status}`;
+    try {
+      const errorJson = await response.json();
+      if (errorJson.message) errorMsg = errorJson.message;
+    } catch {}
+    throw new Error(errorMsg);
+  }
+
+  return response.json();
 }
 
-const DB_PATH = path.join(process.cwd(), "src", "lib", "api", "wishlist-db.json");
-
-// Seed wishlist with a default item so it's populated on start
-const DEFAULT_WISHLIST: WishlistItem[] = [
-  {
-    userId: 2,
-    productSlug: "shrutibhyam-french-clay-handmade-soap",
-  }
-];
-
-export async function readWishlist(): Promise<WishlistItem[]> {
+/**
+ * Server Function: Retrieve list of wishlisted product slugs for a user from WordPress meta.
+ */
+export async function serverGetWishlist(userId: number): Promise<string[]> {
   try {
-    await fs.mkdir(path.dirname(DB_PATH), { recursive: true });
-    try {
-      const fileData = await fs.readFile(DB_PATH, "utf-8");
-      return JSON.parse(fileData) as WishlistItem[];
-    } catch (error: any) {
-      if (error.code === "ENOENT") {
-        await fs.writeFile(DB_PATH, JSON.stringify(DEFAULT_WISHLIST, null, 2), "utf-8");
-        return DEFAULT_WISHLIST;
-      }
-      throw error;
-    }
+    const data = await fetchWordPressWishlist(`get?userId=${userId}`);
+    return Array.isArray(data) ? data : [];
   } catch (error) {
-    console.error("Error reading wishlist database:", error);
+    console.error(`Error in serverGetWishlist for user ${userId}:`, error);
     return [];
   }
 }
 
-export async function writeWishlist(wishlist: WishlistItem[]): Promise<boolean> {
+/**
+ * Server Function: Add a product slug to user's wishlist in WordPress meta.
+ */
+export async function serverAddToWishlist(userId: number, productSlug: string): Promise<boolean> {
   try {
-    await fs.mkdir(path.dirname(DB_PATH), { recursive: true });
-    await fs.writeFile(DB_PATH, JSON.stringify(wishlist, null, 2), "utf-8");
+    await fetchWordPressWishlist("add", "POST", { userId, productSlug });
     return true;
   } catch (error) {
-    console.error("Error writing to wishlist database:", error);
+    console.error(`Error adding to wishlist for user ${userId}:`, error);
     return false;
   }
 }
 
-export async function serverGetWishlist(userId: number): Promise<string[]> {
-  const allItems = await readWishlist();
-  return allItems
-    .filter((item) => item.userId === userId)
-    .map((item) => item.productSlug);
-}
-
-export async function serverAddToWishlist(userId: number, productSlug: string): Promise<boolean> {
-  const allItems = await readWishlist();
-  const exists = allItems.some(
-    (item) => item.userId === userId && item.productSlug === productSlug
-  );
-  if (!exists) {
-    allItems.push({ userId, productSlug });
-    await writeWishlist(allItems);
-  }
-  return true;
-}
-
+/**
+ * Server Function: Remove a product slug from user's wishlist in WordPress meta.
+ */
 export async function serverRemoveFromWishlist(userId: number, productSlug: string): Promise<boolean> {
-  const allItems = await readWishlist();
-  const filtered = allItems.filter(
-    (item) => !(item.userId === userId && item.productSlug === productSlug)
-  );
-  await writeWishlist(filtered);
-  return true;
+  try {
+    await fetchWordPressWishlist("remove", "POST", { userId, productSlug });
+    return true;
+  } catch (error) {
+    console.error(`Error removing from wishlist for user ${userId}:`, error);
+    return false;
+  }
 }

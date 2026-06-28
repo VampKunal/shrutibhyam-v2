@@ -459,7 +459,7 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
             ) : (
               <div className="space-y-4 animate-fade-in">
                 {comments.map((c) => {
-                  const isAuthor = user && user.id === c.userId;
+                  const isAuthor = user && (user.id === c.userId || user.email === c.userEmail);
                   const isEditing = editingId === c.id;
 
                   return (

@@ -1,6 +1,6 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import process from "node:process";
+import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
+import { fetchWooCommerce } from "./woocommerce.functions";
 
 export interface CommentItem {
   id: string;
@@ -13,129 +13,102 @@ export interface CommentItem {
   date: string;
 }
 
-const DB_PATH = path.join(process.cwd(), "src", "lib", "api", "comments-db.json");
-
-// Default initial seed data for comments to ensure the UI starts beautifully populated.
-const DEFAULT_COMMENTS: CommentItem[] = [
-  // Haldi Soap
-  {
-    id: "seed_1",
-    productSlug: "shrutibhyam-haldi-handmade-soap",
-    userId: 101,
-    userName: "Elena R.",
-    userEmail: "elena.r@example.com",
-    rating: 5,
-    comment: "The earthy sandalwood and turmeric scent is incredibly grounding. It doesn't strip my skin like commercial soaps do.",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days ago
-  },
-  {
-    id: "seed_2",
-    productSlug: "shrutibhyam-haldi-handmade-soap",
-    userId: 102,
-    userName: "Marcus T.",
-    userEmail: "marcus.t@example.com",
-    rating: 5,
-    comment: "Has been a lifesaver for my sensitive skin. Lathers beautifully and leaves my skin deeply nourished.",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(), // 12 days ago
-  },
-  // Neem Soap
-  {
-    id: "seed_3",
-    productSlug: "shrutibhyam-neem-handmade-soap",
-    userId: 103,
-    userName: "Sarah L.",
-    userEmail: "sarah.l@example.com",
-    rating: 4,
-    comment: "Beautiful packaging and even better product. You can feel the cold-pressed neem quality working on blemishes.",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), // 3 days ago
-  },
-  {
-    id: "seed_4",
-    productSlug: "shrutibhyam-neem-handmade-soap",
-    userId: 104,
-    userName: "Aditya P.",
-    userEmail: "aditya.p@example.com",
-    rating: 5,
-    comment: "The tea tree and neem combo is amazing for oily skin. Reduced my breakouts within a week!",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString(), // 8 days ago
-  },
-  // Lavender Soap
-  {
-    id: "seed_5",
-    productSlug: "shrutibhyam-lavender-handmade-soap",
-    userId: 105,
-    userName: "Jessica M.",
-    userEmail: "jessica.m@example.com",
-    rating: 5,
-    comment: "Stunning calming lavender aroma! Perfect for an evening bath ritual to wind down after a long day.",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
-  },
-  // French Clay Soap
-  {
-    id: "seed_6",
-    productSlug: "shrutibhyam-french-clay-handmade-soap",
-    userId: 106,
-    userName: "Rohit K.",
-    userEmail: "rohit.k@example.com",
-    rating: 4.5,
-    comment: "Excellent detoxifying scrub. The rosewater fragrance is delicate, and it exfoliates very gently.",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString(), // 15 days ago
-  }
-];
-
 /**
- * Reads comments from the JSON database.
- * Seeds with default reviews if the file doesn't exist yet.
+ * Maps a WooCommerce review response to the frontend's CommentItem.
  */
-export async function readComments(): Promise<CommentItem[]> {
-  try {
-    await fs.mkdir(path.dirname(DB_PATH), { recursive: true });
-    
-    try {
-      const fileData = await fs.readFile(DB_PATH, "utf-8");
-      return JSON.parse(fileData) as CommentItem[];
-    } catch (error: any) {
-      // File doesn't exist or is invalid, seed defaults
-      if (error.code === "ENOENT") {
-        await fs.writeFile(DB_PATH, JSON.stringify(DEFAULT_COMMENTS, null, 2), "utf-8");
-        return DEFAULT_COMMENTS;
-      }
-      throw error;
-    }
-  } catch (error) {
-    console.error("Error reading comments database:", error);
-    return [];
-  }
+function mapReview(r: any, productSlug: string): CommentItem {
+  return {
+    id: String(r.id),
+    productSlug: productSlug,
+    userId: Number(r.customer_id) || 0,
+    userName: r.reviewer || "Anonymous",
+    userEmail: r.reviewer_email || "",
+    rating: r.rating || 5,
+    comment: r.review ? r.review.replace(/<[^>]*>/g, "").trim() : "",
+    date: r.date_created_gmt ? new Date(r.date_created_gmt + "Z").toISOString() : new Date().toISOString(),
+  };
 }
 
 /**
- * Writes comments back to the JSON database.
+ * Get product WooCommerce ID by slug.
  */
-export async function writeComments(comments: CommentItem[]): Promise<boolean> {
+async function getWooIdBySlug(slug: string): Promise<number | null> {
+  const staticMap: Record<string, number> = {
+    "shrutibhyam-neem-handmade-soap": 40,
+    "shrutibhyam-haldi-handmade-soap": 36,
+    "shrutibhyam-lavender-handmade-soap": 32,
+    "shrutibhyam-french-clay-handmade-soap": 24,
+  };
+  if (staticMap[slug]) return staticMap[slug];
+
   try {
-    await fs.mkdir(path.dirname(DB_PATH), { recursive: true });
-    await fs.writeFile(DB_PATH, JSON.stringify(comments, null, 2), "utf-8");
-    return true;
+    const data = await fetchWooCommerce(`products?slug=${encodeURIComponent(slug)}`);
+    if (Array.isArray(data) && data.length > 0) {
+      return data[0].id;
+    }
   } catch (error) {
-    console.error("Error writing to comments database:", error);
-    return false;
+    console.error("Error looking up wooId by slug:", error);
   }
+  return null;
+}
+
+/**
+ * Get product slug by WooCommerce ID.
+ */
+async function getSlugByWooId(wooId: number): Promise<string> {
+  const reverseStaticMap: Record<number, string> = {
+    40: "shrutibhyam-neem-handmade-soap",
+    36: "shrutibhyam-haldi-handmade-soap",
+    32: "shrutibhyam-lavender-handmade-soap",
+    24: "shrutibhyam-french-clay-handmade-soap",
+  };
+  if (reverseStaticMap[wooId]) return reverseStaticMap[wooId];
+
+  try {
+    const data = await fetchWooCommerce(`products/${wooId}`);
+    return data.slug || "";
+  } catch (error) {
+    console.error(`Error looking up slug for wooId ${wooId}:`, error);
+  }
+  return "";
 }
 
 /**
  * Get comments for a specific product.
  */
 export async function serverGetComments(productSlug: string): Promise<CommentItem[]> {
-  const allComments = await readComments();
-  return allComments.filter((c) => c.productSlug === productSlug);
+  const wooId = await getWooIdBySlug(productSlug);
+  if (!wooId) return [];
+
+  try {
+    const reviews = await fetchWooCommerce(`products/reviews?product=${wooId}`);
+    if (Array.isArray(reviews)) {
+      return reviews.map((r) => mapReview(r, productSlug));
+    }
+  } catch (error) {
+    console.error(`Error fetching reviews for slug ${productSlug}:`, error);
+  }
+  return [];
 }
 
 /**
  * Get all comments posted by a specific user.
  */
 export async function serverGetCommentsByUser(userId: number): Promise<CommentItem[]> {
-  const allComments = await readComments();
-  return allComments.filter((c) => c.userId === userId);
+  try {
+    const reviews = await fetchWooCommerce(`products/reviews?customer=${userId}`);
+    if (Array.isArray(reviews)) {
+      const mapped: CommentItem[] = [];
+      for (const r of reviews) {
+        const productSlug = await getSlugByWooId(r.product_id);
+        mapped.push(mapReview(r, productSlug));
+      }
+      return mapped;
+    }
+  } catch (error) {
+    console.error(`Error fetching reviews for user ${userId}:`, error);
+  }
+  return [];
 }
 
 /**
@@ -147,29 +120,29 @@ export async function serverAddComment(
   rating: number,
   commentText: string
 ): Promise<CommentItem> {
-  const allComments = await readComments();
-  
-  const hasAlreadyReviewed = allComments.some(
-    (c) => c.productSlug === productSlug && c.userId === user.id
+  const wooId = await getWooIdBySlug(productSlug);
+  if (!wooId) throw new Error("Product not found");
+
+  // Check for duplicates
+  const existingReviews = await fetchWooCommerce(
+    `products/reviews?product=${wooId}&reviewer_email=${encodeURIComponent(user.email)}`
   );
-  if (hasAlreadyReviewed) {
+  if (Array.isArray(existingReviews) && existingReviews.length > 0) {
     throw new Error("You have already reviewed this product.");
   }
-  
-  const newComment: CommentItem = {
-    id: `comment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    productSlug,
-    userId: user.id,
-    userName: user.displayName || user.email.split("@")[0],
-    userEmail: user.email,
-    rating,
-    comment: commentText,
-    date: new Date().toISOString(),
+
+  const reviewData = {
+    product_id: wooId,
+    review: commentText,
+    reviewer: user.displayName || user.email.split("@")[0],
+    reviewer_email: user.email,
+    rating: rating,
+    status: "approved",
+    customer_id: user.id
   };
 
-  allComments.push(newComment);
-  await writeComments(allComments);
-  return newComment;
+  const newReview = await fetchWooCommerce("products/reviews", "POST", reviewData);
+  return mapReview(newReview, productSlug);
 }
 
 /**
@@ -181,45 +154,39 @@ export async function serverUpdateComment(
   rating: number,
   commentText: string
 ): Promise<CommentItem | null> {
-  const allComments = await readComments();
-  const index = allComments.findIndex((c) => c.id === commentId);
-  
-  if (index === -1) {
+  const review = await fetchWooCommerce(`products/reviews/${commentId}`);
+  if (!review) {
     throw new Error("Review not found");
   }
 
-  const comment = allComments[index];
-  
-  if (comment.userId !== userId) {
+  // Ensure user is the author
+  if (Number(review.customer_id) !== userId) {
     throw new Error("You are not authorized to update this review");
   }
 
-  comment.rating = rating;
-  comment.comment = commentText;
-  comment.date = new Date().toISOString(); // Update date to show edited time
+  const updatedReview = await fetchWooCommerce(`products/reviews/${commentId}`, "PUT", {
+    review: commentText,
+    rating: rating,
+  });
 
-  allComments[index] = comment;
-  await writeComments(allComments);
-  return comment;
+  const productSlug = await getSlugByWooId(updatedReview.product_id);
+  return mapReview(updatedReview, productSlug);
 }
 
 /**
  * Delete a comment (author validation required).
  */
 export async function serverDeleteComment(commentId: string, userId: number): Promise<boolean> {
-  const allComments = await readComments();
-  const comment = allComments.find((c) => c.id === commentId);
-
-  if (!comment) {
+  const review = await fetchWooCommerce(`products/reviews/${commentId}`);
+  if (!review) {
     throw new Error("Review not found");
   }
 
   // Ensure user is the author
-  if (comment.userId !== userId) {
+  if (Number(review.customer_id) !== userId) {
     throw new Error("You are not authorized to delete this review");
   }
 
-  const filtered = allComments.filter((c) => c.id !== commentId);
-  await writeComments(filtered);
+  await fetchWooCommerce(`products/reviews/${commentId}?force=true`, "DELETE");
   return true;
 }
