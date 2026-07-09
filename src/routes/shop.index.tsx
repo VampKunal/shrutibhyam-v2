@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
-import { Quote, Star, Heart } from "lucide-react";
+import { Quote, Star, Heart, Loader2 } from "lucide-react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -43,6 +43,9 @@ function Shop() {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const { selectedCategory, priceLimit, sortBy, currentPage } = useAppSelector((state) => state.shop);
+
+  const routerState = useRouterState();
+  const pendingPath = routerState.status === "pending" ? routerState.pendingLocation?.pathname : null;
 
   // Fetch from React Query (stale-while-revalidate), already prefetched in root!
   const { data: products = [] } = useQuery({
@@ -257,11 +260,18 @@ function Shop() {
  </div>
  ) : (
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
- {paginatedProducts.map((p, idx) => (
- <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group bg-cream-bg border border-soft-beige rounded overflow-hidden hover:shadow-sm transition">
- <div className="aspect-square relative overflow-hidden bg-surface-container-low">
- <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
- {idx === 0 && <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider px-2 py-1">New</span>}
+  {paginatedProducts.map((p, idx) => {
+    const isNavigating = pendingPath === `/shop/${p.slug}`;
+    return (
+      <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group bg-cream-bg border border-soft-beige rounded overflow-hidden hover:shadow-sm transition relative block">
+        <div className="aspect-square relative overflow-hidden bg-surface-container-low">
+          {isNavigating && (
+            <div className="absolute inset-0 z-20 bg-white/40 backdrop-blur-[2px] flex items-center justify-center transition-all">
+              <Loader2 className="animate-spin text-sage-green" size={32} />
+            </div>
+          )}
+          <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          {idx === 0 && <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider px-2 py-1 z-10">New</span>}
  <button
  onClick={(e) => handleToggleWishlist(e, p.slug)}
  className="absolute top-3 right-3 bg-white/80 hover:bg-white p-2 rounded-full shadow-sm text-primary hover:text-sage-green transition-colors cursor-pointer z-10 flex items-center justify-center"
@@ -288,8 +298,9 @@ function Shop() {
  )}
  </div>
  </div>
- </Link>
- ))}
+        </Link>
+      );
+    })}
  </div>
  )}
 
