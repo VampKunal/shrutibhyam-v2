@@ -7,12 +7,16 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
-import Lenis from "@studio-freight/lenis";
+import { type ReactNode } from "react";
 import { CartProvider } from "@/context/CartContext";
+import { ScrollProvider } from "@/context/ScrollContext";
 import { CartDrawer } from "@/components/site/CartDrawer";
 import { AuthProvider } from "@/context/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Provider } from "react-redux";
+import { store } from "@/store";
+import { useEffect } from "react";
+import { getWooProducts } from "@/lib/api/woocommerce.functions";
 
 import appCss from "../styles.css?url";
 
@@ -120,39 +124,32 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      gestureOrientation: "vertical",
-      smoothWheel: true,
-      touchMultiplier: 2,
-    });
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    return () => lenis.destroy();
-  }, []);
-
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
+  useEffect(() => {
+    // Background prefetching of products when visiting the site
+    queryClient.prefetchQuery({
+      queryKey: ["products"],
+      queryFn: () => getWooProducts(),
+      staleTime: 1000 * 60 * 10, // 10 minutes stale time for aggressive caching
+    }).catch(console.error);
+  }, [queryClient]);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <GoogleOAuthProvider clientId={googleClientId}>
-        <AuthProvider>
-          <CartProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-            <CartDrawer />
-          </CartProvider>
-        </AuthProvider>
-      </GoogleOAuthProvider>
-    </QueryClientProvider>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <GoogleOAuthProvider clientId={googleClientId}>
+          <AuthProvider>
+            <CartProvider>
+              <ScrollProvider>
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+                <CartDrawer />
+              </ScrollProvider>
+            </CartProvider>
+          </AuthProvider>
+        </GoogleOAuthProvider>
+      </QueryClientProvider>
+    </Provider>
   );
 }

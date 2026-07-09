@@ -15,12 +15,12 @@ export const WOOCOMMERCE_DEFAULT_URL = "https://your-woocommerce-store.com";
 
 // Shared Contact details
 export const CONTACT_INFO = {
-  name: "Shrutibhyam Wellness Center",
-  address: "108 Ayurvedic Lane, Rishikesh, Uttarakhand 249201, India",
-  addressShort: "108 Ayurvedic Lane, Rishikesh, India",
+  name: "Shrutibhyam Wellness",
+  address: "Godrej Aria, Tower D, Gurugram, Haryana, India",
+  addressShort: "Godrej Aria, Gurugram, Haryana",
   email: "customercare@shrutibhyam.com",
-  phone: "+91 98765 43210 — Mon-Fri, 9am – 5pm IST",
-  instagram: "https://www.instagram.com/shrutibhyam?igsh=bmJ0dm8xZXY3cjUx&utm_source=qr",
+  phone: "DM us on Instagram or email us for the quickest response",
+  instagram: "https://www.instagram.com/shrutibhyamyog/",
   facebook: "https://www.facebook.com/people/Shrutibhyam/61590584156475/",
   linkedin: "https://www.linkedin.com/company/110937120",
 };
@@ -47,10 +47,10 @@ export const PRODUCTS = [
 
 // Home page trust indicators
 export const TRUST = [
-  { icon: Leaf, label: "Vegan" },
-  { icon: Hand, label: "Handcrafted" },
-  { icon: Recycle, label: "Sustainable" },
-  { icon: Droplets, label: "100% Non-Toxic" },
+  { icon: Leaf, label: "AYUSH-Certified Instruction" },
+  { icon: Hand, label: "Handcrafted in Gurugram" },
+  { icon: Recycle, label: "Small Honest Batches" },
+  { icon: Droplets, label: "Cold-Process Skincare" },
 ];
 
 // Marquee terms
@@ -84,36 +84,34 @@ export const FAQ = [
 // Upcoming Events and Retreats
 export const EVENTS = [
   { date: "Oct 15, 2024", name: "Wellness Retreat @ Capgemini", desc: "A day of mindfulness, Ayurvedic practices, and deep relaxation designed for corporate wellness.", location: "Capgemini Campus, Pune" },
-  { date: "Nov 02, 2024", name: "Holistic Living Workshop @ DLF", desc: "Explore cold-processed beauty, mindful nutrition, and grounding techniques for everyday life.", location: "DLF Cyber City, Gurugram" },
-  { date: "Dec 10, 2024", name: "Mindful Flow @ Signature Global", desc: "A guided yoga and somatic movement session focusing on breathwork and emotional release.", location: "Signature Global Park, NCR" },
+  { date: "Nov 02, 2024", name: "Holistic Living Workshop @ DLF", desc: "Explore cold-process beauty, mindful nutrition, and grounding techniques for everyday life.", location: "DLF Cyber City, Gurugram" },
+  { date: "Dec 10, 2024", name: "Mindful Flow @ Signature Global", desc: "A guided yoga and somatic movement session focused on breathwork and emotional release.", location: "Signature Global Park, NCR" },
 ];
 
 // Yoga practices
 export const PRACTICES = [
-  { tag: "Grounding", name: "Hatha Earth", desc: "Static postures, deep breathing, and mindful alignment. Build stability and reconnect with the earth's rhythm." },
-  { tag: "Fluidity", name: "Vinyasa Flow", desc: "A dynamic sequence syncing breath with movement. Builds heat, cultivates flexibility, and clears the mind." },
-  { tag: "Restorative", name: "Yin & Restore", desc: "Long-held postures held in stillness. A meditative practice for deep tissue release and nervous system calm." },
+  { tag: "Grounding", name: "Hatha Yoga", desc: "Static postures, deep breathing, and mindful alignment. Build stability while returning to breath and stillness." },
+  { tag: "Discipline", name: "Ashtanga Yoga", desc: "A structured, breath-linked sequence for strength, focus, and steady inner rhythm." },
+  { tag: "Supported", name: "Prop-Based Practice", desc: "Bolsters, blocks, and straps support accessible, sustainable alignment for every level." },
+  { tag: "Stillness", name: "Sound Healing Yoga", desc: "Movement paired with immersive sound in collaboration with Arahat Sound Dwellness." },
 ];
 
 // Yoga schedule
 export const SCHEDULE = [
-  { time: "07:00", period: "AM", name: "Morning Vinyasa", duration: "60 Min", teacher: "Elena Woods", state: "open" },
-  { time: "12:30", period: "PM", name: "Midday Hatha Restore", duration: "45 Min", teacher: "Marcus Lin", state: "open" },
-  { time: "18:00", period: "PM", name: "Sunset Yin Yoga", duration: "75 Min", teacher: "Sarah Jenkins", state: "waitlist" },
+  { time: "07:00", period: "AM", name: "Morning Hatha Yoga", duration: "60 Min", teacher: "AYUSH-certified instructor", state: "open" },
+  { time: "12:30", period: "PM", name: "Prop-Based Practice", duration: "45 Min", teacher: "AYUSH-certified instructor", state: "open" },
+  { time: "18:00", period: "PM", name: "Sound Healing Yoga", duration: "75 Min", teacher: "With Arahat Sound Dwellness", state: "waitlist" },
 ];
 
 // Testimonials configurations
 export const HOME_TESTIMONIALS = [
-  { quote: "The purity of these products is unmatched. Integrating them into my daily routine feels less like skincare and more like a grounding ritual.", name: "Akratu", role: "Verified Buyer" },
-  { quote: "Morning yoga sessions have transformed my week. The environment is serene and the instructors are deeply rooted in tradition.", name: "Abhinav", role: "Studio Member" },
-  { quote: "The Bhringraj hair oil changed my hair care entirely. Smells so natural and feels so pure.", name: "Priya M.", role: "Repeat Customer" },
-  { quote: "Their workshops are enlightening. Connecting with my roots while taking care of my body.", name: "Rishabh", role: "Retreat Guest" },
+  { quote: "We're a young, growing brand - every bar is still made by hand, in small batches, by us. Your feedback shapes what we make next.", name: "Team Shrutibhyam", role: "Founder-led brand" },
+  { quote: "Every class is kept personal and grounded in breath, alignment, and traditional practice.", name: "Shrutibhyam Yoga", role: "AYUSH-certified instruction" },
+  { quote: "Sound healing sessions are designed as a quiet pause for the nervous system, created with Arahat Sound Dwellness.", name: "Shrutibhyam", role: "Sound healing" },
 ];
 
 export const YOGA_TESTIMONIALS = [
-  { q: "It's not just a workout; it's a profound grounding experience. The integration of Ayurvedic wisdom makes every breath feel intentional.", name: "Amanda T.", role: "Hatha Regular" },
-  { q: "Elena's Vinyasa classes flow like water, leaving me feeling cleansed and thoroughly revitalized.", name: "Julian R.", role: "Vinyasa Practitioner" },
-  { q: "A true sanctuary in the city. The Yin classes have been transformative for my sleep.", name: "Claire M.", role: "Yin Enthusiast" },
+  { q: "Every session is small, personal, and taught with real Ayurvedic grounding - not a studio franchise script. Come as you are.", name: "Shrutibhyam", role: "Founder voice" },
 ];
 
 export const EVENT_TESTIMONIALS = [
@@ -123,15 +121,13 @@ export const EVENT_TESTIMONIALS = [
 ];
 
 export const SHOP_TESTIMONIAL = {
-  quote: "Switching to Shrutibhyam's cold-pressed soaps has completely transformed my daily ritual. My skin has never felt so pure and balanced.",
-  author: "Elena M.",
-  role: "Verified Buyer"
+  quote: "We're a young, growing brand - every bar is still made by hand, in small batches, by us. Your feedback shapes what we make next.",
+  author: "Team Shrutibhyam",
+  role: "Founder-led brand"
 };
 
 export const SHOP_REVIEWS = [
-  { stars: 5, q: "The earthy scent is incredibly grounding. It doesn't strip my skin like commercial soaps do.", name: "Elena R." },
-  { stars: 5, q: "Has been a lifesaver for my sensitive skin. Lathers beautifully and leaves my skin nourished.", name: "Marcus T." },
-  { stars: 4.5, q: "Beautiful packaging and an even better product. You can feel the artisanal quality.", name: "Sarah L." },
+  { stars: 5, q: "Small-batch, handmade, and still shaped by real customer feedback.", name: "Team Shrutibhyam" },
 ];
 
 const testimonialModules = import.meta.glob(
@@ -153,39 +149,39 @@ export interface DetailContent {
 
 export const PRODUCT_DETAILS: Record<string, DetailContent> = {
   "shrutibhyam-haldi-handmade-soap": {
-    description: "Rooted in ancient Ayurvedic wisdom, this cold-processed bar is enriched with wild turmeric and raw shea butter. It gently purifies, brightens, and restores your skin's natural glow.",
+    description: "Rooted in ancient Ayurvedic wisdom, this cold-process bar is enriched with turmeric, cold-pressed oils, vitamin E, and pure essential oils. It gently cleanses while preserving natural glycerin for lasting moisture.",
     purityTags: ["Cold-Pressed", "Vegan"],
     accordions: [
-      { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Unrefined Shea Butter; Organic Haldi (Turmeric) Root Extract; Essential Oils of Sandalwood, Vetiver, and Sweet Orange. Free from synthetic fragrances, dyes, and palm oil." },
-      { title: "Benefits", body: "Wild Turmeric calms redness and promotes even skin tone. Raw Shea Butter deeply moisturizes without clogging pores. Sandalwood and Vetiver provide a grounding, earthy aromatherapy." },
-      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+      { title: "Ingredients", body: "Cold-pressed coconut, olive, almond, castor, and neem oils; vitamin E; turmeric; pure essential oils. Free from synthetic fragrance and synthetic colour." },
+      { title: "Benefits", body: "A brightening everyday cleanse with gentle moisture from naturally formed glycerin." },
+      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
     ]
   },
   "shrutibhyam-neem-handmade-soap": {
-    description: "Handcrafted with pure cold-pressed neem oil, tea tree essential oil, and rich mango butter to soothe, purify, and protect your skin while restoring balance.",
+    description: "Handcrafted with cold-pressed neem and nourishing plant oils, this cold-process bar supports a clean, balanced skin ritual without harsh synthetic additives.",
     purityTags: ["Cold-Pressed", "Purifying"],
     accordions: [
-      { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Mango Butter; Pure Cold-Pressed Neem Oil; Essential Oils of Tea Tree and Lavender; Vitamin E. Free from synthetic fragrances, paraben, and palm oil." },
-      { title: "Benefits", body: "Neem oil and tea tree essential oil support clear, healthy skin and soothe irritation. Mango butter provides deep hydration, while lavender essential oil calms and balances." },
-      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+      { title: "Ingredients", body: "Cold-pressed coconut, olive, almond, castor, and neem oils; vitamin E; pure essential oils. Free from synthetic fragrance and synthetic colour." },
+      { title: "Benefits", body: "Neem supports a purifying cleanse while cold-process soap keeps naturally formed glycerin intact." },
+      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
     ]
   },
   "shrutibhyam-lavender-handmade-soap": {
-    description: "Infused with organic French lavender buds and pure lavender and chamomile essential oils to soothe the skin, calm the senses, and ease the mind.",
+    description: "A calming cold-process soap crafted with cold-pressed oils, vitamin E, and pure lavender-forward essential oils for a soft, grounded daily ritual.",
     purityTags: ["Cold-Pressed", "Calming"],
     accordions: [
-      { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Cocoa Butter; Organic French Lavender Buds; Pure Lavender and Chamomile Essential Oils. Free from synthetic fragrances, dyes, and paraben." },
-      { title: "Benefits", body: "Lavender and chamomile provide deep relaxation and calm the nervous system. Cocoa butter leaves the skin feeling silky smooth and deeply moisturized." },
-      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+      { title: "Ingredients", body: "Cold-pressed coconut, olive, almond, castor, and neem oils; vitamin E; lavender and pure essential oils. Free from synthetic fragrance and synthetic colour." },
+      { title: "Benefits", body: "A soothing cleanse for slow evenings and gentle everyday care." },
+      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
     ]
   },
   "shrutibhyam-french-clay-handmade-soap": {
-    description: "Formulated with mineral-rich pink French clay and organic rose water to gently exfoliate, refine skin texture, draw out impurities, and tone the skin.",
+    description: "A mineral-rich cold-process soap with French clay, cold-pressed oils, vitamin E, and pure essential oils for a gentle detoxifying cleanse.",
     purityTags: ["Cold-Pressed", "Detoxifying"],
     accordions: [
-      { title: "Ingredients", body: "Saponified Oils of Olive, Coconut, and Castor; Raw Shea Butter; Pink French Clay; Organic Rose Water; Essential Oils of Damask Rose and Geranium. Free from synthetic fragrances and dyes." },
-      { title: "Benefits", body: "French clay gently detoxifies, refines pores, and removes dead skin. Rose water and rose essential oil hydrate, balance pH, and leave a delicate floral aroma." },
-      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin in circular motions, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
+      { title: "Ingredients", body: "Cold-pressed coconut, olive, almond, castor, and neem oils; vitamin E; French clay; pure essential oils including geranium where used. Free from synthetic fragrance and synthetic colour." },
+      { title: "Benefits", body: "French clay supports a gentle, refining cleanse without stripping the skin." },
+      { title: "How to Use", body: "Lather between hands with warm water, gently massage onto damp skin, and rinse thoroughly. Store on a well-draining soap dish to prolong life." },
     ]
   }
 };

@@ -13,6 +13,7 @@ import { Route as YogaRouteImport } from './routes/yoga'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -39,6 +40,11 @@ const ShopRoute = ShopRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsRoute = EventsRouteImport.update({
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRouteWithChildren
   '/terms': typeof TermsRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/yoga': typeof YogaRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRouteWithChildren
   '/terms': typeof TermsRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/events'
+    | '/faq'
     | '/privacy'
     | '/shop'
     | '/terms'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/events'
+    | '/faq'
     | '/privacy'
     | '/terms'
     | '/yoga'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/events'
+    | '/faq'
     | '/privacy'
     | '/shop'
     | '/terms'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   EventsRoute: typeof EventsRoute
+  FaqRoute: typeof FaqRoute
   PrivacyRoute: typeof PrivacyRoute
   ShopRoute: typeof ShopRouteWithChildren
   TermsRoute: typeof TermsRoute
@@ -197,6 +210,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events': {
@@ -269,6 +289,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   EventsRoute: EventsRoute,
+  FaqRoute: FaqRoute,
   PrivacyRoute: PrivacyRoute,
   ShopRoute: ShopRouteWithChildren,
   TermsRoute: TermsRoute,
