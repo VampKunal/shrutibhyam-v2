@@ -12,7 +12,8 @@ import Lenis from "@studio-freight/lenis";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/site/CartDrawer";
 import { AuthProvider } from "@/context/AuthContext";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import { PageLoader } from "@/components/site/PageLoader";
+import { TopLoader } from "@/components/site/TopLoader";
 
 import appCss from "../styles.css?url";
 
@@ -91,9 +92,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://lh3.googleusercontent.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700&display=swap",
       },
     ],
   }),
@@ -147,6 +149,8 @@ function RootComponent() {
       <GoogleOAuthProvider clientId={googleClientId}>
         <AuthProvider>
           <CartProvider>
+            <TopLoader />
+            <PageLoader />
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
             <CartDrawer />

@@ -62,6 +62,9 @@ function Home() {
             <img
               src={img}
               alt="Serene wellness ritual"
+              loading={idx === 0 ? "eager" : "lazy"}
+              decoding="async"
+              fetchPriority={idx === 0 ? "high" : "auto"}
               className="w-full h-full object-cover"
             />
           </Link>
@@ -118,7 +121,7 @@ function Home() {
       <section className="max-w-[1200px] mx-auto px-4 md:px-6 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative h-[400px] lg:h-[500px] rounded-xl overflow-hidden border border-soft-beige order-2 lg:order-1">
-            <img src="/materials_showcase.png" alt="Apothecary raw ingredients" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-1000" />
+            <img src="/materials_showcase.webp" alt="Apothecary raw ingredients" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-1000" />
           </div>
           <div className="space-y-6 order-1 lg:order-2">
             <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sage-green block">Earth Sourced</span>
@@ -158,7 +161,7 @@ function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link to="/shop" search={{ category: "Skincare" } as any} className="group bg-cream-bg border border-soft-beige hover:shadow-sm transition-all rounded overflow-hidden">
             <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-              <img src={IMG.faceOil} alt="Skincare" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src={IMG.faceOil} alt="Skincare" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
             </div>
             <div className="p-6 text-center">
               <h3 className="font-display text-xl text-primary mb-1">Skincare</h3>
@@ -167,7 +170,7 @@ function Home() {
           </Link>
           <Link to="/shop" search={{ category: "Yoga" } as any} className="group bg-cream-bg border border-soft-beige hover:shadow-sm transition-all rounded overflow-hidden">
             <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-              <img src={IMG.yoga} alt="Yoga Products" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src={IMG.yoga} alt="Yoga Products" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
             </div>
             <div className="p-6 text-center">
               <h3 className="font-display text-xl text-primary mb-1">Yoga Products</h3>
@@ -176,7 +179,7 @@ function Home() {
           </Link>
           <div className="group bg-cream-bg border border-soft-beige transition-all rounded overflow-hidden opacity-80">
             <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-              <img src={IMG.powder} alt="Coming Soon" className="absolute inset-0 w-full h-full object-cover grayscale" />
+              <img src={IMG.powder} alt="Coming Soon" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale" />
             </div>
             <div className="p-6 text-center">
               <h3 className="font-display text-xl text-primary mb-1">More Categories</h3>
@@ -223,7 +226,7 @@ function Home() {
       <section className="max-w-[1200px] mx-auto px-4 md:px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:h-[600px]">
           <div className="md:col-span-6 relative overflow-hidden rounded-lg group flex flex-col justify-end p-8 border border-soft-beige min-h-[350px]">
-            <img src={IMG.yoga} alt="Yoga session" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+            <img src={IMG.yoga} alt="Yoga session" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
             <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal/85 via-deep-charcoal/30 to-transparent" />
             <div className="relative z-10 text-primary-foreground">
               <span className="inline-block px-3 py-1 bg-white/15 backdrop-blur rounded-full text-xs font-semibold uppercase tracking-[0.15em] mb-4 border border-white/30">Mind & Body</span>
@@ -241,7 +244,7 @@ function Home() {
               </Link>
             </div>
             <div className="h-44 border border-soft-beige rounded-lg overflow-hidden relative group">
-              <img src={IMG.tea} alt="Wellness workshop" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src={IMG.tea} alt="Wellness workshop" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/10 transition-colors" />
               <div className="absolute bottom-4 left-4 right-4 bg-surface/90 backdrop-blur p-3 rounded text-center border border-soft-beige">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">Weekend Retreat</p>
@@ -281,15 +284,18 @@ function Home() {
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     className="w-full flex justify-between items-center text-left p-5 group hover:bg-cream-bg/40 transition-colors"
+                    aria-expanded={openFaq === i}
                   >
-                    <span className="font-display text-base md:text-lg text-primary group-hover:text-sage-green transition-colors">{item.q}</span>
-                    <ChevronDown size={18} className={`text-on-surface-variant transition-transform duration-300 ${openFaq === i ? "rotate-180 text-sage-green" : ""}`} />
+                    <span className="font-display text-base md:text-lg text-primary group-hover:text-sage-green transition-colors pr-4">{item.q}</span>
+                    <ChevronDown size={18} className={`flex-shrink-0 text-on-surface-variant transition-transform duration-300 ${openFaq === i ? "rotate-180 text-sage-green" : ""}`} />
                   </button>
-                  {openFaq === i && (
-                    <p className="px-5 pb-5 text-sm text-on-surface-variant leading-relaxed">
-                      {item.a}
-                    </p>
-                  )}
+                  <div className={`faq-body${openFaq === i ? " open" : ""}`}>
+                    <div className="faq-body__inner">
+                      <p className="px-5 pb-5 text-sm text-on-surface-variant leading-relaxed">
+                        {item.a}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -335,7 +341,7 @@ function Home() {
               </div>
             </div>
             <div className="relative rounded-lg overflow-hidden border border-soft-beige bg-surface">
-              <img src="/social_grid_preview.png" alt="Instagram grid preview" className="w-full h-auto object-cover opacity-95 hover:opacity-100 transition-opacity" />
+              <img src="/social_grid_preview.webp" alt="Instagram grid preview" loading="lazy" decoding="async" className="w-full h-auto object-cover opacity-95 hover:opacity-100 transition-opacity" />
             </div>
           </div>
         </div>
