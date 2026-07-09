@@ -1,13 +1,13 @@
-import { 
-  Leaf, 
-  Hand, 
-  Recycle, 
-  Droplets, 
-  PawPrint, 
-  FlaskConical, 
-  Sparkles, 
-  Flower2, 
-  Palette 
+import {
+  Leaf,
+  Hand,
+  Recycle,
+  Droplets,
+  PawPrint,
+  FlaskConical,
+  Sparkles,
+  Flower2,
+  Palette
 } from "lucide-react";
 
 // WooCommerce configuration defaults
@@ -131,13 +131,13 @@ export const SHOP_REVIEWS = [
 ];
 
 const testimonialModules = import.meta.glob(
-  "/public/testimonials/*.{jpg,jpeg,png,JPG,JPEG,PNG}",
+  "/public/testimonials/*.webp",
   { eager: true, query: "?url", import: "default" }
 );
 
-export const SCREENSHOT_TESTIMONIALS = Object.keys(testimonialModules).map((path) =>
-  path.replace(/^\/public/, "")
-);
+export const SCREENSHOT_TESTIMONIALS = Object.keys(testimonialModules)
+  .map((path) => path.replace(/^\/public/, ""))
+  .sort(); // deterministic order
 
 
 // Product details configuration & interfaces
@@ -193,12 +193,12 @@ export const DEFAULT_ACCORDIONS = (name: string, tag: string) => [
 ];
 
 export const PURITY = [
-  { icon: Leaf, label: "Vegan" }, 
-  { icon: Hand, label: "Handcrafted" }, 
-  { icon: Droplets, label: "Hand poured" }, 
+  { icon: Leaf, label: "Vegan" },
+  { icon: Hand, label: "Handcrafted" },
+  { icon: Droplets, label: "Hand poured" },
   { icon: PawPrint, label: "Cruelty free" },
-  { icon: FlaskConical, label: "Sulphate free" }, 
-  { icon: Sparkles, label: "Paraben free" }, 
-  { icon: Flower2, label: "No synthetic fragrance" }, 
+  { icon: FlaskConical, label: "Sulphate free" },
+  { icon: Sparkles, label: "Paraben free" },
+  { icon: Flower2, label: "No synthetic fragrance" },
   { icon: Palette, label: "No synthetic colour" },
 ];
