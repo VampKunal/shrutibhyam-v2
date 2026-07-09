@@ -7,7 +7,7 @@ const files = [
   'src/routes/events.tsx',
   'src/components/site/TestimonialsGallery.tsx'
 ];
-
+ 
 files.forEach(f => {
   let content = fs.readFileSync(f, 'utf8');
   content = content.replace(/<div className="absolute inset-0 bg-[a-zA-Z0-9-]+\/[0-9]+ pointer-events-none" \/>\r?\n\s*/g, '');
