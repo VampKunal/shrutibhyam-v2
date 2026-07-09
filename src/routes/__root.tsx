@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -12,6 +13,7 @@ import Lenis from "@studio-freight/lenis";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/site/CartDrawer";
 import { AuthProvider } from "@/context/AuthContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PageLoader } from "@/components/site/PageLoader";
 import { TopLoader } from "@/components/site/TopLoader";
 
@@ -122,6 +124,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useLocation();
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -149,10 +152,12 @@ function RootComponent() {
       <GoogleOAuthProvider clientId={googleClientId}>
         <AuthProvider>
           <CartProvider>
-            <TopLoader />
             <PageLoader />
+            <TopLoader />
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
+            <div key={location.pathname} className="animate-page-transition">
+              <Outlet />
+            </div>
             <CartDrawer />
           </CartProvider>
         </AuthProvider>

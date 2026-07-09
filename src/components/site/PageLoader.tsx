@@ -1,124 +1,72 @@
 // A full-screen animated loader shown on first page load.
-// Automatically fades out after ~2.9s and unmounts from DOM.
+// Automatically fades out after ~3.5s and unmounts from DOM.
 // Uses useEffect to safely access sessionStorage (SSR-safe).
 import { useEffect, useState } from "react";
 
-const LOADING_STEPS = [
-  "Sourcing raw Ayurvedic botanicals...",
-  "Infusing mindful slow-beauty rituals...",
-  "Preparing your holistic wellness space...",
-];
-
 export function PageLoader() {
   const [show, setShow] = useState<boolean | null>(null);
-  const [stepIndex, setStepIndex] = useState(0);
 
   useEffect(() => {
-    const seen = sessionStorage.getItem("sb_loader_shown");
-    if (!seen) {
-      sessionStorage.setItem("sb_loader_shown", "1");
-      setShow(true);
-
-      // Auto-unmount after animation (2.2s delay + 0.6s fade + 150ms buffer)
-      const t = setTimeout(() => setShow(false), 2950);
-
-      // Cycle loading steps text
-      const stepInterval = setInterval(() => {
-        setStepIndex((prev) => Math.min(prev + 1, LOADING_STEPS.length - 1));
-      }, 900);
-
-      return () => {
-        clearTimeout(t);
-        clearInterval(stepInterval);
-      };
-    } else {
-      setShow(false);
-    }
+    setShow(true);
+    const t = setTimeout(() => setShow(false), 3600);
+    return () => clearTimeout(t);
   }, []);
 
-  // Render nothing until client-side check completes (avoids hydration mismatch)
   if (show !== true) return null;
 
   return (
     <div className="page-loader" aria-hidden="true">
-      {/* Brand Logo Header */}
-      <div className="page-loader__logo-container flex flex-col items-center gap-3">
-        <img
-          src="/logo.avif"
-          alt="Shrutibhyam Logo"
-          className="h-16 w-auto object-contain invert brightness-200 opacity-90 animate-pulse duration-1000"
-          style={{ filter: "invert(1) brightness(2)" }}
-        />
-      </div>
+      {/* Brand logo wrap */}
+      <div className="flex flex-col items-center gap-6 max-w-sm px-6 text-center animate-fadeIn">
+        {/* Dedicated Logo in rounded card to display green-black details beautifully */}
+        <div className="bg-[#fbf9f6] p-4 rounded-full shadow-xl border border-[#e8e2d6]/30 flex items-center justify-center w-24 h-24 md:w-28 md:h-28 animate-[pulse_2.2s_infinite_ease-in-out]">
+          <img
+            src="/logo.avif"
+            alt="Shrutibhyam Dedicated Logo"
+            className="w-16 h-16 md:w-20 md:h-20 object-contain"
+          />
+        </div>
 
-      {/* Animated Leaf SVG */}
-      <svg
-        width="64"
-        height="64"
-        viewBox="0 0 72 72"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="opacity-80"
-      >
-        {/* Outer leaf petal */}
-        <path
-          className="page-loader__leaf"
-          d="M36 8 C52 8, 64 20, 64 36 C64 52, 52 64, 36 64 C36 64, 8 52, 8 36 C8 20, 20 8, 36 8 Z"
-          stroke="#8ba88e"
-          strokeWidth="1.2"
-          fill="none"
-          strokeLinecap="round"
-        />
-        {/* Inner vein left */}
-        <path
-          className="page-loader__leaf"
-          d="M36 64 C36 48, 28 32, 20 20"
-          stroke="#c9daca"
-          strokeWidth="1"
-          fill="none"
-          strokeLinecap="round"
-          style={{ animationDelay: "0.55s" }}
-        />
-        {/* Inner vein right */}
-        <path
-          className="page-loader__leaf"
-          d="M36 52 C40 42, 50 34, 58 28"
-          stroke="#c9daca"
-          strokeWidth="0.8"
-          fill="none"
-          strokeLinecap="round"
-          style={{ animationDelay: "0.75s" }}
-        />
-        {/* Center stem */}
-        <path
-          className="page-loader__leaf"
-          d="M36 8 L36 64"
-          stroke="#6d8f72"
-          strokeWidth="0.8"
-          fill="none"
-          strokeLinecap="round"
-          style={{ animationDelay: "0.35s" }}
-        />
-      </svg>
+        {/* Brand Name Text */}
+        <div className="space-y-1">
+          <p className="page-loader__word">SHRUTIBHYAM</p>
+          <p className="page-loader__sub">Wellness &amp; Ayurveda</p>
+        </div>
 
-      {/* Brand Typography */}
-      <div className="text-center space-y-1">
-        <h2 className="page-loader__word tracking-[0.3em] font-bold text-cream-bg">
-          SHRUTIBHYAM
-        </h2>
-        <p className="page-loader__sub text-sage-green font-medium">
-          Wellness &amp; Ayurveda
-        </p>
-      </div>
+        {/* Brand Core Taglines */}
+        <div className="space-y-2 max-w-xs mt-1">
+          <p 
+            className="text-sm font-semibold italic text-[#e8e2d6] opacity-0"
+            style={{
+              animation: "loaderWordIn 1.1s ease-out 0.6s forwards",
+            }}
+          >
+            "Rooted in Ayurvedic Purity"
+          </p>
+          <p 
+            className="text-xs text-[#8ba88e]/80 leading-relaxed font-medium tracking-wide opacity-0"
+            style={{
+              animation: "loaderWordIn 1.1s ease-out 1.2s forwards",
+            }}
+          >
+            Honoring ancestral heritage and clean living. Slowly crafted from the earth for your wellness ritual.
+          </p>
+        </div>
 
-      {/* Progress Track & Changing Loading Messages */}
-      <div className="flex flex-col items-center gap-3 mt-2">
-        <div className="page-loader__bar-track">
+        {/* Progress Bar Track */}
+        <div className="page-loader__bar-track mt-2">
           <div className="page-loader__bar-fill" />
         </div>
-        <p className="text-[10px] md:text-xs text-soft-beige/70 font-medium tracking-[0.1em] h-5 transition-all duration-500 ease-in-out">
-          {LOADING_STEPS[stepIndex]}
-        </p>
+
+        {/* Calming text status */}
+        <span 
+          className="text-[10px] uppercase tracking-[0.25em] text-[#8ba88e]/70 font-semibold opacity-0"
+          style={{
+            animation: "loaderWordIn 0.8s ease-out 1.8s forwards, pulse 2s infinite 2.6s",
+          }}
+        >
+          Nourishing Soul...
+        </span>
       </div>
     </div>
   );
