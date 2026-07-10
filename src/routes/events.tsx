@@ -16,8 +16,8 @@ export const Route = createFileRoute("/events")({
 function Events() {
  return (
  <SiteLayout>
- <section className="bg-cream-bg ">
- <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-20 text-center">
+ <section className="relative bg-cover bg-fixed bg-center bg-no-repeat" style={{ backgroundImage: "url('/backdrop2.png')" }}>
+ <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 py-20 text-center">
  <span className="inline-block px-4 py-1 bg-soft-beige rounded-full text-xs font-semibold uppercase tracking-[0.15em] text-deep-charcoal mb-4">Gather & Grow</span>
  <h1 className="font-display text-4xl md:text-5xl text-primary mb-4">Gatherings & Corporate Wellness</h1>
  <p className="text-base text-on-surface-variant max-w-2xl mx-auto">
@@ -35,8 +35,7 @@ function Events() {
  </section>
 
  <section
- className="relative py-20 bg-fixed bg-center"
-
+ className="relative py-20"
  >
  <div className="relative z-10 max-w-[1100px] mx-auto px-4 md:px-6 space-y-6">
  <div className="text-center mb-10">
@@ -84,8 +83,7 @@ function Events() {
  </section>
 
  <section
- className="relative py-20 bg-fixed bg-center"
-
+ className="relative py-20"
  >
  <div className="relative z-10 max-w-[1100px] mx-auto px-4 md:px-6">
  <div className="text-center mb-10">

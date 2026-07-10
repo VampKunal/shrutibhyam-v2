@@ -35,6 +35,9 @@ export const IMG = {
   serum: A + "AB6AXuAoAfn-VZ12KVYMg0ZLJFQGmnX9lcnvGabBwCF_Gwzt04aHBai61-0dS5-furtqtFwTSg12LQwWMjR3O1zS3X_nqNqgl0dQHSjwYDJV0drhn8g7BnoI2vKyhbHNx5d-ss38KdeRFU_ae2MFvGOoaWFGrTxduaAaITp_jwGC7Y0noaEwVwPUuNOTCijqOpE-2H2x_BSEn4ef7n0HBO7C9w6x6MO3b5TxeVBn5uUzLJUUgiN2ujrXFLN2Hry-jXWrvPZAC1zacp25wfM",
   yoga: A + "AB6AXuAkG4L3nMbPGkhhuUA4OUIgZtEMux7Qu8czrPf_jwFrIOXNqq5qObPvv8shsrLacIgGv3OfT9z7kUbI-FH_qgFWMhjtJXcnrc4OnZkXT9qL7VteNMkvpotWyy-Qj55QVjPVgknjW5_yon55inQFHjZ2iTHnwQsYkRPuDITa-_g0_SM0SukCvGzz_e8R9VUaG_g2Htr3E1OfLuFe5bIEp1R4Em4vtKNgwRpKjkOpPOyjGadubFQTNt1cl06uNekOzQd17pi4ikGCz7I",
   tea: A + "AB6AXuDip7dKAPBXGP6bSXLPLRhVp5HY3SvbzylwIuQloNYo8lh1H0G2PWJxMyD56KvNMCXWNSYHKnbyVR1TwouYCHb2c4m1VdbNJ1ZTYyll3nqvR_fprKRaK5jH3z4jNPDM3B9REkSvt2CVoJHfgdh2OBFXfCELC1zPakml95vLjdOQvqheTuq9u_a7r9H2eR6Y6iRO1K6aGjwmpz9V5G_9GPQmgJgSsIKgEuTViQqNkK_nKdmP94zGwg1GIZArXCIKG610I7iow1sHEnU",
+  Buy: "/extras/Gobuy.png",
+  intro: "/extras/introimg.png",
+  yog: "/extras/yog.png",
 };
 
 // Local product catalog fallbacks
@@ -67,10 +70,10 @@ export const MARQUEE = [
 
 // Home carousel slides
 export const HERO_CAROUSEL = [
-  { img: IMG.hero, to: "/about" },
-  { img: IMG.yoga, to: "/shop" },
-  { img: IMG.trust, to: "/yoga" },
-  { img: IMG.tea, to: "/events" }
+  { imgDesktop: IMG.intro, imgMobile: IMG.intro, to: "/about" },
+  { imgDesktop: IMG.Buy, imgMobile: IMG.Buy, to: "/shop" },
+  { imgDesktop: IMG.yog, imgMobile: IMG.trust, to: "/yoga" },
+  { imgDesktop: IMG.tea, imgMobile: IMG.tea, to: "/events" }
 ];
 
 // Home Frequently Asked Questions
@@ -186,10 +189,18 @@ export const PRODUCT_DETAILS: Record<string, DetailContent> = {
   }
 };
 
+export const COMMON_ACCORDIONS = [
+  { title: "Specifications", body: `Weight: 100g. Handcrafted in small batches. Shelf life: 24 months.` },
+  { title: "Care Instructions", body: "Store in a cool, dry place away from direct sunlight. Use a well-draining soap dish." },
+  { title: "Shipping", body: "Dispatched within 24-48 hours. Free delivery on orders over ₹1000." },
+
+];
+
 export const DEFAULT_ACCORDIONS = (name: string, tag: string) => [
-  { title: "Ingredients", body: `100% natural, ethically sourced botanical extracts of ${name}. Free from synthetic fillers, parabens, and sulfates.` },
   { title: "Benefits", body: `Enriched with natural properties of ${name} (${tag}) to nourish, restore, and maintain your skin's natural balance.` },
-  { title: "How to Use", body: "Apply a small amount to clean damp skin. Massage gently in circular motions until absorbed. Use daily in your morning or evening wellness ritual." }
+  { title: "Ingredients", body: `100% natural, ethically sourced botanical extracts of ${name}. Free from synthetic fillers, parabens, and sulfates.` },
+  { title: "How To Use", body: "Apply a small amount to clean damp skin. Massage gently in circular motions until absorbed. Use daily in your morning or evening wellness ritual." },
+  ...COMMON_ACCORDIONS
 ];
 
 export const PURITY = [
@@ -202,3 +213,66 @@ export const PURITY = [
   { icon: Flower2, label: "No synthetic fragrance" },
   { icon: Palette, label: "No synthetic colour" },
 ];
+
+export const PRODUCT_GALLERY: Record<string, string[]> = {
+  "shrutibhyam-haldi-handmade-soap": [
+    "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2-2.avif",
+    IMG.faceOil,
+    IMG.powder,
+    IMG.serum,
+    IMG.hero
+  ],
+  "shrutibhyam-neem-handmade-soap": [
+    "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-3.avif",
+    IMG.faceOil,
+    IMG.powder,
+    IMG.serum,
+    IMG.hero
+  ],
+  "shrutibhyam-lavender-handmade-soap": [
+    "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-1.avif",
+    IMG.faceOil,
+    IMG.powder,
+    IMG.serum,
+    IMG.hero
+  ],
+  "shrutibhyam-french-clay-handmade-soap": [
+    "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2.avif",
+    IMG.faceOil,
+    IMG.powder,
+    IMG.serum,
+    IMG.hero
+  ]
+};
+
+export const PRODUCT_STATS = [
+  { value: "98%", label: "Saw clearer skin in 2 weeks" },
+  { value: "100%", label: "Reported no irritation" },
+  { value: "95%", label: "Felt deeper hydration" },
+  { value: "3x", label: "Longer lasting moisture" }
+];
+
+export const CUSTOMER_STORIES = [
+  {
+    name: "Aarti S.",
+    image: IMG.faceOil,
+    video: false,
+    rating: 5,
+    text: "This handmade soap completely transformed my morning routine. The natural scent is divine and my skin feels so soft without that tight, dry feeling. Knowing it's cold-pressed and pure makes all the difference."
+  },
+  {
+    name: "Neha M.",
+    image: IMG.powder,
+    video: false,
+    rating: 5,
+    text: "I was skeptical about artisanal soaps, but Shrutibhyam's products are magical. The texture, the lather, and the way it leaves my skin glowing – I've stopped using commercial body washes altogether."
+  },
+  {
+    name: "Rohan K.",
+    image: IMG.serum,
+    video: false,
+    rating: 5,
+    text: "Finally, a brand that actually delivers on its '100% natural' promise. No artificial colors, no synthetic fragrances. Just pure, earthy goodness that works wonders for my sensitive skin."
+  }
+];
+

@@ -389,3 +389,12 @@ img.lazy-img[data-loaded] {
 .animate-page-transition {
   animation: pageTransitionFadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
+/* ─── Hide scrollbar utilities ─── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

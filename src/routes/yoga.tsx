@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { CONTACT_INFO, IMG, PRACTICES, SCHEDULE, YOGA_TESTIMONIALS } from "@/constant";
 import { ArrowRight, Star, User } from "lucide-react";
@@ -6,7 +6,7 @@ import { ArrowRight, Star, User } from "lucide-react";
 export const Route = createFileRoute("/yoga")({
  head: () => ({
  meta: [
- { title: "Yoga — Shrutibhyam Wellness" },
+ { title: "Yoga | Shrutibhyam Wellness" },
  { name: "description", content: "Traditional Hatha, Ashtanga, prop-based yoga, and sound healing sessions in Gurugram." },
  { property: "og:image", content: IMG.yoga },
  ],
@@ -80,39 +80,33 @@ function Yoga() {
  </p>
  </div>
  {c.state === "open" ? (
- <a
- href={CONTACT_INFO.instagram}
- target="_blank"
- rel="noopener noreferrer"
- className="bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-6 py-3 hover:bg-surface-tint text-center"
+ <Link
+ to="/book"
+ className="bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-6 py-3 hover:bg-surface-tint text-center inline-block"
  >
  Book Now
- </a>
+ </Link>
  ) : (
  <div className="text-right">
  <p className="text-xs text-clay-muted font-semibold uppercase tracking-[0.1em] mb-1">Waitlist Only</p>
- <a
- href={CONTACT_INFO.instagram}
- target="_blank"
- rel="noopener noreferrer"
+ <Link
+ to="/book"
  className="inline-block border border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] px-5 py-2 hover:bg-soft-beige"
  >
  Join Waitlist
- </a>
+ </Link>
  </div>
  )}
  </div>
  ))}
  </div>
  <div className="text-center mt-10">
- <a
- href={CONTACT_INFO.instagram}
- target="_blank"
- rel="noopener noreferrer"
+ <Link
+ to="/book"
  className="inline-block border-b border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] pb-1 hover:text-sage-green hover:border-sage-green"
  >
  View Full Calendar
- </a>
+ </Link>
  </div>
  </div>
  </section>
@@ -140,6 +134,7 @@ function Yoga() {
  </div>
  </div>
  </section>
- </SiteLayout>
- );
+
+  </SiteLayout>
+  );
 }

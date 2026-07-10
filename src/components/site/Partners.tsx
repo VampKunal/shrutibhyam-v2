@@ -22,7 +22,7 @@ export function Partners() {
       title: "Ministry of Ayush",
       image: "/logos/MOA.png",
       alt: "Ministry of Ayush",
-      className: "h-30 w-auto md:h-24 lg:h-28 object-contain",
+      className: "h-30 w-auto md:h-24 lg:h-28 object-contain px-0",
     },
   ];
 
