@@ -8,12 +8,14 @@ import {
     MARQUEE,
     HERO_CAROUSEL,
     CONTACT_INFO,
-    PURITY
+    PURITY,
+    BESTSELLERS
 } from "@/constant";
 import { ArrowRight, Star, Quote, Instagram, Facebook, Linkedin, ChevronLeft, ChevronRight } from "lucide-react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 import { Partners } from "@/components/site/Partners";
 import { TestimonialsGallery } from "@/components/site/TestimonialsGallery";
+import { ProductCardImage } from "@/components/site/ProductCardImage";
 
 
 export const Route = createFileRoute("/")({
@@ -39,6 +41,8 @@ function Home() {
     const [currentImg, setCurrentImg] = useState(0);
 
     const craftedRef = useRef<HTMLDivElement>(null);
+    const bestsellerRef = useRef<HTMLDivElement>(null);
+    const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
     const scrollLeft = (ref: any) => {
         if (ref.current) ref.current.scrollBy({ left: -320, behavior: 'smooth' });
@@ -48,11 +52,25 @@ function Home() {
     };
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentImg((prev) => (prev + 1) % HERO_CAROUSEL.length);
-        }, 8000);
-        return () => clearInterval(interval);
-    }, []);
+        const currentSlide = HERO_CAROUSEL[currentImg];
+        let timer: ReturnType<typeof setTimeout>;
+
+        if (!currentSlide.isVideo) {
+            timer = setTimeout(() => {
+                setCurrentImg((prev) => (prev + 1) % HERO_CAROUSEL.length);
+            }, 8000);
+        } else {
+            const videoEl = videoRefs.current[currentImg];
+            if (videoEl) {
+                videoEl.currentTime = 0;
+                videoEl.play().catch(e => console.log("Video play error", e));
+            }
+        }
+
+        return () => {
+            if (timer) clearTimeout(timer);
+        };
+    }, [currentImg]);
 
     return (
         <SiteLayout>
@@ -60,21 +78,38 @@ function Home() {
             <section className="relative w-full h-[60vh] md:h-[86vh] flex items-center justify-center p-4 md:px-0 lg:p-8">
                 <div className="relative w-full h-full rounded-3xl overflow-hidden group border border-soft-beige shadow-lg bg-surface-container-low">
                     {/* Background Image Carousel with Cross-Fade */}
-                    {HERO_CAROUSEL.map(({ imgDesktop, imgMobile, to }, idx) => (
+                    {HERO_CAROUSEL.map((slide, idx) => (
                         <Link
-                            key={imgDesktop + idx}
-                            to={to as any}
+                            key={(slide.imgDesktop || slide.videoDesktop || "slide") + idx.toString()}
+                            to={slide.to as any}
                             className={`absolute inset-0 w-full h-full cursor-pointer transition-opacity duration-1000 mix-blend-multiply ${idx === currentImg ? "opacity-100 z-0 pointer-events-auto" : "opacity-0 -z-10 pointer-events-none"
                                 }`}
                         >
-                            <picture>
-                                <source media="(min-width: 768px)" srcSet={imgDesktop} />
-                                <img
-                                    src={imgMobile}
-                                    alt="Serene wellness ritual"
+                            {slide.isVideo ? (
+                                <video
+                                    ref={el => { videoRefs.current[idx] = el; }}
+                                    src={slide.videoDesktop}
+                                    muted
+                                    playsInline
+                                    onEnded={() => {
+                                        if (idx === currentImg) {
+                                            setTimeout(() => {
+                                                setCurrentImg((prev) => (prev + 1) % HERO_CAROUSEL.length);
+                                            }, 2000);
+                                        }
+                                    }}
                                     className="w-full h-full object-cover"
                                 />
-                            </picture>
+                            ) : (
+                                <picture>
+                                    <source media="(min-width: 768px)" srcSet={slide.imgDesktop} />
+                                    <img
+                                        src={slide.imgMobile}
+                                        alt="Serene wellness ritual"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </picture>
+                            )}
                         </Link>
                     ))}
 
@@ -159,8 +194,8 @@ function Home() {
                     <div className="overflow-x-auto no-scrollbar relative group -mx-4 px-4 md:mx-0 md:px-0" ref={craftedRef}>
                         <div className="flex gap-6 pb-6 snap-x snap-mandatory w-max">
                             {[...PURITY, ...PURITY, ...PURITY].map(({ icon: Icon, label }, idx) => (
-                                <div key={idx} className="snap-center shrink-0 w-[260px] md:w-[300px] bg-white rounded-2xl p-8 border border-soft-beige shadow-sm flex flex-col items-center text-center hover:border-sage-green hover:shadow-md transition-all cursor-pointer group/card">
-                                    <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center text-sage-green mb-6 border border-soft-beige group-hover/card:bg-sage-green group-hover/card:text-white transition-colors duration-300">
+                                <div key={idx} className="snap-center shrink-0 w-[260px] md:w-[300px] bg-white rounded-2xl p-8 border border-soft-beige shadow-sm flex flex-col items-center text-center hover:border-[#BBDC12] hover:shadow-md transition-all cursor-pointer group/card">
+                                    <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center text-sage-green mb-6 border border-soft-beige group-hover/card:bg-orange-400 group-hover/card:text-white transition-colors duration-300">
                                         <Icon size={32} strokeWidth={1.5} />
                                     </div>
                                     <h3 className="font-display text-lg text-primary mb-3 uppercase tracking-wider group-hover/card:text-sage-green transition-colors">{label}</h3>
@@ -168,6 +203,11 @@ function Home() {
                                 </div>
                             ))}
                         </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
+                        <Link to="/about" className="interactive-card bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary text-center min-w-[200px]">Explore Our Story</Link>
+                        <Link to="/shop" className="interactive-card border border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-soft-beige hover:text-primary text-center min-w-[200px]">Shop Collection</Link>
                     </div>
                 </div>
             </section>
@@ -180,7 +220,45 @@ function Home() {
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
                     <div className="text-center mb-12">
                         <h2 className="font-display text-3xl md:text-4xl text-primary mb-4">Products</h2>
-                        <div className="w-16 h-px bg-sage-green mx-auto" />
+                        <div className="w-16 h-px bg-sage-green mx-auto mb-12" />
+                    </div>
+
+                    {/* Bestsellers Carousel */}
+                    <div className="mb-20">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-display text-2xl text-primary">Bestsellers</h3>
+                            <div className="flex gap-2 items-center">
+                                <span className="text-xs text-on-surface-variant md:hidden uppercase tracking-widest mr-2">Swipe</span>
+                                <button onClick={() => scrollLeft(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
+                                    <ChevronLeft size={20} />
+                                </button>
+                                <button onClick={() => scrollRight(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
+                                    <ChevronRight size={20} />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="overflow-x-auto no-scrollbar relative group -mx-4 px-4 md:mx-0 md:px-0" ref={bestsellerRef}>
+                            <div className="flex gap-6 pb-6 snap-x snap-mandatory w-max">
+                                {BESTSELLERS.map((product, idx) => (
+                                    <Link key={idx} to={`/shop/${product.slug}` as any} className="snap-center shrink-0 w-[240px] md:w-[280px] flex flex-col group/item cursor-pointer">
+                                        <div className="aspect-[4/5] relative overflow-hidden mb-4 rounded bg-surface-container-low">
+                                            <ProductCardImage product={product as any} imageClassName="group-hover/item:scale-105" />
+                                            {product.tag && (
+                                                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur px-2 py-1 text-[10px] uppercase tracking-widest text-primary border border-soft-beige font-semibold rounded">
+                                                    {product.tag}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <h4 className="font-display text-lg text-primary mb-1 group-hover/item:text-sage-green transition-colors">{product.name}</h4>
+                                        <p className="text-sm text-on-surface-variant">₹{product.price}</p>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mb-6 mt-12">
+                        <h3 className="font-display text-2xl text-primary mb-6">Explore More</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Link to="/shop" search={{ category: "Skincare" } as any} className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">

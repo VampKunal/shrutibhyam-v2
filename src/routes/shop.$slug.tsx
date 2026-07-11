@@ -451,34 +451,34 @@ function Product() {
       </div>
 
       {/* 7. CUSTOMER TESTIMONIALS (Horizontal Scroll Cards) */}
-      <section className="py-20 bg-primary text-white overflow-hidden">
+      <section className="py-12 bg-primary text-white overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <div className="flex justify-between items-end mb-12">
-            <h2 className="font-display text-4xl md:text-5xl">
+          <div className="flex justify-between items-end mb-8">
+            <h2 className="font-display text-2xl md:text-3xl">
               Real Customer Stories
             </h2>
             <div className="hidden md:flex gap-4">
-              <button onClick={() => scrollLeft(storiesRef)} className="w-12 h-12 rounded-full border border-white flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer">
-                <ChevronLeft size={24} />
+              <button onClick={() => scrollLeft(storiesRef)} className="w-10 h-10 rounded-full border border-white flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer">
+                <ChevronLeft size={20} />
               </button>
-              <button onClick={() => scrollRight(storiesRef)} className="w-12 h-12 rounded-full border border-white flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer">
-                <ChevronRight size={24} />
+              <button onClick={() => scrollRight(storiesRef)} className="w-10 h-10 rounded-full border border-white flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer">
+                <ChevronRight size={20} />
               </button>
             </div>
           </div>
 
           <div className="overflow-x-auto no-scrollbar" ref={storiesRef}>
             <div
-              className={`flex gap-6 pb-6 snap-x snap-mandatory ${CUSTOMER_STORIES.length <= 4 ? "w-max mx-auto" : "w-max"
+              className={`flex gap-4 pb-4 snap-x snap-mandatory ${CUSTOMER_STORIES.length <= 4 ? "w-max mx-auto" : "w-max"
                 }`}
             >
               {CUSTOMER_STORIES.map((story, idx) => (
                 <div
                   key={idx}
-                  className="snap-center shrink-0 w-[280px] md:w-[300px] h-[500px] bg-white text-primary rounded-xl overflow-hidden shadow-lg flex flex-col"
+                  className="snap-center shrink-0 w-[240px] md:w-[260px] h-[380px] bg-white text-primary rounded-xl overflow-hidden shadow-lg flex flex-col"
                 >
                   {/* Image */}
-                  <div className="h-[70%] relative overflow-hidden">
+                  <div className="h-[60%] relative overflow-hidden">
                     <img
                       src={story.image}
                       alt={story.name}
@@ -492,12 +492,12 @@ function Product() {
                   </div>
 
                   {/* Content */}
-                  <div className="h-[30%] p-5 flex flex-col">
-                    <div className="flex text-amber-500 mb-3">
+                  <div className="h-[40%] p-4 flex flex-col">
+                    <div className="flex text-amber-500 mb-2">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
-                          size={14}
+                          size={12}
                           fill={i < story.rating ? "currentColor" : "none"}
                           strokeWidth={i < story.rating ? 0 : 1.5}
                         />

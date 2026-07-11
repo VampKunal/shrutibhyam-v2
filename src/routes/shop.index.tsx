@@ -9,6 +9,7 @@ import { setSelectedCategory, setPriceLimit, setSortBy, setCurrentPage, resetFil
 import { SHOP_TESTIMONIAL } from "@/constant";
 import { useAuth } from "@/context/AuthContext";
 import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/api/wishlist.functions";
+import { ProductCardImage } from "@/components/site/ProductCardImage";
 
 type ShopSearch = {
   search?: string;
@@ -269,7 +270,7 @@ function Shop() {
                             <Loader2 className="animate-spin text-sage-green" size={32} />
                           </div>
                         )}
-                        <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <ProductCardImage product={p as any} imageClassName="group-hover:scale-105" />
                         {idx === 0 && <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider px-2 py-1 z-10">New</span>}
                         <button
                           onClick={(e) => handleToggleWishlist(e, p.slug)}

@@ -10,6 +10,13 @@ import {
   Palette
 } from "lucide-react";
 
+export const BESTSELLERS = [
+  { slug: "shrutibhyam-neem-handmade-soap", name: "Shrutibhyam Neem Handmade Soap", tag: "Bestseller", price: 350, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-3.avif" },
+  { slug: "shrutibhyam-haldi-handmade-soap", name: "Shrutibhyam Haldi Handmade Soap", tag: "Bestseller", price: 350, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2-2.avif" },
+  { slug: "shrutibhyam-lavender-handmade-soap", name: "Shrutibhyam Lavender Handmade Soap", tag: "Bestseller", price: 350, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-1.avif" },
+  { slug: "shrutibhyam-french-clay-handmade-soap", name: "Shrutibhyam French Clay Handmade Soap", tag: "Bestseller", price: 350, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2.avif" },
+];
+
 // WooCommerce configuration defaults
 export const WOOCOMMERCE_DEFAULT_URL = "https://your-woocommerce-store.com";
 
@@ -38,6 +45,17 @@ export const IMG = {
   Buy: "/extras/Gobuy.png",
   intro: "/extras/introimg.png",
   yog: "/extras/yog.png",
+  video: "/extras/introvideo.mp4",
+  neem1: "/productg/neem1.avif",
+  neem2: "/productg/neem2.avif",
+  neem3: "/productg/neem3.avif",
+  frenchclay1: "/productg/frenchclay1.avif",
+  frenchclay2: "/productg/frenchclay2.avif",
+  haldi1: "/productg/haldi1.avif",
+  haldi2: "/productg/haldi2.avif",
+  lavender1: "/productg/lavender1.avif",
+  lavender2: "/productg/lavender2.avif",
+  lavender3: "/productg/lavnender3.avif",
 };
 
 // Local product catalog fallbacks
@@ -70,10 +88,10 @@ export const MARQUEE = [
 
 // Home carousel slides
 export const HERO_CAROUSEL = [
-  { imgDesktop: IMG.intro, imgMobile: IMG.intro, to: "/about" },
-  { imgDesktop: IMG.Buy, imgMobile: IMG.Buy, to: "/shop" },
-  { imgDesktop: IMG.yog, imgMobile: IMG.trust, to: "/yoga" },
-  { imgDesktop: IMG.tea, imgMobile: IMG.tea, to: "/events" }
+  { videoDesktop: IMG.video, to: "/about", isVideo: true, imgDesktop: undefined, imgMobile: undefined },
+  { imgDesktop: IMG.Buy, imgMobile: IMG.Buy, to: "/shop", isVideo: false, videoDesktop: undefined },
+  { imgDesktop: IMG.yog, imgMobile: IMG.trust, to: "/yoga", isVideo: false, videoDesktop: undefined },
+  { imgDesktop: IMG.tea, imgMobile: IMG.tea, to: "/events", isVideo: false, videoDesktop: undefined }
 ];
 
 // Home Frequently Asked Questions
@@ -217,31 +235,25 @@ export const PURITY = [
 export const PRODUCT_GALLERY: Record<string, string[]> = {
   "shrutibhyam-haldi-handmade-soap": [
     "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2-2.avif",
-    IMG.faceOil,
-    IMG.powder,
-    IMG.serum,
-    IMG.hero
+    IMG.haldi1,
+    IMG.haldi2,
   ],
   "shrutibhyam-neem-handmade-soap": [
     "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-3.avif",
-    IMG.faceOil,
-    IMG.powder,
-    IMG.serum,
-    IMG.hero
+    IMG.neem1,
+    IMG.neem2,
+    IMG.neem3,
   ],
   "shrutibhyam-lavender-handmade-soap": [
     "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-1.avif",
-    IMG.faceOil,
-    IMG.powder,
-    IMG.serum,
-    IMG.hero
+    IMG.lavender1,
+    IMG.lavender2,
+    IMG.lavender3,
   ],
   "shrutibhyam-french-clay-handmade-soap": [
     "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2.avif",
-    IMG.faceOil,
-    IMG.powder,
-    IMG.serum,
-    IMG.hero
+    IMG.frenchclay1,
+    IMG.frenchclay2,
   ]
 };
 
