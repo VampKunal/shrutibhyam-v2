@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { Quote, Star, ChevronLeft, ChevronRight, X, MessageSquare, Heart, Maximize2 } from "lucide-react";
 import { HOME_TESTIMONIALS, SCREENSHOT_TESTIMONIALS } from "@/constant";
+import { useOverlay } from "@/hooks/useOverlay";
+import { StarRating } from "@/components/ui/StarRating";
 
 type TabType = "text" | "screenshots";
 
@@ -13,13 +15,10 @@ export function TestimonialsGallery() {
   const row1Screenshots = SCREENSHOT_TESTIMONIALS.slice(0, half);
   const row2Screenshots = SCREENSHOT_TESTIMONIALS.slice(half);
 
-  // Keyboard navigation for Lightbox
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (lightboxIndex === null) return;
-      if (e.key === "Escape") {
-        setLightboxIndex(null);
-      } else if (e.key === "ArrowRight") {
+      if (e.key === "ArrowRight") {
         setLightboxIndex((prev) =>
           prev !== null ? (prev + 1) % SCREENSHOT_TESTIMONIALS.length : null
         );
@@ -34,20 +33,10 @@ export function TestimonialsGallery() {
     [lightboxIndex]
   );
 
-  // Prevent body scroll when Lightbox is active
-  useEffect(() => {
-    if (lightboxIndex !== null) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-    } else {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [lightboxIndex, handleKeyDown]);
+  useOverlay({
+    isOpen: lightboxIndex !== null,
+    onClose: () => setLightboxIndex(null),
+  });
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -133,11 +122,7 @@ export function TestimonialsGallery() {
                       className="interactive-card w-[320px] md:w-[380px] flex-shrink-0 bg-cream-bg p-8 border border-soft-beige rounded-xl shadow-sm flex flex-col justify-between whitespace-normal"
                     >
                       <div>
-                        <div className="flex text-sage-green mb-4">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
-                          ))}
-                        </div>
+                        <StarRating rating={5} />
                         <p className="text-sm md:text-base italic text-on-surface-variant mb-6 leading-relaxed">
                           "{t.quote}"
                         </p>

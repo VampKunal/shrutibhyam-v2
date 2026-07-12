@@ -398,3 +398,9 @@ img.lazy-img[data-loaded] {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ─── Overlay visibility delay (drawers / modals) ─── */
+.invisibleDelay {
+  visibility: hidden;
+  transition: visibility 0s linear 0.3s;
+}

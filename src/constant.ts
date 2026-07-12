@@ -10,12 +10,6 @@ import {
   Palette
 } from "lucide-react";
 
-export const BESTSELLERS = [
-  { slug: "shrutibhyam-neem-handmade-soap", name: "Shrutibhyam Neem Handmade Soap", tag: "Bestseller", price: 350, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-3.avif" },
-  { slug: "shrutibhyam-haldi-handmade-soap", name: "Shrutibhyam Haldi Handmade Soap", tag: "Bestseller", price: 350, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2-2.avif" },
-  { slug: "shrutibhyam-lavender-handmade-soap", name: "Shrutibhyam Lavender Handmade Soap", tag: "Bestseller", price: 350, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-1.avif" },
-  { slug: "shrutibhyam-french-clay-handmade-soap", name: "Shrutibhyam French Clay Handmade Soap", tag: "Bestseller", price: 350, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2.avif" },
-];
 
 // WooCommerce configuration defaults
 export const WOOCOMMERCE_DEFAULT_URL = "https://your-woocommerce-store.com";
@@ -65,6 +59,15 @@ export const PRODUCTS = [
   { slug: "shrutibhyam-lavender-handmade-soap", name: "Shrutibhyam Lavender Handmade Soap", tag: "Skincare", subtitle: "Soothing & Nourishing Care", price: 350, regularPrice: 500, onSale: true, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-1.avif", wooId: 32 },
   { slug: "shrutibhyam-french-clay-handmade-soap", name: "Shrutibhyam French Clay Handmade Soap", tag: "Skincare", subtitle: "Gentle detoxifying & nourishing bar", price: 350, regularPrice: 500, onSale: true, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2.avif", wooId: 24 },
 ];
+
+// Derived from PRODUCTS — single source of truth for bestseller data
+export const BESTSELLERS = PRODUCTS.map(p => ({
+  slug: p.slug,
+  name: p.name,
+  tag: "Bestseller" as const,
+  price: p.price,
+  image: p.image,
+}));
 
 // Home page trust indicators
 export const TRUST = [
@@ -142,9 +145,9 @@ export const EVENT_TESTIMONIALS = [
 ];
 
 export const SHOP_TESTIMONIAL = {
-  quote: "We're a young, growing brand - every bar is still made by hand, in small batches, by us. Your feedback shapes what we make next.",
-  author: "Team Shrutibhyam",
-  role: "Founder-led brand"
+  quote: HOME_TESTIMONIALS[0].quote,
+  author: HOME_TESTIMONIALS[0].name,
+  role: HOME_TESTIMONIALS[0].role,
 };
 
 export const SHOP_REVIEWS = [

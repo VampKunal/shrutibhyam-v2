@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { SiteLayout } from "@/components/site/Layout";
 import {
     IMG,
@@ -16,6 +16,8 @@ import { getWooProducts } from "@/lib/api/woocommerce.functions";
 import { Partners } from "@/components/site/Partners";
 import { TestimonialsGallery } from "@/components/site/TestimonialsGallery";
 import { ProductCardImage } from "@/components/site/ProductCardImage";
+import { scrollContainerLeft, scrollContainerRight } from "@/lib/scroll";
+import { PriceDisplay } from "@/components/ui/PriceDisplay";
 
 
 export const Route = createFileRoute("/")({
@@ -44,12 +46,19 @@ function Home() {
     const bestsellerRef = useRef<HTMLDivElement>(null);
     const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-    const scrollLeft = (ref: any) => {
-        if (ref.current) ref.current.scrollBy({ left: -320, behavior: 'smooth' });
-    };
-    const scrollRight = (ref: any) => {
-        if (ref.current) ref.current.scrollBy({ left: 320, behavior: 'smooth' });
-    };
+    const bestsellers = useMemo(() => {
+        return products.slice(0, 8).map((p) => ({
+            slug: p.slug,
+            name: p.name,
+            price: p.price,
+            regularPrice: p.regularPrice,
+            onSale: p.onSale,
+            image: p.image,
+            tag: p.onSale ? "Sale" : "Bestseller",
+            wooId: p.wooId,
+        }));
+    }, [products]);
+
 
     useEffect(() => {
         const currentSlide = HERO_CAROUSEL[currentImg];
@@ -181,10 +190,10 @@ function Home() {
                         <div className="md:max-w-md">
 
                             <div className="hidden md:flex gap-4">
-                                <button onClick={() => scrollLeft(craftedRef)} className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm">
+                                <button onClick={() => scrollContainerLeft(craftedRef)} className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm">
                                     <ChevronLeft size={24} />
                                 </button>
-                                <button onClick={() => scrollRight(craftedRef)} className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm">
+                                <button onClick={() => scrollContainerRight(craftedRef)} className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm">
                                     <ChevronRight size={24} />
                                 </button>
                             </div>
@@ -229,17 +238,17 @@ function Home() {
                             <h3 className="font-display text-2xl text-primary">Bestsellers</h3>
                             <div className="flex gap-2 items-center">
                                 <span className="text-xs text-on-surface-variant md:hidden uppercase tracking-widest mr-2">Swipe</span>
-                                <button onClick={() => scrollLeft(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
+                                <button onClick={() => scrollContainerLeft(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
                                     <ChevronLeft size={20} />
                                 </button>
-                                <button onClick={() => scrollRight(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
+                                <button onClick={() => scrollContainerRight(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
                                     <ChevronRight size={20} />
                                 </button>
                             </div>
                         </div>
                         <div className="overflow-x-auto no-scrollbar relative group -mx-4 px-4 md:mx-0 md:px-0" ref={bestsellerRef}>
                             <div className="flex gap-6 pb-6 snap-x snap-mandatory w-max">
-                                {BESTSELLERS.map((product, idx) => (
+                                {bestsellers.map((product, idx) => (
                                     <Link key={idx} to={`/shop/${product.slug}` as any} className="snap-center shrink-0 w-[240px] md:w-[280px] flex flex-col group/item cursor-pointer">
                                         <div className="aspect-[4/5] relative overflow-hidden mb-4 rounded bg-surface-container-low">
                                             <ProductCardImage product={product as any} imageClassName="group-hover/item:scale-105" />
@@ -250,7 +259,9 @@ function Home() {
                                             )}
                                         </div>
                                         <h4 className="font-display text-lg text-primary mb-1 group-hover/item:text-sage-green transition-colors">{product.name}</h4>
-                                        <p className="text-sm text-on-surface-variant">₹{product.price}</p>
+                                        <div className="mt-1">
+                                            <PriceDisplay price={product.price} regularPrice={product.regularPrice} onSale={product.onSale} />
+                                        </div>
                                     </Link>
                                 ))}
                             </div>

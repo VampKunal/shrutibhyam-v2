@@ -5,7 +5,6 @@ import { Footer } from "./Footer";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLocation } from "@tanstack/react-router";
-import { scrollToTop } from "@/context/ScrollContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,11 +12,8 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const mainRef = useRef<HTMLElement>(null);
   const location = useLocation();
 
-  useEffect(() => {
-    scrollToTop();
-    const frame = requestAnimationFrame(() => scrollToTop());
-    return () => cancelAnimationFrame(frame);
-  }, [location.pathname]);
+  // Scroll-to-top on route change is handled by ScrollProvider in __root.tsx.
+  // Only ScrollTrigger refresh is needed here.
 
   useEffect(() => {
     if (!mainRef.current) return;
@@ -27,7 +23,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
     const sections = mainRef.current.querySelectorAll("section");
     const ctx = gsap.context(() => {
       sections.forEach((sec) => {
-        gsap.fromTo(sec, 
+        gsap.fromTo(sec,
           { opacity: 0, y: 30 },
           {
             opacity: 1,
@@ -50,7 +46,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface">
       <Header />
-      <main ref={mainRef} className="flex-1 overflow-x-hidden">{children}</main>
+      <main ref={mainRef} className="flex-1 overflow-hidden">{children}</main>
       <Footer />
     </div>
   );

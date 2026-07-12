@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CONTACT_INFO } from "@/constant";
 import { SearchDialog } from "./SearchDialog";
 import { LoginDialog } from "./LoginDialog";
+import { useOverlay } from "@/hooks/useOverlay";
 
 const links = [
     { to: "/about", label: "About", hash: undefined },
@@ -38,25 +39,11 @@ export function Header() {
     const { toggleCart, cartCount } = useCart();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    // Close mobile menu on Escape key press or resize
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") setIsMenuOpen(false);
-        };
-        const handleResize = () => {
-            if (window.innerWidth >= 768) setIsMenuOpen(false);
-        };
-        if (isMenuOpen) {
-            window.addEventListener("keydown", handleKeyDown);
-            window.addEventListener("resize", handleResize);
-            document.body.style.overflow = "hidden";
-        }
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-            window.removeEventListener("resize", handleResize);
-            document.body.style.overflow = "";
-        };
-    }, [isMenuOpen]);
+    useOverlay({
+        isOpen: isMenuOpen,
+        onClose: () => setIsMenuOpen(false),
+        closeOnDesktopResize: true,
+    });
 
     return (
         <>

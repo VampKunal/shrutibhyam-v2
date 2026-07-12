@@ -11,6 +11,7 @@ import {
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 import { LocalProduct } from "@/lib/woocommerce";
 import { useCart } from "@/context/CartContext";
+import { PriceDisplay } from "@/components/ui/PriceDisplay";
 
 export function SearchDialog() {
  const [isOpen, setIsOpen] = useState(false);
@@ -219,9 +220,7 @@ export function SearchDialog() {
  {p.subtitle}
  </p>
  <div className="flex items-center gap-2 mt-1">
- <span className="text-xs font-semibold text-deep-charcoal">
- ₹{p.price.toLocaleString("en-IN")}
- </span>
+ <PriceDisplay price={p.price} />
  <span className="text-[10px] uppercase bg-soft-beige/50 px-2 py-0.5 rounded text-on-surface-variant/80 font-medium">
  {p.tag}
  </span>
@@ -338,9 +337,7 @@ export function SearchDialog() {
  </div>
 
  <div className="flex items-center gap-2">
- <span className="text-xs font-semibold text-deep-charcoal mr-2">
- ₹{p.price.toLocaleString("en-IN")}
- </span>
+ <PriceDisplay price={p.price} />
  <button
  onClick={() => handleAddToCart(p)}
  className={`p-1.5 border rounded transition-colors text-xs flex items-center justify-center font-semibold cursor-pointer ${addedSlugs[p.slug]

@@ -2,9 +2,9 @@ import { createFileRoute, notFound, Link, useRouter } from "@tanstack/react-rout
 import { useState, useEffect, useRef } from "react";
 import { SiteLayout } from "@/components/site/Layout";
 import {
-  Minus, Plus, ChevronDown, Star, StarHalf, Edit3, Trash2, Loader2,
+  Minus, Plus, ChevronDown, Edit3, Trash2, Loader2,
   MessageSquare, Check, X, Heart, Share2, ShieldCheck, Truck, RotateCcw,
-  CreditCard, ChevronRight, ChevronLeft, ImagePlus, Upload
+  CreditCard, ChevronRight, ChevronLeft, Upload
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { getWooProductBySlug, getWooProducts } from "@/lib/api/woocommerce.functions";
@@ -15,7 +15,10 @@ import {
 import { getComments, addComment, updateComment, deleteComment } from "@/lib/api/comments.functions";
 import { useAuth } from "@/context/AuthContext";
 import { parseProductDescription } from "@/lib/woocommerce";
-import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/api/wishlist.functions";
+import { useWishlist } from "@/hooks/useWishlist";
+import { PriceDisplay } from "@/components/ui/PriceDisplay";
+import { StarRating } from "@/components/ui/StarRating";
+import { scrollContainerLeft, scrollContainerRight } from "@/lib/scroll";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
@@ -54,23 +57,16 @@ function Product() {
   const { product, similarProducts, comments } = Route.useLoaderData();
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [qty, setQty] = useState(1);
   const [openAccordion, setOpenAccordion] = useState<string | null>("Benefits");
-  const [isInWishlist, setIsInWishlist] = useState(false);
   const [activeImage, setActiveImage] = useState(product.image);
   const [showFullSubtitle, setShowFullSubtitle] = useState(false);
   const [bundleChecked, setBundleChecked] = useState(true);
 
   const storiesRef = useRef<HTMLDivElement>(null);
   const recommendedRef = useRef<HTMLDivElement>(null);
-
-  const scrollLeft = (ref: any) => {
-    if (ref.current) ref.current.scrollBy({ left: -320, behavior: 'smooth' });
-  };
-  const scrollRight = (ref: any) => {
-    if (ref.current) ref.current.scrollBy({ left: 320, behavior: 'smooth' });
-  };
 
   const images = PRODUCT_GALLERY[product.slug] || [product.image];
 
@@ -91,41 +87,12 @@ function Product() {
     setActiveImage(product.image);
   }, [product.slug]);
 
-  useEffect(() => {
-    if (user) {
-      getWishlist({ data: user.id })
-        .then((slugs) => setIsInWishlist(slugs.includes(product.slug)))
-        .catch(console.error);
-    } else {
-      setIsInWishlist(false);
-    }
-  }, [user, product.slug]);
-
-  const handleToggleWishlist = async () => {
-    if (!user) {
-      alert("Please log in using the profile icon at the top right to manage your wishlist.");
-      return;
-    }
-    try {
-      if (isInWishlist) {
-        await removeFromWishlist({ data: { userId: user.id, productSlug: product.slug } });
-        setIsInWishlist(false);
-      } else {
-        await addToWishlist({ data: { userId: user.id, productSlug: product.slug } });
-        setIsInWishlist(true);
-      }
-    } catch (err) {
-      console.error("Error toggling wishlist:", err);
-    }
-  };
-
   const handleAddToCart = () => {
     addToCart(product, qty);
   };
 
   const handleBuyNow = () => {
     addToCart(product, qty);
-    // Add direct checkout logic if required
     alert("Proceeding to checkout...");
   };
 
@@ -172,15 +139,12 @@ function Product() {
 
   return (
     <SiteLayout>
-      {/* 1. PRODUCT HERO SECTION */}
       <section className="bg-surface py-8 md:py-16">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
           <Link to="/shop" className="text-xs uppercase tracking-[0.12em] text-on-surface-variant hover:text-primary mb-8 inline-block">← Back to Shop</Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* Left/Center: Image Gallery */}
             <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4 h-full">
-              {/* Vertical Thumbnails */}
               <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar shrink-0 md:h-[600px] md:w-24">
                 {images.map((img, idx) => (
                   <button
@@ -193,7 +157,6 @@ function Product() {
                 ))}
               </div>
 
-              {/* Main Image */}
               <div
                 className="relative flex-1 bg-cream-bg rounded-2xl overflow-hidden group border border-soft-beige md:h-[550px] md:w-[100px]"
               >
@@ -210,7 +173,6 @@ function Product() {
               </div>
             </div>
 
-            {/* Right: Product Info & Purchase Area */}
             <div className="lg:col-span-5 flex flex-col pt-2 md:pt-0">
               <div className="flex gap-2 flex-wrap mb-4">
                 {details.purityTags.map((tag) => (
@@ -220,18 +182,13 @@ function Product() {
 
               <h1 className="font-display text-4xl md:text-5xl text-primary leading-tight mb-4">{product.name}</h1>
 
-              {/* Price Area */}
               <div className="flex items-end gap-4 mb-6">
-                <span className="text-3xl font-display text-primary font-bold">₹{product.price.toLocaleString("en-IN")}</span>
+                <PriceDisplay price={product.price} regularPrice={product.regularPrice} onSale={product.onSale} variant="lg" />
                 {product.onSale && product.regularPrice && product.regularPrice > product.price && (
-                  <>
-                    <span className="text-lg text-on-surface-variant line-through mb-1">₹{product.regularPrice.toLocaleString("en-IN")}</span>
-                    <span className="text-sm font-bold text-sage-green mb-2">(Save ₹{(product.regularPrice - product.price).toLocaleString("en-IN")})</span>
-                  </>
+                  <span className="text-sm font-bold text-sage-green mb-2">(Save ₹{(product.regularPrice - product.price).toLocaleString("en-IN")})</span>
                 )}
               </div>
 
-              {/* Subtitle / Description */}
               <div className="mb-8">
                 <div
                   className="text-sm text-on-surface-variant leading-relaxed mb-2"
@@ -246,7 +203,6 @@ function Product() {
                   </button>
                 )}
 
-                {/* Trust Icons */}
                 <div className="flex flex-wrap gap-3 mt-6">
                   {[...PURITY].slice(0, 5).map(({ icon: Icon, label }) => (
                     <div key={label} className="flex flex-col items-center gap-2 w-16">
@@ -259,7 +215,6 @@ function Product() {
                 </div>
               </div>
 
-              {/* 2. PURCHASE AREA */}
               <div className="bg-white rounded-2xl p-6 border border-soft-beige shadow-sm space-y-6 mb-8">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center border-2 border-soft-beige rounded-lg overflow-hidden bg-surface">
@@ -288,8 +243,8 @@ function Product() {
                 </div>
 
                 <div className="flex justify-between pt-4 border-t border-soft-beige">
-                  <button onClick={handleToggleWishlist} className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${isInWishlist ? 'text-red-500' : 'text-on-surface-variant hover:text-primary'}`}>
-                    <Heart size={16} className={isInWishlist ? "fill-current" : ""} /> {isInWishlist ? 'Saved' : 'Wishlist'}
+                  <button onClick={() => toggleWishlist(product.slug)} className="flex items-center justify-center w-12 h-12 rounded-xl border border-soft-beige hover:bg-cream-bg text-primary hover:text-sage-green transition-colors cursor-pointer" aria-label="Wishlist">
+                    <Heart size={20} className={isInWishlist(product.slug) ? "fill-red-500 text-red-500" : ""} />
                   </button>
                   <button onClick={handleShare} className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
                     <Share2 size={16} /> Share
@@ -297,7 +252,6 @@ function Product() {
                 </div>
               </div>
 
-              {/* Delivery & Trust Indicators */}
               <div className="grid grid-cols-2 gap-4 text-xs font-medium text-primary">
                 <div className="flex items-start gap-3 bg-soft-beige/30 p-3 rounded-lg">
                   <Truck className="text-sage-green shrink-0 mt-0.5" size={18} />
@@ -318,7 +272,6 @@ function Product() {
                   <span className="font-bold mr-2">Secure Checkout</span>
                   <div className="flex gap-2">
                     <CreditCard size={18} className="text-on-surface-variant" />
-                    {/* Add more payment icons here if needed */}
                   </div>
                 </div>
               </div>
@@ -327,7 +280,6 @@ function Product() {
         </div>
       </section>
 
-      {/* 3. FREQUENTLY BOUGHT TOGETHER */}
       {bundleProduct && (
         <section className="bg-cream-bg py-16 border-y border-soft-beige">
           <div className="max-w-[1000px] mx-auto px-4 md:px-8">
@@ -335,7 +287,6 @@ function Product() {
             <div className="bg-white rounded-2xl p-6 md:p-8 border border-soft-beige shadow-sm flex flex-col md:flex-row items-center gap-8">
 
               <div className="flex items-center gap-4 flex-1">
-                {/* Main Product */}
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 rounded-lg overflow-hidden border border-soft-beige shadow-sm mb-3 relative">
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
@@ -346,7 +297,6 @@ function Product() {
 
                 <Plus className="text-sage-green shrink-0" size={24} strokeWidth={3} />
 
-                {/* Bundle Product */}
                 <div className="flex flex-col items-center opacity-100 transition-opacity">
                   <div className="w-24 h-24 rounded-lg overflow-hidden border border-soft-beige shadow-sm mb-3">
                     <img src={bundleProduct.image} alt={bundleProduct.name} className="w-full h-full object-cover" />
@@ -355,7 +305,6 @@ function Product() {
                 </div>
               </div>
 
-              {/* Bundle Checkout Area */}
               <div className="flex-1 bg-surface rounded-xl p-6 border border-soft-beige w-full md:w-auto">
                 <div className="space-y-4 mb-6">
                   <label className="flex items-start gap-3 cursor-pointer group">
@@ -402,7 +351,6 @@ function Product() {
       )}
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-16 grid grid-cols-1 lg:grid-cols-2 gap-16">
-        {/* 4. EXPANDABLE INFORMATION (Accordions) */}
         <section>
           <h2 className="font-display text-3xl text-primary mb-8">Product Information</h2>
           <div className="border border-soft-beige rounded-2xl bg-white overflow-hidden shadow-sm">
@@ -431,7 +379,6 @@ function Product() {
           </div>
         </section>
 
-        {/* 6. STATISTICS / SOCIAL PROOF */}
         <section>
           <h2 className="font-display text-3xl text-primary mb-8">Results That Speak For Themselves</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -450,18 +397,17 @@ function Product() {
         </section>
       </div>
 
-      {/* 7. CUSTOMER TESTIMONIALS (Horizontal Scroll Cards) */}
       <section className="py-12 bg-primary text-white overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
           <div className="flex justify-between items-end mb-8">
             <h2 className="font-display text-2xl md:text-3xl">
               Real Customer Stories
             </h2>
-            <div className="hidden md:flex gap-4">
-              <button onClick={() => scrollLeft(storiesRef)} className="w-10 h-10 rounded-full border border-white flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer">
+            <div className="flex gap-2">
+              <button onClick={() => scrollContainerLeft(storiesRef)} className="w-10 h-10 rounded-full border border-soft-beige flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
                 <ChevronLeft size={20} />
               </button>
-              <button onClick={() => scrollRight(storiesRef)} className="w-10 h-10 rounded-full border border-white flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer">
+              <button onClick={() => scrollContainerRight(storiesRef)} className="w-10 h-10 rounded-full border border-soft-beige flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -477,7 +423,6 @@ function Product() {
                   key={idx}
                   className="snap-center shrink-0 w-[240px] md:w-[260px] h-[380px] bg-white text-primary rounded-xl overflow-hidden shadow-lg flex flex-col"
                 >
-                  {/* Image */}
                   <div className="h-[60%] relative overflow-hidden">
                     <img
                       src={story.image}
@@ -491,18 +436,8 @@ function Product() {
                     </div>
                   </div>
 
-                  {/* Content */}
                   <div className="h-[40%] p-4 flex flex-col">
-                    <div className="flex text-amber-500 mb-2">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={12}
-                          fill={i < story.rating ? "currentColor" : "none"}
-                          strokeWidth={i < story.rating ? 0 : 1.5}
-                        />
-                      ))}
-                    </div>
+                    <StarRating rating={story.rating} size={12} colorClass="text-amber-500 mb-2" />
 
                     <p className="text-xs italic leading-relaxed line-clamp-3 flex-1">
                       "{story.text}"
@@ -527,10 +462,10 @@ function Product() {
               You May Also Like
             </h2>
             <div className="hidden md:flex gap-4">
-              <button onClick={() => scrollLeft(recommendedRef)} className="w-12 h-12 rounded-full border border-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary">
+              <button onClick={() => scrollContainerLeft(recommendedRef)} className="w-12 h-12 rounded-full border border-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary">
                 <ChevronLeft size={24} />
               </button>
-              <button onClick={() => scrollRight(recommendedRef)} className="w-12 h-12 rounded-full border border-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary">
+              <button onClick={() => scrollContainerRight(recommendedRef)} className="w-12 h-12 rounded-full border border-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary">
                 <ChevronRight size={24} />
               </button>
             </div>
@@ -565,16 +500,8 @@ function Product() {
                       {p.name}
                     </h3>
 
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-lg font-bold text-sage-green">
-                        ₹{p.price.toLocaleString("en-IN")}
-                      </span>
-
-                      {p.regularPrice && p.regularPrice > p.price && (
-                        <span className="text-sm line-through text-on-surface-variant">
-                          ₹{p.regularPrice.toLocaleString("en-IN")}
-                        </span>
-                      )}
+                    <div className="mt-2">
+                      <PriceDisplay price={p.price} regularPrice={p.regularPrice} onSale={p.onSale} />
                     </div>
                   </div>
                 </Link>
@@ -719,10 +646,8 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
                 <span className="text-6xl font-display text-primary">{averageRating.toFixed(1)}</span>
                 <span className="text-xl text-on-surface-variant">/ 5</span>
               </div>
-              <div className="flex justify-center gap-1 text-amber-500 mb-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={24} fill={i < Math.round(averageRating) ? "currentColor" : "none"} strokeWidth={i < Math.round(averageRating) ? 0 : 1.5} />
-                ))}
+              <div className="flex justify-center mb-2">
+                <StarRating rating={averageRating} size={24} colorClass="text-amber-500" />
               </div>
               <p className="text-sm font-bold uppercase tracking-wider text-on-surface-variant">Based on {reviewCount} Reviews</p>
             </div>
@@ -750,23 +675,15 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
 
                 <div className="mb-6">
                   <label className="text-xs font-bold uppercase tracking-wider text-primary block mb-3">Overall Rating</label>
-                  <div className="flex gap-2">
-                    {Array.from({ length: 5 }).map((_, i) => {
-                      const starVal = i + 1;
-                      const active = hoverRating !== null ? hoverRating >= starVal : rating >= starVal;
-                      return (
-                        <button
-                          key={i} type="button"
-                          onClick={() => setRating(starVal)}
-                          onMouseEnter={() => setHoverRating(starVal)}
-                          onMouseLeave={() => setHoverRating(null)}
-                          className="cursor-pointer transition-transform hover:scale-110"
-                        >
-                          <Star size={28} fill={active ? "currentColor" : "none"} className={active ? "text-amber-500" : "text-soft-beige"} strokeWidth={active ? 0 : 2} />
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <StarRating
+                    rating={rating}
+                    size={28}
+                    colorClass="text-amber-500"
+                    interactive
+                    onChange={setRating}
+                    hoverRating={hoverRating}
+                    onHoverChange={setHoverRating}
+                  />
                 </div>
 
                 <div className="mb-6">
@@ -840,11 +757,7 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
                                 </span>
                               )}
                             </div>
-                            <div className="flex text-amber-500">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <Star key={i} size={12} fill={i < c.rating ? "currentColor" : "none"} strokeWidth={i < c.rating ? 0 : 1.5} />
-                              ))}
-                            </div>
+                            <StarRating rating={c.rating} size={12} colorClass="text-amber-500" />
                           </div>
                         </div>
                         <span className="text-xs text-on-surface-variant font-medium">

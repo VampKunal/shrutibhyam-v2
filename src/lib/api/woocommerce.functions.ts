@@ -1,37 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { mapWooCommerceProduct, LocalProduct } from "../woocommerce";
+import { mapWooCommerceProduct, LocalProduct, getProductFallbackImage } from "../woocommerce";
 import process from "node:process";
 import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
 
-// Safe helper to run fetch requests to WooCommerce REST API on the server
+// Thin wrapper around the unified fetchWP helper, pinned to the WooCommerce v3 namespace.
 export async function fetchWooCommerce(endpoint: string, method: "GET" | "POST" | "PUT" | "DELETE" = "GET", body?: any) {
-  const siteUrl = process.env.WOOCOMMERCE_URL || WOOCOMMERCE_DEFAULT_URL;
-  const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY || "";
-  const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET || "";
-
-  // Append credentials to URL for authentication
-  const separator = endpoint.includes("?") ? "&" : "?";
-  const url = `${siteUrl.replace(/\/$/, "")}/wp-json/wc/v3/${endpoint}${separator}consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
-
-  const response = await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  if (!response.ok) {
-    let errorMsg = `WooCommerce API Error: ${response.status} ${response.statusText}`;
-    try {
-      const errorJson = await response.json();
-      if (errorJson.message) errorMsg = errorJson.message;
-    } catch {}
-    throw new Error(errorMsg);
-  }
-
-  return response.json();
+  const { fetchWP } = await import("./wp.server");
+  return fetchWP("wc/v3", endpoint, method, body);
 }
 
 /**
@@ -40,7 +16,7 @@ export async function fetchWooCommerce(endpoint: string, method: "GET" | "POST" 
 export const getWooProducts = createServerFn({ method: "GET" })
   .handler(async (): Promise<LocalProduct[]> => {
     try {
-      const wpProducts = await fetchWooCommerce("products?per_page=100");
+      const wpProducts = await fetchWooCommerce("products?per_page=100&status=publish");
       if (Array.isArray(wpProducts)) {
         return wpProducts.map(mapWooCommerceProduct);
       }
@@ -58,7 +34,7 @@ export const getWooProductBySlug = createServerFn({ method: "GET" })
   .validator(z.string())
   .handler(async ({ data: slug }): Promise<LocalProduct | null> => {
     try {
-      const wpProducts = await fetchWooCommerce(`products?slug=${encodeURIComponent(slug)}`);
+      const wpProducts = await fetchWooCommerce(`products?slug=${encodeURIComponent(slug)}&status=publish`);
       if (Array.isArray(wpProducts) && wpProducts.length > 0) {
         return mapWooCommerceProduct(wpProducts[0]);
       }
@@ -202,18 +178,7 @@ export const getCustomerOrders = createServerFn({ method: "GET" })
             items: (o.line_items || []).map((item: any) => {
               let image = item.image?.src || "";
               if (!image) {
-                const nameLower = (item.name || "").toLowerCase();
-                if (nameLower.includes("neem")) {
-                  image = "https://lh3.googleusercontent.com/aida-public/AB6AXuAQfRJwv1Xb6I-IFnyy2EKoulNGjLvUulC9Crl07IpYwNWfK0A2v3Eo8HorTKTW0Bbz0V2gb5pXWD_jdzEXt3es1HW6uP3MxMC4mcD4tbrvBZaS6ynqe0twAYtIHtWzneYQwj95nwMUitNW5gjOmsUm2eJad7x4zjR03EqzRhFJ50qgH5QwWN1Aa2FZdHIPUGcRpEmeFzw6LXP9CpfQ6pQV6d2xHUD_0bT0Q9JA7v16T0I9r2uDm-mX3tWA_-mCBp739zahIqTAkvs";
-                } else if (nameLower.includes("haldi")) {
-                  image = "https://lh3.googleusercontent.com/aida-public/AB6AXuAQfRJwv1Xb6I-IFnyy2EKoulNGjLvUulC9Crl07IpYwNWfK0A2v3Eo8HorTKTW0Bbz0V2gb5pXWD_jdzEXt3es1HW6uP3MxMC4mcD4tbrvBZaS6ynqe0twAYtIHtWzneYQwj95nwMUitNW5gjOmsUm2eJad7x4zjR03EqzRhFJ50qgH5QwWN1Aa2FZdHIPUGcRpEmeFzw6LXP9CpfQ6pQV6d2xHUD_0bT0Q9JA7v16T0I9r2uDm-mX3tWA_-mCBp739zahIqTAkvs";
-                } else if (nameLower.includes("lavender")) {
-                  image = "https://lh3.googleusercontent.com/aida-public/AB6AXuAoAfn-VZ12KVYMg0ZLJFQGmnX9lcnvGabBwCF_Gwzt04aHBai61-0dS5-furtqtFwTSg12LQwWMjR3O1zS3X_nqNqgl0dQHSjwYDJV0drhn8g7BnoI2vKyhbHNx5d-ss38KdeRFU_ae2MFvGOoaWFGrTxduaAaITp_jwGC7Y0noaEwVwPUuNOTCijqOpE-2H2x_BSEn4ef7n0HBO7C9w6x6MO3b5TxeVBn5uUzLJUUgiN2ujrXFLN2Hry-jXWrvPZAC1zacp25wfM";
-                } else if (nameLower.includes("clay") || nameLower.includes("french")) {
-                  image = "https://lh3.googleusercontent.com/aida-public/AB6AXuB05hpJLG59gXzTieixMZePrnSgzi3wIA3HG432wz1VVUF3smdlsorH-q7VBhr9m66l2RnF7Z4zjvyxTgDojz7MwJhxBokMAs_4NIZO-QKXSz0gwMcafyPRhj_e2bJ9cRGgYtFz7QS_fUFRUkRi5UDedAqYavMN98-iYVpFIbv_2VwwQ0vxKGQ7KPgqcaXzqFFHFhfFSnKdx5_Xqn0urJ-4MMex9mgJQ62F82kgzXoJ2MAb2mv7a0FHp6rXaIbfL7fJUY6-TMsqkug";
-                } else {
-                  image = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500";
-                }
+                image = getProductFallbackImage(item.name || "");
               }
 
               return {

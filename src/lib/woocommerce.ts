@@ -4,7 +4,7 @@
 
 // Define your WordPress/WooCommerce site base URL here.
 // You can override this using the VITE_WOOCOMMERCE_URL environment variable in your production build.
-import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
+import { WOOCOMMERCE_DEFAULT_URL, IMG } from "@/constant";
 
 export const WOOCOMMERCE_BASE_URL =
   (import.meta.env.VITE_WOOCOMMERCE_URL as string) || WOOCOMMERCE_DEFAULT_URL;
@@ -22,18 +22,23 @@ export interface LocalProduct {
   descriptionHtml?: string;
 }
 
-const A = "https://lh3.googleusercontent.com/aida-public/";
-const FALLBACK_IMAGES = {
-  neem: A + "AB6AXuAQfRJwv1Xb6I-IFnyy2EKoulNGjLvUulC9Crl07IpYwNWfK0A2v3Eo8HorTKTW0Bbz0V2gb5pXWD_jdzEXt3es1HW6uP3MxMC4mcD4tbrvBZaS6ynqe0twAYtIHtWzneYQwj95nwMUitNW5gjOmsUm2eJad7x4zjR03EqzRhFJ50qgH5QwWN1Aa2FZdHIPUGcRpEmeFzw6LXP9CpfQ6pQV6d2xHUD_0bT0Q9JA7v16T0I9r2uDm-mX3tWA_-mCBp739zahIqTAkvs", // faceOil (soap look)
-  haldi: A + "AB6AXuAQfRJwv1Xb6I-IFnyy2EKoulNGjLvUulC9Crl07IpYwNWfK0A2v3Eo8HorTKTW0Bbz0V2gb5pXWD_jdzEXt3es1HW6uP3MxMC4mcD4tbrvBZaS6ynqe0twAYtIHtWzneYQwj95nwMUitNW5gjOmsUm2eJad7x4zjR03EqzRhFJ50qgH5QwWN1Aa2FZdHIPUGcRpEmeFzw6LXP9CpfQ6pQV6d2xHUD_0bT0Q9JA7v16T0I9r2uDm-mX3tWA_-mCBp739zahIqTAkvs", // faceOil (soap look)
-  lavender: A + "AB6AXuAoAfn-VZ12KVYMg0ZLJFQGmnX9lcnvGabBwCF_Gwzt04aHBai61-0dS5-furtqtFwTSg12LQwWMjR3O1zS3X_nqNqgl0dQHSjwYDJV0drhn8g7BnoI2vKyhbHNx5d-ss38KdeRFU_ae2MFvGOoaWFGrTxduaAaITp_jwGC7Y0noaEwVwPUuNOTCijqOpE-2H2x_BSEn4ef7n0HBO7C9w6x6MO3b5TxeVBn5uUzLJUUgiN2ujrXFLN2Hry-jXWrvPZAC1zacp25wfM", // serum
-  clay: A + "AB6AXuB05hpJLG59gXzTieixMZePrnSgzi3wIA3HG432wz1VVUF3smdlsorH-q7VBhr9m66l2RnF7Z4zjvyxTgDojz7MwJhxBokMAs_4NIZO-QKXSz0gwMcafyPRhj_e2bJ9cRGgYtFz7QS_fUFRUkRi5UDedAqYavMN98-iYVpFIbv_2VwwQ0vxKGQ7KPgqcaXzqFFHFhfFSnKdx5_Xqn0urJ-4MMex9mgJQ62F82kgzXoJ2MAb2mv7a0FHp6rXaIbfL7fJUY6-TMsqkug", // powder
-};
-
 function extractFirstImageFromHtml(html: string): string | null {
   if (!html) return null;
   const match = html.match(/<img[^>]+src="([^">]+)"/);
   return match ? match[1] : null;
+}
+
+/**
+ * Returns a fallback image URL based on a product name or slug.
+ * Single source of truth — used by mapWooCommerceProduct and getCustomerOrders.
+ */
+export function getProductFallbackImage(nameOrSlug: string): string {
+  const lower = nameOrSlug.toLowerCase();
+  if (lower.includes("neem")) return IMG.faceOil;
+  if (lower.includes("haldi")) return IMG.faceOil;
+  if (lower.includes("lavender")) return IMG.serum;
+  if (lower.includes("clay") || lower.includes("french")) return IMG.powder;
+  return "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500";
 }
 
 /**
@@ -92,18 +97,7 @@ export function mapWooCommerceProduct(wpProduct: any): LocalProduct {
     || extractFirstImageFromHtml(wpProduct.short_description);
 
   if (!image) {
-    const slugLower = (wpProduct.slug || "").toLowerCase();
-    if (slugLower.includes("neem")) {
-      image = FALLBACK_IMAGES.neem;
-    } else if (slugLower.includes("haldi")) {
-      image = FALLBACK_IMAGES.haldi;
-    } else if (slugLower.includes("lavender")) {
-      image = FALLBACK_IMAGES.lavender;
-    } else if (slugLower.includes("clay") || slugLower.includes("french")) {
-      image = FALLBACK_IMAGES.clay;
-    } else {
-      image = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500";
-    }
+    image = getProductFallbackImage(wpProduct.slug || wpProduct.name || "");
   }
 
   return {

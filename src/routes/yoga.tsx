@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { CONTACT_INFO, IMG, PRACTICES, SCHEDULE, YOGA_TESTIMONIALS } from "@/constant";
 import { ArrowRight, Star, User } from "lucide-react";
+import { StarRating } from "@/components/ui/StarRating";
 
 export const Route = createFileRoute("/yoga")({
  head: () => ({
@@ -123,9 +124,7 @@ function Yoga() {
  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
  {YOGA_TESTIMONIALS.map((t) => (
  <div key={t.name} className="bg-cream-bg border border-soft-beige rounded p-6">
- <div className="flex text-sage-green mb-3">
- {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} />)}
- </div>
+ <StarRating rating={5} />
  <p className="italic text-sm text-on-surface-variant mb-4 leading-relaxed">"{t.q}"</p>
  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-primary">{t.name}</p>
  <p className="text-xs text-outline">{t.role}</p>

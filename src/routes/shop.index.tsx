@@ -7,9 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSelectedCategory, setPriceLimit, setSortBy, setCurrentPage, resetFilters } from "@/store/slices/shopSlice";
 import { SHOP_TESTIMONIAL } from "@/constant";
-import { useAuth } from "@/context/AuthContext";
-import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/api/wishlist.functions";
+import { useWishlist } from "@/hooks/useWishlist";
 import { ProductCardImage } from "@/components/site/ProductCardImage";
+import { PriceDisplay } from "@/components/ui/PriceDisplay";
 
 type ShopSearch = {
   search?: string;
@@ -33,7 +33,6 @@ export const Route = createFileRoute("/shop/")({
   loader: async () => {
     const products = await getWooProducts();
     return { products };
-    return {};
   },
   staleTime: 1000 * 60 * 5, // 5 minutes cache
   component: Shop,
@@ -41,7 +40,7 @@ export const Route = createFileRoute("/shop/")({
 
 function Shop() {
   const searchParams = Route.useSearch();
-  const { user } = useAuth();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const dispatch = useAppDispatch();
   const { selectedCategory, priceLimit, sortBy, currentPage } = useAppSelector((state) => state.shop);
 
@@ -55,70 +54,22 @@ function Shop() {
     staleTime: 1000 * 60 * 10,
   });
 
-  const [wishlistSlugs, setWishlistSlugs] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      getWishlist({ data: user.id }).then(setWishlistSlugs).catch(console.error);
-    } else {
-      setWishlistSlugs([]);
-    }
-  }, [user]);
-
-  const handleToggleWishlist = async (e: React.MouseEvent, slug: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!user) {
-      alert("Please log in using the profile icon at the top right to manage your wishlist.");
-      return;
-    }
-    const isWishlisted = wishlistSlugs.includes(slug);
-    try {
-      if (isWishlisted) {
-        await removeFromWishlist({ data: { userId: user.id, productSlug: slug } });
-        setWishlistSlugs(prev => prev.filter(s => s !== slug));
-      } else {
-        await addToWishlist({ data: { userId: user.id, productSlug: slug } });
-        setWishlistSlugs(prev => [...prev, slug]);
-      }
-    } catch (err) {
-      console.error("Error toggling wishlist:", err);
-    }
-  };
-
   useEffect(() => {
     if (searchParams.category) {
       dispatch(setSelectedCategory(searchParams.category));
     }
   }, [searchParams.category, dispatch]);
 
-  // Clean up products tags from cache or unexpected backend values
-  const normalizedProducts = useMemo(() => {
-    return products.map(p => {
-      let newTag = "Others";
-      const nameL = p.name.toLowerCase();
-      const rawTagL = (p.tag || "").toLowerCase();
-
-      if (rawTagL.includes("skin") || rawTagL.includes("soap") || rawTagL.includes("cold") ||
-        nameL.includes("soap") || nameL.includes("cream") || nameL.includes("mist") || nameL.includes("elixir") || nameL.includes("oil")) {
-        newTag = "Skincare";
-      } else if (rawTagL.includes("yoga") || rawTagL.includes("mat") || nameL.includes("yoga") || nameL.includes("mat") || nameL.includes("block")) {
-        newTag = "Yoga";
-      }
-      return { ...p, tag: newTag };
-    });
-  }, [products]);
-
   const categories = useMemo(() => {
     const base = ["All Products", "Skincare", "Yoga", "Others"];
-    return base.filter((cat) => cat === "All Products" || normalizedProducts.some((p) => p.tag === cat));
-  }, [normalizedProducts]);
+    return base.filter((cat) => cat === "All Products" || products.some((p) => p.tag === cat));
+  }, [products]);
 
   // Determine highest product price to scale slider dynamically
   const maxPrice = useMemo(() => {
-    const highest = normalizedProducts.reduce((max, p) => (p.price > max ? p.price : max), 0);
+    const highest = products.reduce((max, p) => (p.price > max ? p.price : max), 0);
     return Math.ceil(highest / 500) * 500 || 5000;
-  }, [normalizedProducts]);
+  }, [products]);
 
   // Removed useEffect for priceLimit override because Redux maintains its own limit.
   // We can just bound the current value locally if we want.
@@ -126,7 +77,7 @@ function Shop() {
 
   // Filter products by category and max price
   const filteredProducts = useMemo(() => {
-    return normalizedProducts.filter((p) => {
+    return products.filter((p) => {
       const matchCategory = selectedCategory === "All Products" || p.tag === selectedCategory;
       const matchPrice = p.price <= effectivePriceLimit;
       const matchSearch = searchParams.search
@@ -135,7 +86,7 @@ function Shop() {
         : true;
       return matchCategory && matchPrice && matchSearch;
     });
-  }, [normalizedProducts, selectedCategory, effectivePriceLimit, searchParams.search]);
+  }, [products, selectedCategory, effectivePriceLimit, searchParams.search]);
 
   // Sort products based on criteria
   const sortedProducts = useMemo(() => {
@@ -190,8 +141,8 @@ function Shop() {
               <ul className="space-y-2">
                 {categories.map((cat) => {
                   const count = cat === "All Products"
-                    ? normalizedProducts.length
-                    : normalizedProducts.filter((p) => p.tag === cat).length;
+                    ? products.length
+                    : products.filter((p) => p.tag === cat).length;
                   return (
                     <li key={cat}>
                       <button
@@ -273,13 +224,13 @@ function Shop() {
                         <ProductCardImage product={p as any} imageClassName="group-hover:scale-105" />
                         {idx === 0 && <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider px-2 py-1 z-10">New</span>}
                         <button
-                          onClick={(e) => handleToggleWishlist(e, p.slug)}
+                          onClick={(e) => toggleWishlist(p.slug, e)}
                           className="absolute top-3 right-3 bg-white/80 hover:bg-white p-2 rounded-full shadow-sm text-primary hover:text-sage-green transition-colors cursor-pointer z-10 flex items-center justify-center"
                           aria-label="Toggle Wishlist"
                         >
                           <Heart
                             size={16}
-                            className={wishlistSlugs.includes(p.slug) ? "fill-red-500 text-red-500" : "text-primary hover:text-sage-green"}
+                            className={isInWishlist(p.slug) ? "fill-red-500 text-red-500" : "text-primary hover:text-sage-green"}
                           />
                         </button>
                       </div>
@@ -288,14 +239,7 @@ function Shop() {
                         <h3 className="font-display text-lg text-primary mt-1">{p.name}</h3>
                         <p className="text-sm text-on-surface-variant line-clamp-1">{p.subtitle}</p>
                         <div className="flex items-center gap-2 mt-3 font-medium">
-                          {p.onSale && p.regularPrice && p.regularPrice > p.price ? (
-                            <>
-                              <span className="text-sm font-semibold text-deep-charcoal">₹{p.price.toLocaleString("en-IN")}</span>
-                              <span className="text-xs text-on-surface-variant/50 line-through">₹{p.regularPrice.toLocaleString("en-IN")}</span>
-                            </>
-                          ) : (
-                            <span className="text-sm font-semibold text-deep-charcoal">₹{p.price.toLocaleString("en-IN")}</span>
-                          )}
+                          <PriceDisplay price={p.price} regularPrice={p.regularPrice} onSale={p.onSale} />
                         </div>
                       </div>
                     </Link>
