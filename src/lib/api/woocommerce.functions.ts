@@ -16,7 +16,7 @@ export async function fetchWooCommerce(endpoint: string, method: "GET" | "POST" 
 export const getWooProducts = createServerFn({ method: "GET" })
   .handler(async (): Promise<LocalProduct[]> => {
     try {
-      const wpProducts = await fetchWooCommerce("products?per_page=100&status=publish");
+      const wpProducts = await fetchWooCommerce("products?per_page=100&status=publish&_fields=id,name,slug,price,regular_price,sale_price,on_sale,images,categories,short_description,description");
       if (Array.isArray(wpProducts)) {
         return wpProducts.map(mapWooCommerceProduct);
       }

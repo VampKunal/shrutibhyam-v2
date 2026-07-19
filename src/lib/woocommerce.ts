@@ -13,13 +13,16 @@ export interface LocalProduct {
   slug: string;
   name: string;
   tag: string;
+  categories: string[];
   subtitle: string;
   price: number;
   regularPrice?: number;
   onSale?: boolean;
   image: string;
+  galleryImages: string[];
   wooId: number;
   descriptionHtml?: string;
+  shortDescriptionHtml?: string;
 }
 
 function extractFirstImageFromHtml(html: string): string | null {
@@ -51,49 +54,20 @@ export function mapWooCommerceProduct(wpProduct: any): LocalProduct {
     ? rawSubtitle.replace(/<[^>]*>/g, "").trim()
     : "";
 
-  if (subtitle) {
-    if (subtitle.length > 80) {
-      subtitle = subtitle.substring(0, 77) + "...";
-    }
-  } else {
-    // Premium fallback based on product type
-    const nameLower = (wpProduct.name || "").toLowerCase();
-    if (nameLower.includes("soap")) {
-      subtitle = "Cold-Processed Handmade Soap Bar";
-    } else {
-      subtitle = "Handcrafted Wellness Purity";
-    }
+  if (subtitle && subtitle.length > 80) {
+    subtitle = subtitle.substring(0, 77) + "...";
   }
 
-  // Get categories tag
-  let rawTag = wpProduct.categories?.[0]?.name || "";
-  const nameLower = (wpProduct.name || "").toLowerCase();
-  let tag = "Others";
+  // Get categories from WooCommerce
+  const categories = (wpProduct.categories || []).map((c: any) => c.name);
+  const tag = categories.length > 0 ? categories[0] : "Others";
 
-  if (
-    rawTag.toLowerCase().includes("skin") || 
-    rawTag.toLowerCase().includes("soap") || 
-    rawTag.toLowerCase().includes("cold") ||
-    nameLower.includes("soap") ||
-    nameLower.includes("cream") ||
-    nameLower.includes("mist") ||
-    nameLower.includes("elixir") ||
-    nameLower.includes("oil")
-  ) {
-    tag = "Skincare";
-  } else if (
-    rawTag.toLowerCase().includes("yoga") || 
-    rawTag.toLowerCase().includes("mat") ||
-    nameLower.includes("yoga") ||
-    nameLower.includes("mat") ||
-    nameLower.includes("block")
-  ) {
-    tag = "Yoga";
-  }
+  // Get all gallery images
+  const galleryImages = (wpProduct.images || []).map((img: any) => img.src);
 
-  // Extract first image, or try to fallback to the first image inside description HTML or keyword
-  let image = wpProduct.images?.[0]?.src 
-    || extractFirstImageFromHtml(wpProduct.description)
+  // Extract first image, or try to fallback
+  let image = galleryImages.length > 0 ? galleryImages[0] 
+    : extractFirstImageFromHtml(wpProduct.description)
     || extractFirstImageFromHtml(wpProduct.short_description);
 
   if (!image) {
@@ -104,13 +78,16 @@ export function mapWooCommerceProduct(wpProduct: any): LocalProduct {
     slug: wpProduct.slug || "",
     name: wpProduct.name || "",
     tag: tag,
+    categories: categories,
     subtitle: subtitle,
     price: parseFloat(wpProduct.price || "0"),
     regularPrice: wpProduct.regular_price ? parseFloat(wpProduct.regular_price) : undefined,
     onSale: !!wpProduct.on_sale,
     image: image,
+    galleryImages: galleryImages,
     wooId: wpProduct.id,
     descriptionHtml: wpProduct.description || "",
+    shortDescriptionHtml: wpProduct.short_description || "",
   };
 }
 

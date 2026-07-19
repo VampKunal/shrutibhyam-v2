@@ -14,6 +14,8 @@ import {
 // WooCommerce configuration defaults
 export const WOOCOMMERCE_DEFAULT_URL = "https://your-woocommerce-store.com";
 
+export const MARQUEE_MSG = "Sign up to get 10% off on your first order | Free shipping on all orders above ₹399/-";
+
 // Shared Contact details
 export const CONTACT_INFO = {
   name: "Shrutibhyam Wellness",
@@ -154,14 +156,11 @@ export const SHOP_REVIEWS = [
   { stars: 5, q: "Small-batch, handmade, and still shaped by real customer feedback.", name: "Team Shrutibhyam" },
 ];
 
-const testimonialModules = import.meta.glob(
-  "/public/testimonials/*.webp",
-  { eager: true, query: "?url", import: "default" }
-);
-
-export const SCREENSHOT_TESTIMONIALS = Object.keys(testimonialModules)
-  .map((path) => path.replace(/^\/public/, ""))
-  .sort(); // deterministic order
+export const SCREENSHOT_TESTIMONIALS = [
+  "/testimonials/d41930fd-3ce2-41bf-9aae-44d2e5201913.webp",
+  "/testimonials/ec52fb5b-3e99-41cc-bd4c-21f856dabcaa.webp",
+  "/testimonials/f95a9437-c35a-4c40-aaac-fdfa32df34f7.webp"
+];
 
 
 // Product details configuration & interfaces

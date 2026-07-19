@@ -2,17 +2,41 @@ import { createFileRoute, notFound, Link, useRouter } from "@tanstack/react-rout
 import { useState, useEffect, useRef } from "react";
 import { SiteLayout } from "@/components/site/Layout";
 import {
-  Minus, Plus, ChevronDown, Edit3, Trash2, Loader2,
-  MessageSquare, Check, X, Heart, Share2, ShieldCheck, Truck, RotateCcw,
-  CreditCard, ChevronRight, ChevronLeft, Upload
+  Minus,
+  Plus,
+  ChevronDown,
+  Edit3,
+  Trash2,
+  Loader2,
+  MessageSquare,
+  Check,
+  X,
+  Heart,
+  Share2,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  CreditCard,
+  ChevronRight,
+  ChevronLeft,
+  Upload,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { getWooProductBySlug, getWooProducts } from "@/lib/api/woocommerce.functions";
+import { getProductEnrichment } from "@/lib/api/sanity.functions";
 import {
-  PRODUCT_DETAILS, DEFAULT_ACCORDIONS, PURITY, PRODUCT_GALLERY,
-  PRODUCT_STATS, CUSTOMER_STORIES, COMMON_ACCORDIONS
+  DEFAULT_ACCORDIONS,
+  PURITY,
+  PRODUCT_STATS,
+  CUSTOMER_STORIES,
+  COMMON_ACCORDIONS,
 } from "@/constant";
-import { getComments, addComment, updateComment, deleteComment } from "@/lib/api/comments.functions";
+import {
+  getComments,
+  addComment,
+  updateComment,
+  deleteComment,
+} from "@/lib/api/comments.functions";
 import { useAuth } from "@/context/AuthContext";
 import { parseProductDescription } from "@/lib/woocommerce";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -25,18 +49,23 @@ export const Route = createFileRoute("/shop/$slug")({
     const product = await getWooProductBySlug({ data: params.slug });
     if (!product) throw notFound();
 
-    const allProducts = await getWooProducts();
+    const [allProducts, comments, enrichment] = await Promise.all([
+      getWooProducts(),
+      getComments({ data: params.slug }),
+      getProductEnrichment({ data: params.slug }),
+    ]);
+
     const similarProducts = allProducts.filter((p) => p.slug !== params.slug).slice(0, 4);
 
-    // Fetch comments on the server for initial render
-    const comments = await getComments({ data: params.slug });
-
-    return { product, similarProducts, comments };
+    return { product, similarProducts, comments, enrichment };
   },
   head: ({ loaderData }) => ({
     meta: [
       { title: `${loaderData?.product.name} | Shrutibhyam` },
-      { name: "description", content: `${loaderData?.product.name} — ${loaderData?.product.subtitle}. Handcrafted Ayurvedic skincare.` },
+      {
+        name: "description",
+        content: `${loaderData?.product.name} — ${loaderData?.product.subtitle}. Handcrafted Ayurvedic skincare.`,
+      },
       { property: "og:title", content: loaderData?.product.name },
       { property: "og:image", content: loaderData?.product.image },
     ],
@@ -47,14 +76,16 @@ export const Route = createFileRoute("/shop/$slug")({
     <SiteLayout>
       <div className="max-w-[800px] mx-auto px-6 py-24 text-center">
         <h1 className="font-display text-4xl text-primary mb-4">Product not found</h1>
-        <Link to="/shop" className="text-sage-green underline">Back to shop</Link>
+        <Link to="/shop" className="text-sage-green underline">
+          Back to shop
+        </Link>
       </div>
     </SiteLayout>
   ),
 });
 
 function Product() {
-  const { product, similarProducts, comments } = Route.useLoaderData();
+  const { product, similarProducts, comments, enrichment } = Route.useLoaderData();
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -68,19 +99,24 @@ function Product() {
   const storiesRef = useRef<HTMLDivElement>(null);
   const recommendedRef = useRef<HTMLDivElement>(null);
 
-  const images = PRODUCT_GALLERY[product.slug] || [product.image];
+  const images =
+    product.galleryImages && product.galleryImages.length > 0
+      ? product.galleryImages
+      : [product.image];
 
   // Calculate Discounts
-  const discountPercent = product.onSale && product.regularPrice
-    ? Math.round(((product.regularPrice - product.price) / product.regularPrice) * 100)
-    : 0;
+  const discountPercent =
+    product.onSale && product.regularPrice
+      ? Math.round(((product.regularPrice - product.price) / product.regularPrice) * 100)
+      : 0;
 
   // Bundle logic
   const bundleProduct = similarProducts[0];
-  const bundleTotal = bundleProduct ? (product.price + bundleProduct.price) : product.price;
-  const bundleOriginalTotal = bundleProduct && bundleProduct.regularPrice && product.regularPrice
-    ? (product.regularPrice + bundleProduct.regularPrice)
-    : bundleTotal;
+  const bundleTotal = bundleProduct ? product.price + bundleProduct.price : product.price;
+  const bundleOriginalTotal =
+    bundleProduct && bundleProduct.regularPrice && product.regularPrice
+      ? product.regularPrice + bundleProduct.regularPrice
+      : bundleTotal;
   const bundleSavings = bundleOriginalTotal - bundleTotal;
 
   useEffect(() => {
@@ -109,7 +145,7 @@ function Product() {
         url: window.location.href,
       });
     } catch (err) {
-      console.log('Error sharing', err);
+      // ignore
     }
   };
 
@@ -118,30 +154,48 @@ function Product() {
     : null;
 
   const getAccordions = () => {
+    if (enrichment?.accordions && enrichment.accordions.length > 0) {
+      return [...enrichment.accordions, ...COMMON_ACCORDIONS];
+    }
     if (parsedContent && parsedContent.accordions.length > 0) {
       return [...parsedContent.accordions, ...COMMON_ACCORDIONS];
-    }
-    if (PRODUCT_DETAILS[product.slug]) {
-      return [...PRODUCT_DETAILS[product.slug].accordions, ...COMMON_ACCORDIONS];
     }
     return DEFAULT_ACCORDIONS(product.name, product.tag || "Wellness");
   };
 
+  const fullDescriptionHtml =
+    product.descriptionHtml ||
+    product.shortDescriptionHtml ||
+    parsedContent?.description ||
+    product.subtitle ||
+    "A premium Ayurvedic ritual crafted with the purest botanical ingredients to restore and balance your skin's natural radiance.";
+  const plainTextDescription = fullDescriptionHtml.replace(/<[^>]*>/g, "").trim();
+
   const details = {
-    description: parsedContent?.description || PRODUCT_DETAILS[product.slug]?.description || product.subtitle || "A premium Ayurvedic ritual crafted with the purest botanical ingredients to restore and balance your skin's natural radiance.",
-    purityTags: PRODUCT_DETAILS[product.slug]?.purityTags || [product.tag || "Ayurvedic", "100% Vegan"],
-    accordions: getAccordions()
+    description: fullDescriptionHtml,
+    purityTags: enrichment?.purityTags?.length
+      ? enrichment.purityTags
+      : product.categories && product.categories.length > 0
+        ? product.categories
+        : [product.tag || "Ayurvedic", "100% Vegan"],
+    accordions: getAccordions(),
   };
 
-  const truncatedSubtitle = details.description.length > 200
-    ? details.description.slice(0, 200) + "..."
-    : details.description;
+  const truncatedSubtitle =
+    plainTextDescription.length > 200
+      ? plainTextDescription.slice(0, 200) + "..."
+      : plainTextDescription;
 
   return (
     <SiteLayout>
       <section className="bg-surface py-8 md:py-16">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <Link to="/shop" className="text-xs uppercase tracking-[0.12em] text-on-surface-variant hover:text-primary mb-8 inline-block">← Back to Shop</Link>
+          <Link
+            to="/shop"
+            className="text-xs uppercase tracking-[0.12em] text-on-surface-variant hover:text-primary mb-8 inline-block"
+          >
+            ← Back to Shop
+          </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4 h-full">
@@ -150,20 +204,27 @@ function Product() {
                   <button
                     key={idx}
                     onClick={() => setActiveImage(img)}
-                    className={`shrink-0 w-20 h-20 md:w-full md:h-24 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${activeImage === img ? 'border-sage-green p-1' : 'border-transparent hover:border-soft-beige'}`}
+                    className={`shrink-0 w-20 h-20 md:w-full md:h-24 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${activeImage === img ? "border-sage-green p-1" : "border-transparent hover:border-soft-beige"}`}
                   >
-                    <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover rounded" />
+                    <img
+                      src={img}
+                      alt={`Thumbnail ${idx}`}
+                      className="w-full h-full object-cover rounded"
+                      width={100}
+                      height={100}
+                    />
                   </button>
                 ))}
               </div>
 
-              <div
-                className="relative flex-1 bg-cream-bg rounded-2xl overflow-hidden group border border-soft-beige md:h-[550px] md:w-[100px]"
-              >
+              <div className="relative flex-1 bg-cream-bg rounded-2xl overflow-hidden group border border-soft-beige md:h-[550px] md:w-[100px]">
                 <img
                   src={activeImage}
                   alt={product.name}
                   className="w-full h-full object-cover transition-opacity duration-300"
+                  width={600}
+                  height={800}
+                  fetchPriority="high"
                 />
                 {discountPercent > 0 && (
                   <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
@@ -175,24 +236,40 @@ function Product() {
 
             <div className="lg:col-span-5 flex flex-col pt-2 md:pt-0">
               <div className="flex gap-2 flex-wrap mb-4">
-                {details.purityTags.map((tag) => (
-                  <span key={tag} className="text-[10px] font-bold uppercase tracking-[0.15em] bg-sage-green/10 text-sage-green px-3 py-1 rounded-full">{tag}</span>
+                {details.purityTags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="text-[10px] font-bold uppercase tracking-[0.15em] bg-sage-green/10 text-sage-green px-3 py-1 rounded-full"
+                  >
+                    {tag}
+                  </span>
                 ))}
               </div>
 
-              <h1 className="font-display text-4xl md:text-5xl text-primary leading-tight mb-4">{product.name}</h1>
+              <h1 className="font-display text-4xl md:text-5xl text-primary leading-tight mb-4">
+                {product.name}
+              </h1>
 
               <div className="flex items-end gap-4 mb-6">
-                <PriceDisplay price={product.price} regularPrice={product.regularPrice} onSale={product.onSale} variant="lg" />
+                <PriceDisplay
+                  price={product.price}
+                  regularPrice={product.regularPrice}
+                  onSale={product.onSale}
+                  variant="lg"
+                />
                 {product.onSale && product.regularPrice && product.regularPrice > product.price && (
-                  <span className="text-sm font-bold text-sage-green mb-2">(Save ₹{(product.regularPrice - product.price).toLocaleString("en-IN")})</span>
+                  <span className="text-sm font-bold text-sage-green mb-2">
+                    (Save ₹{(product.regularPrice - product.price).toLocaleString("en-IN")})
+                  </span>
                 )}
               </div>
 
               <div className="mb-8">
                 <div
                   className="text-sm text-on-surface-variant leading-relaxed mb-2"
-                  dangerouslySetInnerHTML={{ __html: showFullSubtitle ? details.description : truncatedSubtitle }}
+                  dangerouslySetInnerHTML={{
+                    __html: showFullSubtitle ? details.description : truncatedSubtitle,
+                  }}
                 />
                 {details.description.length > 200 && (
                   <button
@@ -204,23 +281,42 @@ function Product() {
                 )}
 
                 <div className="flex flex-wrap gap-3 mt-6">
-                  {[...PURITY].slice(0, 5).map(({ icon: Icon, label }) => (
-                    <div key={label} className="flex flex-col items-center gap-2 w-16">
-                      <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-sage-green border border-soft-beige ">
-                        <Icon size={18} strokeWidth={1.5} />
+                  {details.purityTags.slice(0, 5).map((label: string) => {
+                    // Try to find matching icon in PURITY, otherwise use Check
+                    const matchingIcon = PURITY.find(
+                      (p) => p.label.toLowerCase() === label.toLowerCase(),
+                    );
+                    const Icon = matchingIcon ? matchingIcon.icon : Check;
+                    return (
+                      <div key={label} className="flex flex-col items-center gap-2 w-16">
+                        <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-sage-green border border-soft-beige ">
+                          <Icon size={18} strokeWidth={1.5} />
+                        </div>
+                        <span className="text-[8px] font-bold uppercase tracking-wider text-center text-primary leading-tight">
+                          {label}
+                        </span>
                       </div>
-                      <span className="text-[8px] font-bold uppercase tracking-wider text-center text-primary leading-tight">{label}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
               <div className="bg-white rounded-2xl p-6 border border-soft-beige shadow-sm space-y-6 mb-8">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center border-2 border-soft-beige rounded-lg overflow-hidden bg-surface">
-                    <button onClick={() => setQty(Math.max(1, qty - 1))} className="p-3 hover:bg-soft-beige/50 transition-colors text-primary cursor-pointer"><Minus size={16} /></button>
+                    <button
+                      onClick={() => setQty(Math.max(1, qty - 1))}
+                      className="p-3 hover:bg-soft-beige/50 transition-colors text-primary cursor-pointer"
+                    >
+                      <Minus size={16} />
+                    </button>
                     <span className="w-12 text-center text-sm font-bold">{qty}</span>
-                    <button onClick={() => setQty(qty + 1)} className="p-3 hover:bg-soft-beige/50 transition-colors text-primary cursor-pointer"><Plus size={16} /></button>
+                    <button
+                      onClick={() => setQty(qty + 1)}
+                      className="p-3 hover:bg-soft-beige/50 transition-colors text-primary cursor-pointer"
+                    >
+                      <Plus size={16} />
+                    </button>
                   </div>
                   <p className="text-xs text-on-surface-variant font-medium">
                     <span className="text-green-600 font-bold">In Stock</span> — Ready to ship
@@ -243,10 +339,20 @@ function Product() {
                 </div>
 
                 <div className="flex justify-between pt-4 border-t border-soft-beige">
-                  <button onClick={() => toggleWishlist(product.slug)} className="flex items-center justify-center w-12 h-12 rounded-xl border border-soft-beige hover:bg-cream-bg text-primary hover:text-sage-green transition-colors cursor-pointer" aria-label="Wishlist">
-                    <Heart size={20} className={isInWishlist(product.slug) ? "fill-red-500 text-red-500" : ""} />
+                  <button
+                    onClick={() => toggleWishlist(product.slug)}
+                    className="flex items-center justify-center w-12 h-12 rounded-xl border border-soft-beige hover:bg-cream-bg text-primary hover:text-sage-green transition-colors cursor-pointer"
+                    aria-label="Wishlist"
+                  >
+                    <Heart
+                      size={20}
+                      className={isInWishlist(product.slug) ? "fill-red-500 text-red-500" : ""}
+                    />
                   </button>
-                  <button onClick={handleShare} className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+                  >
                     <Share2 size={16} /> Share
                   </button>
                 </div>
@@ -283,35 +389,59 @@ function Product() {
       {bundleProduct && (
         <section className="bg-cream-bg py-16 border-y border-soft-beige">
           <div className="max-w-[1000px] mx-auto px-4 md:px-8">
-            <h2 className="font-display text-3xl text-primary mb-8 text-center md:text-left">Frequently Bought Together</h2>
+            <h2 className="font-display text-3xl text-primary mb-8 text-center md:text-left">
+              Frequently Bought Together
+            </h2>
             <div className="bg-white rounded-2xl p-6 md:p-8 border border-soft-beige shadow-sm flex flex-col md:flex-row items-center gap-8">
-
               <div className="flex items-center gap-4 flex-1">
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 rounded-lg overflow-hidden border border-soft-beige shadow-sm mb-3 relative">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                    <div className="absolute top-1 left-1 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">This item</div>
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-1 left-1 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
+                      This item
+                    </div>
                   </div>
-                  <span className="text-xs font-bold text-center w-24 truncate">{product.name}</span>
+                  <span className="text-xs font-bold text-center w-24 truncate">
+                    {product.name}
+                  </span>
                 </div>
 
                 <Plus className="text-sage-green shrink-0" size={24} strokeWidth={3} />
 
                 <div className="flex flex-col items-center opacity-100 transition-opacity">
                   <div className="w-24 h-24 rounded-lg overflow-hidden border border-soft-beige shadow-sm mb-3">
-                    <img src={bundleProduct.image} alt={bundleProduct.name} className="w-full h-full object-cover" />
+                    <img
+                      src={bundleProduct.image}
+                      alt={bundleProduct.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <span className="text-xs font-bold text-center w-24 truncate">{bundleProduct.name}</span>
+                  <span className="text-xs font-bold text-center w-24 truncate">
+                    {bundleProduct.name}
+                  </span>
                 </div>
               </div>
 
               <div className="flex-1 bg-surface rounded-xl p-6 border border-soft-beige w-full md:w-auto">
                 <div className="space-y-4 mb-6">
                   <label className="flex items-start gap-3 cursor-pointer group">
-                    <input type="checkbox" checked readOnly className="mt-1 w-4 h-4 text-sage-green bg-white border-soft-beige rounded focus:ring-sage-green" />
+                    <input
+                      type="checkbox"
+                      checked
+                      readOnly
+                      className="mt-1 w-4 h-4 text-sage-green bg-white border-soft-beige rounded focus:ring-sage-green"
+                    />
                     <div>
-                      <span className="text-sm font-bold block group-hover:text-sage-green transition-colors">This item: {product.name}</span>
-                      <span className="text-xs font-semibold text-on-surface-variant">₹{product.price}</span>
+                      <span className="text-sm font-bold block group-hover:text-sage-green transition-colors">
+                        This item: {product.name}
+                      </span>
+                      <span className="text-xs font-semibold text-on-surface-variant">
+                        ₹{product.price}
+                      </span>
                     </div>
                   </label>
                   <label className="flex items-start gap-3 cursor-pointer group">
@@ -321,9 +451,13 @@ function Product() {
                       onChange={(e) => setBundleChecked(e.target.checked)}
                       className="mt-1 w-4 h-4 text-sage-green bg-white border-soft-beige rounded focus:ring-sage-green cursor-pointer"
                     />
-                    <div className={bundleChecked ? 'opacity-100' : 'opacity-50'}>
-                      <span className="text-sm font-bold block group-hover:text-sage-green transition-colors">{bundleProduct.name}</span>
-                      <span className="text-xs font-semibold text-on-surface-variant">₹{bundleProduct.price}</span>
+                    <div className={bundleChecked ? "opacity-100" : "opacity-50"}>
+                      <span className="text-sm font-bold block group-hover:text-sage-green transition-colors">
+                        {bundleProduct.name}
+                      </span>
+                      <span className="text-xs font-semibold text-on-surface-variant">
+                        ₹{bundleProduct.price}
+                      </span>
                     </div>
                   </label>
                 </div>
@@ -331,20 +465,23 @@ function Product() {
                 <div className="pt-4 border-t border-soft-beige/50">
                   <div className="flex justify-between items-end mb-2">
                     <span className="text-sm font-bold text-primary">Total Price:</span>
-                    <span className="text-2xl font-display text-primary font-bold">₹{bundleChecked ? bundleTotal : product.price}</span>
+                    <span className="text-2xl font-display text-primary font-bold">
+                      ₹{bundleChecked ? bundleTotal : product.price}
+                    </span>
                   </div>
                   {bundleChecked && bundleSavings > 0 && (
-                    <p className="text-xs font-bold text-green-600 text-right mb-4">You save ₹{bundleSavings}!</p>
+                    <p className="text-xs font-bold text-green-600 text-right mb-4">
+                      You save ₹{bundleSavings}!
+                    </p>
                   )}
                   <button
                     onClick={handleAddBundle}
                     className="w-full bg-primary text-white text-xs font-bold uppercase tracking-wider py-4 rounded hover:bg-sage-green transition-all shadow-md cursor-pointer"
                   >
-                    Add {bundleChecked ? 'Bundle' : 'Item'} to Cart
+                    Add {bundleChecked ? "Bundle" : "Item"} to Cart
                   </button>
                 </div>
               </div>
-
             </div>
           </div>
         </section>
@@ -355,13 +492,21 @@ function Product() {
           <h2 className="font-display text-3xl text-primary mb-8">Product Information</h2>
           <div className="border border-soft-beige rounded-2xl bg-white overflow-hidden shadow-sm">
             {details.accordions.map((a, idx) => (
-              <div key={a.title} className={`${idx !== details.accordions.length - 1 ? 'border-b border-soft-beige' : ''}`}>
+              <div
+                key={a.title}
+                className={`${idx !== details.accordions.length - 1 ? "border-b border-soft-beige" : ""}`}
+              >
                 <button
                   onClick={() => setOpenAccordion(openAccordion === a.title ? null : a.title)}
                   className="w-full flex justify-between items-center py-5 px-6 text-left hover:bg-surface/50 transition-colors cursor-pointer"
                 >
-                  <span className="font-bold text-sm uppercase tracking-wider text-primary">{a.title}</span>
-                  <ChevronDown size={18} className={`text-sage-green transition-transform duration-300 ${openAccordion === a.title ? "rotate-180" : ""}`} />
+                  <span className="font-bold text-sm uppercase tracking-wider text-primary">
+                    {a.title}
+                  </span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-sage-green transition-transform duration-300 ${openAccordion === a.title ? "rotate-180" : ""}`}
+                  />
                 </button>
                 <div
                   className={`overflow-hidden transition-all duration-300 ${openAccordion === a.title ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}
@@ -380,18 +525,30 @@ function Product() {
         </section>
 
         <section>
-          <h2 className="font-display text-3xl text-primary mb-8">Results That Speak For Themselves</h2>
+          <h2 className="font-display text-3xl text-primary mb-8">
+            Results That Speak For Themselves
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {PRODUCT_STATS.map((stat, idx) => (
-              <div key={idx} className="bg-cream-bg rounded-2xl p-8 border border-soft-beige text-center shadow-sm hover:shadow-md transition-shadow">
-                <span className="block font-display text-5xl text-sage-green mb-4">{stat.value}</span>
-                <span className="text-sm font-bold uppercase tracking-wider text-primary leading-tight">{stat.label}</span>
-              </div>
-            ))}
+            {(enrichment?.productStats?.length ? enrichment.productStats : PRODUCT_STATS).map(
+              (stat: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="bg-cream-bg rounded-2xl p-8 border border-soft-beige text-center shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <span className="block font-display text-5xl text-sage-green mb-4">
+                    {stat.value}
+                  </span>
+                  <span className="text-sm font-bold uppercase tracking-wider text-primary leading-tight">
+                    {stat.label}
+                  </span>
+                </div>
+              ),
+            )}
           </div>
           <div className="mt-8 bg-surface p-6 rounded-2xl border border-soft-beige">
             <p className="text-xs text-on-surface-variant italic text-center">
-              *Based on an independent consumer testing panel of 50 participants over a 4-week period. Individual results may vary.
+              *Based on an independent consumer testing panel of 50 participants over a 4-week
+              period. Individual results may vary.
             </p>
           </div>
         </section>
@@ -400,14 +557,18 @@ function Product() {
       <section className="py-12 bg-primary text-white overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
           <div className="flex justify-between items-end mb-8">
-            <h2 className="font-display text-2xl md:text-3xl">
-              Real Customer Stories
-            </h2>
+            <h2 className="font-display text-2xl md:text-3xl">Real Customer Stories</h2>
             <div className="flex gap-2">
-              <button onClick={() => scrollContainerLeft(storiesRef)} className="w-10 h-10 rounded-full border border-soft-beige flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
+              <button
+                onClick={() => scrollContainerLeft(storiesRef)}
+                className="w-10 h-10 rounded-full border border-soft-beige flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm"
+              >
                 <ChevronLeft size={20} />
               </button>
-              <button onClick={() => scrollContainerRight(storiesRef)} className="w-10 h-10 rounded-full border border-soft-beige flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
+              <button
+                onClick={() => scrollContainerRight(storiesRef)}
+                className="w-10 h-10 rounded-full border border-soft-beige flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm"
+              >
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -415,20 +576,36 @@ function Product() {
 
           <div className="overflow-x-auto no-scrollbar" ref={storiesRef}>
             <div
-              className={`flex gap-4 pb-4 snap-x snap-mandatory ${CUSTOMER_STORIES.length <= 4 ? "w-max mx-auto" : "w-max"
-                }`}
+              className={`flex gap-4 pb-4 snap-x snap-mandatory ${
+                (enrichment?.customerStories?.length || CUSTOMER_STORIES.length) <= 4
+                  ? "w-max mx-auto"
+                  : "w-max"
+              }`}
             >
-              {CUSTOMER_STORIES.map((story, idx) => (
+              {(enrichment?.customerStories?.length
+                ? enrichment.customerStories
+                : CUSTOMER_STORIES
+              ).map((story: any, idx: number) => (
                 <div
                   key={idx}
                   className="snap-center shrink-0 w-[240px] md:w-[260px] h-[380px] bg-white text-primary rounded-xl overflow-hidden shadow-lg flex flex-col"
                 >
                   <div className="h-[60%] relative overflow-hidden">
-                    <img
-                      src={story.image}
-                      alt={story.name}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    />
+                    {story.videoUrl ? (
+                      <video
+                        src={story.videoUrl}
+                        className="w-full h-full object-cover"
+                        controls
+                        muted
+                        loop
+                      />
+                    ) : (
+                      <img
+                        src={story.image || story.imageUrl}
+                        alt={story.name}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    )}
 
                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1">
                       <Check size={12} className="text-green-600" />
@@ -443,9 +620,7 @@ function Product() {
                       "{story.text}"
                     </p>
 
-                    <p className="mt-3 font-bold text-xs uppercase tracking-wider">
-                      {story.name}
-                    </p>
+                    <p className="mt-3 font-bold text-xs uppercase tracking-wider">{story.name}</p>
                   </div>
                 </div>
               ))}
@@ -462,10 +637,16 @@ function Product() {
               You May Also Like
             </h2>
             <div className="hidden md:flex gap-4">
-              <button onClick={() => scrollContainerLeft(recommendedRef)} className="w-12 h-12 rounded-full border border-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary">
+              <button
+                onClick={() => scrollContainerLeft(recommendedRef)}
+                className="w-12 h-12 rounded-full border border-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary"
+              >
                 <ChevronLeft size={24} />
               </button>
-              <button onClick={() => scrollContainerRight(recommendedRef)} className="w-12 h-12 rounded-full border border-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary">
+              <button
+                onClick={() => scrollContainerRight(recommendedRef)}
+                className="w-12 h-12 rounded-full border border-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary"
+              >
                 <ChevronRight size={24} />
               </button>
             </div>
@@ -473,8 +654,9 @@ function Product() {
 
           <div className="overflow-x-auto no-scrollbar" ref={recommendedRef}>
             <div
-              className={`flex gap-6 pb-6 snap-x snap-mandatory ${similarProducts.length <= 4 ? "w-max mx-auto" : "w-max"
-                }`}
+              className={`flex gap-6 pb-6 snap-x snap-mandatory ${
+                similarProducts.length <= 4 ? "w-max mx-auto" : "w-max"
+              }`}
             >
               {similarProducts.map((p) => (
                 <Link
@@ -496,12 +678,14 @@ function Product() {
                   </div>
 
                   <div className="pt-4">
-                    <h3 className="font-semibold text-lg text-primary line-clamp-1">
-                      {p.name}
-                    </h3>
+                    <h3 className="font-semibold text-lg text-primary line-clamp-1">{p.name}</h3>
 
                     <div className="mt-2">
-                      <PriceDisplay price={p.price} regularPrice={p.regularPrice} onSale={p.onSale} />
+                      <PriceDisplay
+                        price={p.price}
+                        regularPrice={p.regularPrice}
+                        onSale={p.onSale}
+                      />
                     </div>
                   </div>
                 </Link>
@@ -513,7 +697,6 @@ function Product() {
 
       {/* 9. CUSTOMER REVIEWS SECTION (With Image Upload) */}
       <ReviewsSection productSlug={product.slug} comments={comments} />
-
     </SiteLayout>
   );
 }
@@ -545,16 +728,18 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
   const [editingRating, setEditingRating] = useState(5);
 
   const reviewCount = comments.length;
-  const averageRating = reviewCount > 0
-    ? parseFloat((comments.reduce((sum, c) => sum + c.rating, 0) / reviewCount).toFixed(1))
-    : 5.0;
+  const averageRating =
+    reviewCount > 0
+      ? parseFloat((comments.reduce((sum, c) => sum + c.rating, 0) / reviewCount).toFixed(1))
+      : 5.0;
 
   const hasAlreadyReviewed = user && comments.some((c) => c.userId === user.id);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
         alert("Image must be smaller than 5MB");
         return;
       }
@@ -580,7 +765,7 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
     setSubmitError(null);
     try {
       // Note: Real implementation would handle `reviewImage` upload to cloud storage here
-      // and append the resulting URL to the comment payload. 
+      // and append the resulting URL to the comment payload.
       // Assuming addComment API accepts imageUrl in payload.
       const mockImageUrl = previewUrl ? "https://example.com/mock-upload.jpg" : undefined;
 
@@ -590,8 +775,8 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
           rating,
           comment: commentText,
           imageUrl: mockImageUrl, // Theoretical extension to API
-          user: { id: user.id, email: user.email, displayName: user.displayName }
-        } as any
+          user: { id: user.id, email: user.email, displayName: user.displayName },
+        } as any,
       });
       setCommentText("");
       setRating(5);
@@ -614,7 +799,7 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
     if (!user || !editingText.trim()) return;
     try {
       await updateComment({
-        data: { commentId: id, userId: user.id, rating: editingRating, comment: editingText }
+        data: { commentId: id, userId: user.id, rating: editingRating, comment: editingText },
       });
       setEditingId(null);
       router.invalidate();
@@ -638,24 +823,29 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
     <section className="py-20 bg-white border-t border-soft-beige">
       <div className="max-w-[1200px] mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-
           {/* Write a Review Form */}
           <div className="lg:col-span-5 space-y-8">
             <div className="bg-cream-bg rounded-3xl p-8 border border-soft-beige text-center">
               <div className="flex justify-center items-baseline gap-2 mb-4">
-                <span className="text-6xl font-display text-primary">{averageRating.toFixed(1)}</span>
+                <span className="text-6xl font-display text-primary">
+                  {averageRating.toFixed(1)}
+                </span>
                 <span className="text-xl text-on-surface-variant">/ 5</span>
               </div>
               <div className="flex justify-center mb-2">
                 <StarRating rating={averageRating} size={24} colorClass="text-amber-500" />
               </div>
-              <p className="text-sm font-bold uppercase tracking-wider text-on-surface-variant">Based on {reviewCount} Reviews</p>
+              <p className="text-sm font-bold uppercase tracking-wider text-on-surface-variant">
+                Based on {reviewCount} Reviews
+              </p>
             </div>
 
             {!user ? (
               <div className="bg-surface rounded-3xl p-8 border border-soft-beige text-center">
                 <h3 className="font-display text-2xl text-primary mb-4">Share Your Experience</h3>
-                <p className="text-sm text-on-surface-variant mb-6">Log in to leave a review and share photos of your results.</p>
+                <p className="text-sm text-on-surface-variant mb-6">
+                  Log in to leave a review and share photos of your results.
+                </p>
                 <button
                   onClick={() => setLoginOpen(true)}
                   className="w-full bg-primary text-white text-xs font-bold uppercase tracking-wider py-4 rounded hover:bg-sage-green transition-colors cursor-pointer"
@@ -667,14 +857,21 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
               <div className="bg-surface rounded-3xl p-8 border border-soft-beige text-center">
                 <Check className="mx-auto text-sage-green mb-4" size={32} strokeWidth={2} />
                 <h3 className="font-display text-2xl text-primary mb-2">Thank You!</h3>
-                <p className="text-sm text-on-surface-variant">You've already reviewed this product. Your feedback helps our community.</p>
+                <p className="text-sm text-on-surface-variant">
+                  You've already reviewed this product. Your feedback helps our community.
+                </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-8 border border-soft-beige shadow-xl shadow-soft-beige/50">
+              <form
+                onSubmit={handleSubmit}
+                className="bg-white rounded-3xl p-8 border border-soft-beige shadow-xl shadow-soft-beige/50"
+              >
                 <h3 className="font-display text-2xl text-primary mb-6">Write a Review</h3>
 
                 <div className="mb-6">
-                  <label className="text-xs font-bold uppercase tracking-wider text-primary block mb-3">Overall Rating</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-primary block mb-3">
+                    Overall Rating
+                  </label>
                   <StarRating
                     rating={rating}
                     size={28}
@@ -687,41 +884,71 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
                 </div>
 
                 <div className="mb-6">
-                  <label htmlFor="review" className="text-xs font-bold uppercase tracking-wider text-primary block mb-3">Your Experience</label>
+                  <label
+                    htmlFor="review"
+                    className="text-xs font-bold uppercase tracking-wider text-primary block mb-3"
+                  >
+                    Your Experience
+                  </label>
                   <textarea
-                    id="review" rows={4} value={commentText} onChange={(e) => setCommentText(e.target.value)}
+                    id="review"
+                    rows={4}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
                     placeholder="How did this product work for you?"
                     className="w-full bg-surface border-2 border-soft-beige rounded-xl p-4 text-sm focus:outline-none focus:border-sage-green transition-colors resize-none"
                   />
                 </div>
 
                 <div className="mb-8">
-                  <label className="text-xs font-bold uppercase tracking-wider text-primary block mb-3">Upload Photo (Optional)</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-primary block mb-3">
+                    Upload Photo (Optional)
+                  </label>
                   {!previewUrl ? (
                     <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-soft-beige border-dashed rounded-xl cursor-pointer hover:bg-surface transition-colors">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="text-sage-green mb-2" size={24} />
-                        <p className="text-xs text-on-surface-variant font-medium">Click to upload image</p>
+                        <p className="text-xs text-on-surface-variant font-medium">
+                          Click to upload image
+                        </p>
                       </div>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
                     </label>
                   ) : (
                     <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-sage-green">
                       <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                      <button type="button" onClick={clearImage} className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 cursor-pointer shadow-lg">
+                      <button
+                        type="button"
+                        onClick={clearImage}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 cursor-pointer shadow-lg"
+                      >
                         <X size={16} />
                       </button>
                     </div>
                   )}
                 </div>
 
-                {submitError && <p className="text-xs text-red-600 font-bold mb-4">{submitError}</p>}
+                {submitError && (
+                  <p className="text-xs text-red-600 font-bold mb-4">{submitError}</p>
+                )}
 
                 <button
-                  type="submit" disabled={isSubmitting}
+                  type="submit"
+                  disabled={isSubmitting}
                   className="w-full bg-primary text-white text-xs font-bold uppercase tracking-wider py-4 rounded-xl hover:bg-sage-green transition-colors cursor-pointer disabled:opacity-50 flex justify-center items-center gap-2"
                 >
-                  {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Submitting...</> : "Publish Review"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" /> Submitting...
+                    </>
+                  ) : (
+                    "Publish Review"
+                  )}
                 </button>
               </form>
             )}
@@ -733,7 +960,9 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
               <div className="h-full flex flex-col items-center justify-center py-20 text-center bg-surface rounded-3xl border border-soft-beige">
                 <MessageSquare className="text-soft-beige mb-4" size={48} />
                 <h4 className="font-display text-2xl text-primary mb-2">No Reviews Yet</h4>
-                <p className="text-sm text-on-surface-variant max-w-sm">Be the first to review this product and help others make an informed decision.</p>
+                <p className="text-sm text-on-surface-variant max-w-sm">
+                  Be the first to review this product and help others make an informed decision.
+                </p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -742,7 +971,10 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
                   const isEditing = editingId === c.id;
 
                   return (
-                    <div key={c.id} className="bg-white border-b border-soft-beige pb-6 last:border-0">
+                    <div
+                      key={c.id}
+                      className="bg-white border-b border-soft-beige pb-6 last:border-0"
+                    >
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex gap-4 items-center">
                           <div className="w-12 h-12 bg-cream-bg rounded-full flex items-center justify-center text-lg font-display text-sage-green">
@@ -761,34 +993,65 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
                           </div>
                         </div>
                         <span className="text-xs text-on-surface-variant font-medium">
-                          {new Date(c.date).toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+                          {new Date(c.date).toLocaleDateString("en-IN", {
+                            month: "long",
+                            year: "numeric",
+                          })}
                         </span>
                       </div>
 
                       {isEditing ? (
                         <div className="bg-surface p-4 rounded-xl space-y-4">
                           <textarea
-                            rows={3} value={editingText} onChange={(e) => setEditingText(e.target.value)}
+                            rows={3}
+                            value={editingText}
+                            onChange={(e) => setEditingText(e.target.value)}
                             className="w-full text-sm bg-white border border-soft-beige rounded-lg p-3 focus:outline-none focus:border-sage-green"
                           />
                           <div className="flex justify-end gap-2">
-                            <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-white border border-soft-beige text-xs font-bold rounded hover:bg-soft-beige">Cancel</button>
-                            <button onClick={() => handleSaveEdit(c.id)} className="px-4 py-2 bg-primary text-white text-xs font-bold rounded hover:bg-sage-green">Save</button>
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="px-4 py-2 bg-white border border-soft-beige text-xs font-bold rounded hover:bg-soft-beige"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleSaveEdit(c.id)}
+                              className="px-4 py-2 bg-primary text-white text-xs font-bold rounded hover:bg-sage-green"
+                            >
+                              Save
+                            </button>
                           </div>
                         </div>
                       ) : (
                         <div>
-                          <p className="text-sm text-on-surface-variant leading-relaxed font-medium mb-4">"{c.comment}"</p>
+                          <p className="text-sm text-on-surface-variant leading-relaxed font-medium mb-4">
+                            "{c.comment}"
+                          </p>
 
                           {/* Display mock image if API supported it */}
                           {c.imageUrl && (
-                            <img src={c.imageUrl} alt="Review" className="w-32 h-32 object-cover rounded-lg mb-4 border border-soft-beige" />
+                            <img
+                              src={c.imageUrl}
+                              alt="Review"
+                              className="w-32 h-32 object-cover rounded-lg mb-4 border border-soft-beige"
+                            />
                           )}
 
                           {isAuthor && (
                             <div className="flex gap-4">
-                              <button onClick={() => handleStartEdit(c)} className="text-xs font-bold uppercase tracking-wider text-sage-green hover:text-primary transition-colors flex items-center gap-1"><Edit3 size={14} /> Edit</button>
-                              <button onClick={() => handleDelete(c.id)} className="text-xs font-bold uppercase tracking-wider text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"><Trash2 size={14} /> Delete</button>
+                              <button
+                                onClick={() => handleStartEdit(c)}
+                                className="text-xs font-bold uppercase tracking-wider text-sage-green hover:text-primary transition-colors flex items-center gap-1"
+                              >
+                                <Edit3 size={14} /> Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(c.id)}
+                                className="text-xs font-bold uppercase tracking-wider text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
+                              >
+                                <Trash2 size={14} /> Delete
+                              </button>
                             </div>
                           )}
                         </div>

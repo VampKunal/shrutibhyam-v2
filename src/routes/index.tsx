@@ -28,6 +28,10 @@ export const Route = createFileRoute("/")({
             { property: "og:title", content: "Shrutibhyam Wellness" },
             { property: "og:image", content: IMG.hero },
         ],
+        links: [
+            { rel: "preload", as: "image", href: HERO_CAROUSEL[0].imgDesktop, fetchpriority: "high", media: "(min-width: 768px)" },
+            { rel: "preload", as: "image", href: HERO_CAROUSEL[0].imgMobile, fetchpriority: "high", media: "(max-width: 767px)" }
+        ]
     }),
     loader: async () => {
         const products = await getWooProducts();
@@ -72,7 +76,7 @@ function Home() {
             const videoEl = videoRefs.current[currentImg];
             if (videoEl) {
                 videoEl.currentTime = 0;
-                videoEl.play().catch(e => console.log("Video play error", e));
+                videoEl.play().catch(() => {});
             }
         }
 
@@ -116,6 +120,9 @@ function Home() {
                                         src={slide.imgMobile}
                                         alt="Serene wellness ritual"
                                         className="w-full h-full object-cover"
+                                        width={1920}
+                                        height={1080}
+                                        {...(idx === 0 ? { fetchPriority: "high" } : { loading: "lazy" })}
                                     />
                                 </picture>
                             )}
@@ -217,6 +224,39 @@ function Home() {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
                         <Link to="/about" className="interactive-card bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary text-center min-w-[200px]">Explore Our Story</Link>
                         <Link to="/shop" className="interactive-card border border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-soft-beige hover:text-primary text-center min-w-[200px]">Shop Collection</Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* Meet the Founder */}
+            <section className="relative py-24 bg-cream-bg">
+                <div className="max-w-[1200px] mx-auto px-4 md:px-6">
+                    <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+                        {/* Text Content: Left on desktop, below on mobile */}
+                        <div className="order-2 md:order-1 flex-1 text-center md:text-left">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sage-green mb-4 block">Meet The Founder</span>
+                            <h2 className="font-display text-4xl md:text-5xl text-primary leading-tight mb-6">Crafted with Intention</h2>
+                            <div className="text-sm text-on-surface-variant leading-relaxed space-y-4">
+                                <p>
+                                    Welcome to Shrutibhyam. My journey began with a simple need: to find skincare that was truly pure, free from synthetic shortcuts, and rooted in the deep wisdom of Ayurveda.
+                                </p>
+                                <p>
+                                    Every bar of soap, every formulation you see here is a labor of love—cold-processed by hand, cured slowly, and designed to honor your skin and well-being.
+                                </p>
+                            </div>
+                            <div className="mt-8">
+                                <Link to="/about" className="interactive-card inline-block bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary">
+                                    Read My Story
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Image Content: Right on desktop, above on mobile */}
+                        <div className="order-1 md:order-2 flex-1 w-full max-w-md mx-auto">
+                            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-soft-beige shadow-lg">
+                                <img src={IMG.intro} alt="Founder" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

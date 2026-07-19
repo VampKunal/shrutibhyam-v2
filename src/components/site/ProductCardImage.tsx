@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PRODUCT_GALLERY } from "@/constant";
+
 
 interface ProductCardImageProps {
   product: { slug: string; image: string; name: string };
@@ -7,7 +7,7 @@ interface ProductCardImageProps {
 }
 
 export function ProductCardImage({ product, imageClassName = "" }: ProductCardImageProps) {
-  const images = PRODUCT_GALLERY[product.slug] || [product.image];
+  const images = (product as any).galleryImages && (product as any).galleryImages.length > 0 ? (product as any).galleryImages : [product.image];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -29,11 +29,14 @@ export function ProductCardImage({ product, imageClassName = "" }: ProductCardIm
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {images.map((img, idx) => (
+      {images.map((img: string, idx: number) => (
         <img
           key={img + idx}
           src={img}
           alt={product.name}
+          width={400}
+          height={500}
+          loading="lazy"
           className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${imageClassName} ${
             idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}

@@ -2,8 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
-import { CONTACT_INFO } from "@/constant";
+import { CONTACT_INFO, MARQUEE_MSG } from "@/constant";
 import { SearchDialog } from "./SearchDialog";
+import { getSiteSettings } from "@/lib/api/sanity.functions";
+import { useQuery } from "@tanstack/react-query";
 import { LoginDialog } from "./LoginDialog";
 import { useOverlay } from "@/hooks/useOverlay";
 
@@ -17,15 +19,19 @@ const links = [
 ] as const;
 
 export function MarqueeBar() {
-    const msg = "Sign up to get 10% off on your first order | Free shipping on all orders above ₹399/-";
+    const { data: settings } = useQuery({
+        queryKey: ['siteSettings'],
+        queryFn: () => getSiteSettings(),
+    });
+    const msg = settings?.discountMarquee || MARQUEE_MSG;
     return (
-        <div className="bg-soft-beige py-2 border-b border-sage-green/20 overflow-hidden">
+        <div className="bg-[#BBDC12] py-2 border-b border-sage-green/20 overflow-hidden">
             <div className="animate-marquee whitespace-nowrap">
                 {Array.from({ length: 2 }).map((_, i) => (
                     <div key={i} className="flex items-center gap-12 px-6">
                         {Array.from({ length: 3 }).map((_, j) => (
                             <span key={j} className="text-[11px] md:text-[12px] font-semibold tracking-[0.1em] uppercase text-deep-charcoal">
-                                {msg}<span className="ml-12 inline-block w-1 h-1 rounded-full bg-sage-green align-middle" />
+                                {msg}<span className="ml-12 inline-block w-1 h-1 rounded-full bg-[#D90000] align-middle" />
                             </span>
                         ))}
                     </div>

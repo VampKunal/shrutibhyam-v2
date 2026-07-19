@@ -1,10 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { FAQ } from "@/constant";
+import { FAQ as CONSTANT_FAQS } from "@/constant";
 import { SiteLayout } from "@/components/site/Layout";
+import { getFaqs } from "@/lib/api/sanity.functions";
 
 export const Route = createFileRoute("/faq")({
+ loader: async () => {
+   const sanityFaqs = await getFaqs();
+   return { sanityFaqs };
+ },
  head: () => ({
  meta: [
  { title: "FAQ — Shrutibhyam Wellness" },
@@ -15,7 +20,10 @@ export const Route = createFileRoute("/faq")({
 });
 
 function Faq() {
+ const { sanityFaqs } = Route.useLoaderData();
  const [openFaq, setOpenFaq] = useState<number | null>(0);
+ 
+ const displayFaqs = sanityFaqs?.length ? sanityFaqs.map((f: any) => ({ q: f.question, a: f.answer })) : CONSTANT_FAQS;
 
  return (
  <SiteLayout>
@@ -38,7 +46,7 @@ function Faq() {
  >
  <div className="relative z-10 max-w-[900px] mx-auto px-4 md:px-6">
  <div className="bg-surface/80 backdrop-blur-sm border border-soft-beige rounded-lg shadow-sm overflow-hidden">
- {FAQ.map((item, i) => (
+ {displayFaqs.map((item: any, i: number) => (
  <div key={item.q} className=" last:border-b-0">
  <button
  onClick={() => setOpenFaq(openFaq === i ? null : i)}

@@ -61,8 +61,16 @@ function Shop() {
   }, [searchParams.category, dispatch]);
 
   const categories = useMemo(() => {
-    const base = ["All Products", "Skincare", "Yoga", "Others"];
-    return base.filter((cat) => cat === "All Products" || products.some((p) => p.tag === cat));
+    const cats = new Set<string>();
+    cats.add("All Products");
+    products.forEach((p) => {
+      if (p.categories && p.categories.length > 0) {
+        p.categories.forEach((cat) => cats.add(cat));
+      } else {
+        cats.add(p.tag);
+      }
+    });
+    return Array.from(cats);
   }, [products]);
 
   // Determine highest product price to scale slider dynamically
@@ -78,7 +86,7 @@ function Shop() {
   // Filter products by category and max price
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const matchCategory = selectedCategory === "All Products" || p.tag === selectedCategory;
+      const matchCategory = selectedCategory === "All Products" || (p.categories && p.categories.includes(selectedCategory)) || p.tag === selectedCategory;
       const matchPrice = p.price <= effectivePriceLimit;
       const matchSearch = searchParams.search
         ? p.name.toLowerCase().includes(searchParams.search.toLowerCase()) ||
@@ -142,7 +150,7 @@ function Shop() {
                 {categories.map((cat) => {
                   const count = cat === "All Products"
                     ? products.length
-                    : products.filter((p) => p.tag === cat).length;
+                    : products.filter((p) => (p.categories && p.categories.includes(cat)) || p.tag === cat).length;
                   return (
                     <li key={cat}>
                       <button

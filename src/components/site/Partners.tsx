@@ -24,6 +24,18 @@ export function Partners() {
       alt: "Ministry of Ayush",
       className: "h-30 w-auto md:h-24 lg:h-28 object-contain px-0",
     },
+    {
+      title: "Delhi Public School",
+      image: "/logos/dps.png",
+      alt: "Delhi Public School",
+      className: "h-30 w-auto md:h-24 lg:h-28 object-contain px-0",
+    },
+    {
+      title: "Godrej",
+      image: "/logos/godrej.png",
+      alt: "Godrej",
+      className: "h-30 w-auto md:h-24 lg:h-28 object-contain px-0",
+    }
   ];
 
   return (
@@ -45,12 +57,12 @@ export function Partners() {
           <div className="w-16 h-px mx-auto" />
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-10 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-8 gap-y-4 py-6 place-items-center">
           {partners.map(({ title, image, alt, className }) => (
             <div
               key={title}
               title={title}
-              className="transition-all duration-500 transform hover:scale-[1.03] cursor-pointer flex items-center justify-center min-w-[120px]"
+              className="transition-all duration-500 hover:scale-[1.03] cursor-pointer flex items-center justify-center w-full"
             >
               <img
                 src={image}
