@@ -37,7 +37,7 @@ export function ProductCardImage({ product, imageClassName = "" }: ProductCardIm
           width={400}
           height={500}
           loading="lazy"
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${imageClassName} ${
+          className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ${imageClassName} ${
             idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         />

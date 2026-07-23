@@ -19,7 +19,7 @@ import { store } from "@/store";
 import { useEffect } from "react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 
-import appCss from "../styles.css?url";
+import appCss from "../styles.css?inline";
 
 
 function NotFoundComponent() {
@@ -79,6 +79,16 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+import { Loader2 } from "lucide-react";
+
+function PendingComponent() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+}
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -92,8 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "icon", type: "image/png", href: "/title.png" },
-      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: "/title.webp" },
       { rel: "preconnect", href: "https://lh3.googleusercontent.com", crossOrigin: "anonymous" },
     ],
   }),
@@ -101,6 +110,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
+  pendingComponent: PendingComponent,
 });
 
 
@@ -108,31 +118,8 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <HeadContent />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '4384383748495446');
-fbq('track', 'PageView');
-            `,
-          }}
-        />
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: "none" }}
-            src="https://www.facebook.com/tr?id=4384383748495446&ev=PageView&noscript=1"
-          />
-        </noscript>
       </head>
       <body suppressHydrationWarning>
         {children}
@@ -146,13 +133,36 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
+  const location = useLocation();
+
   useEffect(() => {
+
     // Background prefetching of products when visiting the site
     queryClient.prefetchQuery({
       queryKey: ["products"],
       queryFn: () => getWooProducts(),
       staleTime: 1000 * 60 * 10, // 10 minutes stale time for aggressive caching
     }).catch(console.error);
+
+    // Defer Facebook pixel loading
+    const loadFBPixel = () => {
+      if ((window as any).fbq) return;
+      !function(f,b,e,v,n,t,s) {
+        if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        if(s.parentNode) s.parentNode.insertBefore(t,s)
+      }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      
+      (window as any).fbq('init', '4384383748495446');
+      (window as any).fbq('track', 'PageView');
+    };
+
+    // Load after a slight delay to ensure it doesn't block critical render
+    const timeout = setTimeout(loadFBPixel, 2500);
+    return () => clearTimeout(timeout);
   }, [queryClient]);
 
   return (

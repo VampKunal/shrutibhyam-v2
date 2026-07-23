@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link, useRouter, defer } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { SiteLayout } from "@/components/site/Layout";
 import {
@@ -43,21 +43,28 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { StarRating } from "@/components/ui/StarRating";
 import { scrollContainerLeft, scrollContainerRight } from "@/lib/scroll";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
-    const product = await getWooProductBySlug({ data: params.slug });
+    const slug = params.slug;
+
+    const productPromise = getWooProductBySlug({ data: slug });
+    const enrichmentPromise = getProductEnrichment({ data: slug });
+    const commentsPromise = getComments({ data: slug });
+    const allProductsPromise = getWooProducts();
+
+    // Only await the critical product data
+    const product = await productPromise;
+
     if (!product) throw notFound();
 
-    const [allProducts, comments, enrichment] = await Promise.all([
-      getWooProducts(),
-      getComments({ data: params.slug }),
-      getProductEnrichment({ data: params.slug }),
-    ]);
-
-    const similarProducts = allProducts.filter((p) => p.slug !== params.slug).slice(0, 4);
-
-    return { product, similarProducts, comments, enrichment };
+    return { 
+      product,
+      deferredEnrichment: defer(enrichmentPromise.catch(() => null)),
+      deferredComments: defer(commentsPromise.catch(() => [])),
+      deferredProducts: defer(allProductsPromise.catch(() => []))
+    };
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -69,6 +76,9 @@ export const Route = createFileRoute("/shop/$slug")({
       { property: "og:title", content: loaderData?.product.name },
       { property: "og:image", content: loaderData?.product.image },
     ],
+    links: loaderData?.product.image ? [
+      { rel: "preload", as: "image", href: loaderData.product.image, fetchPriority: "high" }
+    ] : [],
   }),
   staleTime: 1000 * 60 * 5, // 5 minutes cache
   component: Product,
@@ -85,10 +95,30 @@ export const Route = createFileRoute("/shop/$slug")({
 });
 
 function Product() {
-  const { product, similarProducts, comments, enrichment } = Route.useLoaderData();
+  const { product, deferredEnrichment, deferredComments, deferredProducts } = Route.useLoaderData();
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { isInWishlist, toggleWishlist } = useWishlist();
+
+  const { data: allProducts = [], isLoading: productsLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => deferredProducts,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const { data: comments = [], isLoading: commentsLoading } = useQuery({
+    queryKey: ["comments", product.slug],
+    queryFn: () => deferredComments,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { data: enrichment, isLoading: enrichmentLoading } = useQuery({
+    queryKey: ["enrichment", product.slug],
+    queryFn: () => deferredEnrichment,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const similarProducts = allProducts.filter((p: any) => p.slug !== product.slug).slice(0, 4);
 
   const [qty, setQty] = useState(1);
   const [openAccordion, setOpenAccordion] = useState<string | null>("Benefits");
@@ -209,9 +239,10 @@ function Product() {
                     <img
                       src={img}
                       alt={`Thumbnail ${idx}`}
-                      className="w-full h-full object-cover rounded"
+                      className="w-full h-full object-contain rounded"
                       width={100}
                       height={100}
+                      loading="lazy"
                     />
                   </button>
                 ))}
@@ -221,7 +252,7 @@ function Product() {
                 <img
                   src={activeImage}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-opacity duration-300"
+                  className="w-full h-full object-contain transition-opacity duration-300"
                   width={600}
                   height={800}
                   fetchPriority="high"
@@ -386,7 +417,14 @@ function Product() {
         </div>
       </section>
 
-      {bundleProduct && (
+      {productsLoading ? (
+        <section className="bg-cream-bg py-16 border-y border-soft-beige">
+          <div className="max-w-[1000px] mx-auto px-4 md:px-8">
+            <div className="animate-pulse h-8 bg-soft-beige rounded w-64 mb-8"></div>
+            <div className="animate-pulse h-48 bg-soft-beige rounded-2xl w-full"></div>
+          </div>
+        </section>
+      ) : bundleProduct ? (
         <section className="bg-cream-bg py-16 border-y border-soft-beige">
           <div className="max-w-[1000px] mx-auto px-4 md:px-8">
             <h2 className="font-display text-3xl text-primary mb-8 text-center md:text-left">
@@ -399,7 +437,8 @@ function Product() {
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
+                      loading="lazy"
                     />
                     <div className="absolute top-1 left-1 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
                       This item
@@ -417,7 +456,8 @@ function Product() {
                     <img
                       src={bundleProduct.image}
                       alt={bundleProduct.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
+                      loading="lazy"
                     />
                   </div>
                   <span className="text-xs font-bold text-center w-24 truncate">
@@ -485,7 +525,7 @@ function Product() {
             </div>
           </div>
         </section>
-      )}
+      ) : null}
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-16 grid grid-cols-1 lg:grid-cols-2 gap-16">
         <section>
@@ -653,50 +693,63 @@ function Product() {
           </div>
 
           <div className="overflow-x-auto no-scrollbar" ref={recommendedRef}>
-            <div
-              className={`flex gap-6 pb-6 snap-x snap-mandatory ${
-                similarProducts.length <= 4 ? "w-max mx-auto" : "w-max"
-              }`}
-            >
-              {similarProducts.map((p) => (
-                <Link
-                  key={p.slug}
-                  to="/shop/$slug"
-                  params={{ slug: p.slug }}
-                  className="snap-start shrink-0 w-[280px] md:w-[300px] group"
-                >
-                  <div className="aspect-[4/5] relative overflow-hidden rounded-xl">
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-
-                    <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-semibold uppercase tracking-wider text-primary">
-                      {p.tag}
-                    </span>
-                  </div>
-
-                  <div className="pt-4">
-                    <h3 className="font-semibold text-lg text-primary line-clamp-1">{p.name}</h3>
-
-                    <div className="mt-2">
-                      <PriceDisplay
-                        price={p.price}
-                        regularPrice={p.regularPrice}
-                        onSale={p.onSale}
+            {productsLoading ? (
+              <div className="flex gap-6 pb-6">
+                 {[1, 2, 3, 4].map((i) => (
+                   <div key={i} className="animate-pulse shrink-0 w-[280px] md:w-[300px]">
+                     <div className="aspect-[4/5] bg-soft-beige rounded-xl mb-4"></div>
+                     <div className="h-6 bg-soft-beige rounded w-3/4 mb-2"></div>
+                     <div className="h-5 bg-soft-beige rounded w-1/4"></div>
+                   </div>
+                 ))}
+              </div>
+            ) : (
+              <div
+                className={`flex gap-6 pb-6 snap-x snap-mandatory ${
+                  similarProducts.length <= 4 ? "w-max mx-auto" : "w-max"
+                }`}
+              >
+                {similarProducts.map((p: any) => (
+                  <Link
+                    key={p.slug}
+                    to="/shop/$slug"
+                    params={{ slug: p.slug }}
+                    className="snap-start shrink-0 w-[280px] md:w-[300px] group"
+                  >
+                    <div className="aspect-[4/5] relative overflow-hidden rounded-xl">
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
                       />
+
+                      <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-semibold uppercase tracking-wider text-primary z-20">
+                        {p.tag}
+                      </span>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+
+                    <div className="pt-4">
+                      <h3 className="font-semibold text-lg text-primary line-clamp-1">{p.name}</h3>
+
+                      <div className="mt-2">
+                        <PriceDisplay
+                          price={p.price}
+                          regularPrice={p.regularPrice}
+                          onSale={p.onSale}
+                        />
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* 9. CUSTOMER REVIEWS SECTION (With Image Upload) */}
-      <ReviewsSection productSlug={product.slug} comments={comments} />
+      <ReviewsSection productSlug={product.slug} comments={comments} isLoading={commentsLoading} />
     </SiteLayout>
   );
 }
@@ -708,9 +761,10 @@ function Product() {
 interface ReviewsSectionProps {
   productSlug: string;
   comments: any[];
+  isLoading?: boolean;
 }
 
-function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
+function ReviewsSection({ productSlug, comments, isLoading }: ReviewsSectionProps) {
   const { user, setLoginOpen } = useAuth();
   const router = useRouter();
 
@@ -726,6 +780,21 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState("");
   const [editingRating, setEditingRating] = useState(5);
+
+  if (isLoading) {
+    return (
+      <section className="bg-cream-bg py-16 border-t border-soft-beige">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          <h2 className="font-display text-3xl text-primary mb-12 text-center">Customer Reviews</h2>
+          <div className="animate-pulse space-y-4 max-w-4xl mx-auto">
+             <div className="h-32 bg-soft-beige rounded-xl"></div>
+             <div className="h-32 bg-soft-beige rounded-xl"></div>
+             <div className="h-32 bg-soft-beige rounded-xl"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const reviewCount = comments.length;
   const averageRating =
@@ -767,7 +836,7 @@ function ReviewsSection({ productSlug, comments }: ReviewsSectionProps) {
       // Note: Real implementation would handle `reviewImage` upload to cloud storage here
       // and append the resulting URL to the comment payload.
       // Assuming addComment API accepts imageUrl in payload.
-      const mockImageUrl = previewUrl ? "https://example.com/mock-upload.jpg" : undefined;
+      const mockImageUrl = previewUrl ? "https://example.com/mock-upload.webp" : undefined;
 
       await addComment({
         data: {

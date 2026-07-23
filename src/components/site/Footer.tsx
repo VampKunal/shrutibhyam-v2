@@ -5,7 +5,7 @@ export function Footer() {
  return (
  <footer className="bg-cream-bg mt-auto"
  style={{
- backgroundImage: "url('/backdrop4.png')",
+ backgroundImage: "url('/backdrop4.webp')",
  backgroundSize: "cover",
  backgroundPosition: "center 90%",
  backgroundRepeat: "no-repeat",

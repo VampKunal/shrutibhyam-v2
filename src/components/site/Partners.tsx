@@ -2,37 +2,37 @@ export function Partners() {
   const partners = [
     {
       title: "Capgemini",
-      image: "/logos/CAPEGEMINI.png",
+      image: "/logos/CAPEGEMINI.webp",
       alt: "Capgemini",
       className: "h-10 w-auto md:h-16 lg:h-10 object-contain",
     },
     {
       title: "DLF",
-      image: "/logos/DLF.png",
+      image: "/logos/DLF.webp",
       alt: "DLF",
       className: "h-12 w-auto md:h-16 lg:h-10 object-contain",
     },
     {
       title: "Ministry of MSME",
-      image: "/logos/MSME_logo_transparent_HD.png",
+      image: "/logos/MSME_logo_transparent_HD.webp",
       alt: "Ministry of MSME",
       className: "h-14 w-auto md:h-20 lg:h-16 object-contain",
     },
     {
       title: "Ministry of Ayush",
-      image: "/logos/MOA.png",
+      image: "/logos/MOA.webp",
       alt: "Ministry of Ayush",
       className: "h-30 w-auto md:h-24 lg:h-28 object-contain px-0",
     },
     {
       title: "Delhi Public School",
-      image: "/logos/dps.png",
+      image: "/logos/dps.webp",
       alt: "Delhi Public School",
       className: "h-30 w-auto md:h-24 lg:h-28 object-contain px-0",
     },
     {
       title: "Godrej",
-      image: "/logos/godrej.png",
+      image: "/logos/godrej.webp",
       alt: "Godrej",
       className: "h-30 w-auto md:h-24 lg:h-28 object-contain px-0",
     }
@@ -41,7 +41,7 @@ export function Partners() {
   return (
     <section className="bg-white py-20 "
       style={{
-        backgroundImage: "url('/backdrop5.png')",
+        backgroundImage: "url('/backdrop5.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center 50%",
         backgroundRepeat: "no-repeat",

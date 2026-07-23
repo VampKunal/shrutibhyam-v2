@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, type ReactNode } from "react";
-import { useLocation } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import Lenis from "@studio-freight/lenis";
 
 const lenisRef: { current: Lenis | null } = { current: null };
@@ -18,8 +18,8 @@ export function useScroll() {
 }
 
 export function ScrollProvider({ children }: { children: ReactNode }) {
-  const location = useLocation();
-  const prevPathRef = useRef(location.pathname);
+  const routerState = useRouterState();
+  const prevPathRef = useRef(routerState.location.pathname);
   const readyRef = useRef(false);
 
   useEffect(() => {
@@ -49,12 +49,16 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (prevPathRef.current === location.pathname) return;
-    prevPathRef.current = location.pathname;
-    scrollToTop();
-    const frame = requestAnimationFrame(() => scrollToTop());
-    return () => cancelAnimationFrame(frame);
-  }, [location.pathname]);
+    // Only scroll to top when navigation has fully completed (status is idle)
+    if (routerState.status === 'idle') {
+      if (prevPathRef.current !== routerState.location.pathname) {
+        prevPathRef.current = routerState.location.pathname;
+        scrollToTop();
+        const frame = requestAnimationFrame(() => scrollToTop());
+        return () => cancelAnimationFrame(frame);
+      }
+    }
+  }, [routerState.status, routerState.location.pathname]);
 
   return (
     <ScrollContext.Provider value={{ ready: readyRef.current }}>

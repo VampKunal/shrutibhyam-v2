@@ -29,8 +29,8 @@ export const Route = createFileRoute("/")({
             { property: "og:image", content: IMG.hero },
         ],
         links: [
-            { rel: "preload", as: "image", href: HERO_CAROUSEL[0].imgDesktop, fetchpriority: "high", media: "(min-width: 768px)" },
-            { rel: "preload", as: "image", href: HERO_CAROUSEL[0].imgMobile, fetchpriority: "high", media: "(max-width: 767px)" }
+            { rel: "preload", as: "image", href: HERO_CAROUSEL[0].imgDesktop, fetchPriority: "high", media: "(min-width: 768px)" },
+            { rel: "preload", as: "image", href: HERO_CAROUSEL[0].imgMobile, fetchPriority: "high", media: "(max-width: 767px)" }
         ]
     }),
     loader: async () => {
@@ -76,7 +76,7 @@ function Home() {
             const videoEl = videoRefs.current[currentImg];
             if (videoEl) {
                 videoEl.currentTime = 0;
-                videoEl.play().catch(() => {});
+                videoEl.play().catch(() => { });
             }
         }
 
@@ -254,7 +254,7 @@ function Home() {
                         {/* Image Content: Right on desktop, above on mobile */}
                         <div className="order-1 md:order-2 flex-1 w-full max-w-md mx-auto">
                             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-soft-beige shadow-lg">
-                                <img src={IMG.intro} alt="Founder" className="w-full h-full object-cover" />
+                                <img src={IMG.Home} alt="Founder" className="w-full h-full object-cover" loading="lazy" />
                             </div>
                         </div>
                     </div>
@@ -293,7 +293,7 @@ function Home() {
                                         <div className="aspect-[4/5] relative overflow-hidden mb-4 rounded bg-surface-container-low">
                                             <ProductCardImage product={product as any} imageClassName="group-hover/item:scale-105" />
                                             {product.tag && (
-                                                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur px-2 py-1 text-[10px] uppercase tracking-widest text-primary border border-soft-beige font-semibold rounded">
+                                                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur px-2 py-1 text-[10px] uppercase tracking-widest text-primary border border-soft-beige font-semibold rounded z-20">
                                                     {product.tag}
                                                 </div>
                                             )}
@@ -314,7 +314,7 @@ function Home() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Link to="/shop" search={{ category: "Skincare" } as any} className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
                             <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-                                <img src={IMG.faceOil} alt="Skincare" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <img src={IMG.pro1} alt="Skincare" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
                             </div>
                             <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
                                 <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Skincare</h3>
@@ -323,7 +323,7 @@ function Home() {
                         </Link>
                         <Link to="/yoga" className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
                             <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-                                <img src={IMG.yoga} alt="Yoga Products" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <img src={IMG.yoga2} alt="Yoga Products" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
                             </div>
                             <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
                                 <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Yoga</h3>
@@ -332,7 +332,7 @@ function Home() {
                         </Link>
                         <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
                             <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-                                <img src={IMG.tea} alt="Sound Healing" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <img src={IMG.pro5} alt="Sound Healing" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
                             </div>
                             <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
                                 <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Coming Soon..</h3>
@@ -355,7 +355,7 @@ function Home() {
             {/* Stats Section */}
             <section
                 className="relative py-16 bg-fixed bg-center"
-                style={{ backgroundImage: 'url(/backdrop1.png)', backgroundSize: '100vw 100vh' }}
+                style={{ backgroundImage: 'url(/backdrop1.webp)', backgroundSize: '100vw 100vh' }}
             >
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 text-primary-foreground"
                 >
@@ -389,43 +389,24 @@ function Home() {
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:h-[600px]">
                         <div className="md:col-span-6 relative overflow-hidden rounded-lg group flex flex-col justify-end p-8 border border-soft-beige min-h-[350px] interactive-card">
-                            <img src={IMG.yoga} alt="Yoga session" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+                            <img src={IMG.yoga2} alt="Yoga session" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" loading="lazy" />
                             <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal/85 via-deep-charcoal/30 to-transparent group-hover:from-deep-charcoal/90 transition-colors" />
                             <div className="relative z-10 text-primary-foreground">
                                 <span className="inline-block px-3 py-1 bg-white/15 backdrop-blur rounded-full text-xs font-semibold uppercase tracking-[0.15em] mb-4 border border-white/30">Mind & Body</span>
                                 <h3 className="font-display text-3xl mb-2">Join a Yoga Class</h3>
                                 <p className="text-xs md:text-sm max-w-sm mb-6 opacity-90">Align your physical and spiritual self through guided, traditional practice.</p>
-                                <Link to="/yoga" className="interactive-card inline-block bg-surface text-primary text-xs font-semibold uppercase tracking-[0.15em] px-6 py-3 hover:bg-soft-beige border border-soft-beige">View Schedule</Link>
+                                <Link to="/yoga" className="interactive-card inline-block bg-surface text-primary text-xs font-semibold uppercase tracking-[0.15em] px-6 py-3 hover:bg-soft-beige border border-soft-beige">BOOK NOW</Link>
                             </div>
                         </div>
-                        <div className="md:col-span-3 flex flex-col gap-6">
-                            <div className="interactive-card flex-1 bg-surface-container-low border border-soft-beige rounded-lg p-6 flex flex-col justify-center hover:bg-cream-bg">
-                                <h3 className="font-display text-xl text-primary mb-2">Corporate Wellness</h3>
-                                <p className="text-xs text-on-surface-variant mb-6">Mindfulness and Ayurvedic wellness sessions for teams.</p>
-                                <Link to="/events" className="inline-flex items-center text-primary text-xs font-semibold uppercase tracking-[0.15em] hover:text-sage-green transition-colors">
-                                    Enquire Now <ArrowRight size={16} className="ml-2" />
-                                </Link>
+                        <div className="md:col-span-6 relative overflow-hidden rounded-lg group flex flex-col justify-end p-8 border border-soft-beige min-h-[350px] interactive-card">
+                            <img src={IMG.yoga3} alt="Sound Healing session" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" loading="lazy" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal/85 via-deep-charcoal/30 to-transparent group-hover:from-deep-charcoal/90 transition-colors" />
+                            <div className="relative z-10 text-primary-foreground">
+                                <span className="inline-block px-3 py-1 bg-white/15 backdrop-blur rounded-full text-xs font-semibold uppercase tracking-[0.15em] mb-4 border border-white/30">Vibration & Healing</span>
+                                <h3 className="font-display text-3xl mb-2">Sound Healing</h3>
+                                <p className="text-xs md:text-sm max-w-sm mb-6 opacity-90">A quiet pause for the nervous system, created with Arahat Sound Dwellness.</p>
+                                <Link to="/yoga" className="interactive-card inline-block bg-surface text-primary text-xs font-semibold uppercase tracking-[0.15em] px-6 py-3 hover:bg-soft-beige border border-soft-beige">BOOK NOW</Link>
                             </div>
-                            <div className="interactive-card h-44 border border-soft-beige rounded-lg overflow-hidden relative group cursor-pointer">
-                                <img src={IMG.tea} alt="Wellness workshop" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/10 transition-colors" />
-                                <div className="absolute bottom-4 left-4 right-4 bg-surface/90 backdrop-blur p-3 rounded text-center border border-soft-beige">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">Sound Healing</p>
-                                </div>
-                            </div>
-                        </div>
-                        {/* Bento: Explore More About Story */}
-                        <div className="md:col-span-3 interactive-card bg-cream-bg border border-soft-beige rounded-lg p-6 flex flex-col justify-between min-h-[300px] hover:bg-surface-container-low">
-                            <div>
-                                <span className="text-[9px] font-semibold uppercase tracking-[0.15em] text-sage-green">Our Story</span>
-                                <h3 className="font-display text-2xl text-primary mt-2 mb-3">Rooted in Gurugram</h3>
-                                <p className="text-xs text-on-surface-variant leading-relaxed mb-4">
-                                    Born from a founder's personal health journey, Shrutibhyam brings cold-process soap, yoga, and sound healing into one honest ritual.
-                                </p>
-                            </div>
-                            <Link to="/about" className="interactive-card w-full bg-primary text-primary-foreground text-center text-xs font-semibold uppercase tracking-[0.12em] py-3.5 hover:bg-surface-tint border border-primary">
-                                Explore Our Story
-                            </Link>
                         </div>
                     </div>
                 </div>
@@ -472,7 +453,7 @@ function Home() {
                             </div>
                         </div>
                         <div className="relative rounded-lg overflow-hidden border border-soft-beige bg-surface">
-                            <img src="/social_grid_preview.png" alt="Instagram grid preview" className="w-full h-auto object-cover opacity-95 hover:opacity-100 transition-opacity" />
+                            <img src="/social_grid_preview.webp" alt="Instagram grid preview" className="w-full h-auto object-cover opacity-95 hover:opacity-100 transition-opacity" loading="lazy" />
                         </div>
                     </div>
                 </div>

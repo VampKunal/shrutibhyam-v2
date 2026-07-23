@@ -44,6 +44,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
+  // Auto prompt login if not logged in
+  useEffect(() => {
+    if (!isLoading && user === null) {
+      const hasPrompted = sessionStorage.getItem("loginPrompted");
+      if (!hasPrompted) {
+        const timer = setTimeout(() => {
+          setLoginOpen(true);
+          sessionStorage.setItem("loginPrompted", "true");
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isLoading, user]);
+
   // Login handler
   const login = useCallback(async (idToken: string): Promise<boolean> => {
     setIsLoading(true);

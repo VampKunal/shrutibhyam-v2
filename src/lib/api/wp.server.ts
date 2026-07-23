@@ -18,6 +18,7 @@ export async function fetchWP(
   const separator = endpoint.includes("?") ? "&" : "?";
   const url = `${siteUrl.replace(/\/$/, "")}/wp-json/${namespace}/${endpoint}${separator}consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
 
+  const startNetwork = performance.now();
   const response = await fetch(url, {
     method,
     headers: {
@@ -27,6 +28,7 @@ export async function fetchWP(
     },
     body: body ? JSON.stringify(body) : undefined,
   });
+  const networkTime = performance.now() - startNetwork;
 
   if (!response.ok) {
     let errorBody = "";
@@ -37,7 +39,6 @@ export async function fetchWP(
     }
     
     console.error(`[fetchWP] ERROR ${response.status} ${response.statusText}`);
-    console.error(`[fetchWP] Response body:`, errorBody);
 
     let errorMsg = `WordPress API Error (${namespace}): ${response.status} ${response.statusText}`;
     try {
@@ -48,5 +49,17 @@ export async function fetchWP(
     throw new Error(`${errorMsg} - Hostinger CDN might be blocking your local IP. Response: ${errorBody.substring(0,100)}...`);
   }
 
-  return response.json();
+  const startParse = performance.now();
+  const data = await response.json();
+  const parseTime = performance.now() - startParse;
+
+  return data;
+}
+
+export async function fetchWooCommerce(
+  endpoint: string,
+  method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
+  body?: any,
+) {
+  return fetchWP("wc/v3", endpoint, method, body);
 }

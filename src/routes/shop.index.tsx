@@ -31,8 +31,8 @@ export const Route = createFileRoute("/shop/")({
     ],
   }),
   loader: async () => {
-    const products = await getWooProducts();
-    return { products };
+    // We let the client-side useQuery fetch the products so the page renders immediately.
+    return {};
   },
   staleTime: 1000 * 60 * 5, // 5 minutes cache
   component: Shop,
@@ -48,7 +48,7 @@ function Shop() {
   const pendingPath = routerState.status === "pending" ? (routerState as any).pendingLocation?.pathname : null;
 
   // Fetch from React Query (stale-while-revalidate), already prefetched in root!
-  const { data: products = [] } = useQuery({
+  const { data: products = [], isLoading: productsLoading } = useQuery({
     queryKey: ["products"],
     queryFn: () => getWooProducts(),
     staleTime: 1000 * 60 * 10,
@@ -127,7 +127,7 @@ function Shop() {
     <SiteLayout>
       <section
         className="relative bg-cover bg-fixed bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/backdrop1.png')" }}
+        style={{ backgroundImage: "url('/backdrop1.webp')" }}
       >
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 py-20 text-center">
           <span className="inline-block px-4 py-1 bg-soft-beige rounded-full text-xs font-semibold uppercase tracking-[0.15em] text-deep-charcoal mb-4">Apothecary</span>
@@ -204,7 +204,21 @@ function Shop() {
               </select>
             </div>
 
-            {paginatedProducts.length === 0 ? (
+            {productsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {[1, 2, 3, 4, 5, 6].map((i) => (
+                   <div key={i} className="animate-pulse bg-cream-bg border border-soft-beige rounded overflow-hidden">
+                     <div className="aspect-square bg-soft-beige mb-4"></div>
+                     <div className="p-5">
+                       <div className="h-3 bg-soft-beige rounded w-1/4 mb-2"></div>
+                       <div className="h-6 bg-soft-beige rounded w-3/4 mb-3"></div>
+                       <div className="h-4 bg-soft-beige rounded w-full mb-3"></div>
+                       <div className="h-5 bg-soft-beige rounded w-1/2"></div>
+                     </div>
+                   </div>
+                 ))}
+              </div>
+            ) : paginatedProducts.length === 0 ? (
               <div className="text-center py-16 bg-cream-bg border border-soft-beige rounded">
                 <h3 className="font-display text-xl text-primary mb-2">No products found</h3>
                 <p className="text-sm text-on-surface-variant max-w-sm mx-auto">
@@ -230,10 +244,10 @@ function Shop() {
                           </div>
                         )}
                         <ProductCardImage product={p as any} imageClassName="group-hover:scale-105" />
-                        {idx === 0 && <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider px-2 py-1 z-10">New</span>}
+                        {idx === 0 && <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider px-2 py-1 z-20">New</span>}
                         <button
                           onClick={(e) => toggleWishlist(p.slug, e)}
-                          className="absolute top-3 right-3 bg-white/80 hover:bg-white p-2 rounded-full shadow-sm text-primary hover:text-sage-green transition-colors cursor-pointer z-10 flex items-center justify-center"
+                          className="absolute top-3 right-3 bg-white/80 hover:bg-white p-2 rounded-full shadow-sm text-primary hover:text-sage-green transition-colors cursor-pointer z-20 flex items-center justify-center"
                           aria-label="Toggle Wishlist"
                         >
                           <Heart

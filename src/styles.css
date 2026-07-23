@@ -12,80 +12,80 @@
   src: url('/fonts/airstrike/airstrike.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike';
   src: url('/fonts/airstrike/airstrikebold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike 3D';
   src: url('/fonts/airstrike/airstrike3d.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike 3D';
   src: url('/fonts/airstrike/airstrikebold3d.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Academy';
   src: url('/fonts/airstrike/airstrikeacad.ttf') format('truetype');
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Bullet';
   src: url('/fonts/airstrike/airstrikebullet.ttf') format('truetype');
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Chrome';
   src: url('/fonts/airstrike/airstrikechrome.ttf') format('truetype');
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Condensed';
   src: url('/fonts/airstrike/airstrikecond.ttf') format('truetype');
   font-stretch: condensed;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Expanded';
   src: url('/fonts/airstrike/airstrikeexpand.ttf') format('truetype');
   font-stretch: expanded;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Gradient';
   src: url('/fonts/airstrike/airstrikegrad.ttf') format('truetype');
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Halftone';
   src: url('/fonts/airstrike/airstrikehalf.ttf') format('truetype');
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Laser';
   src: url('/fonts/airstrike/airstrikelaser.ttf') format('truetype');
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Outline';
   src: url('/fonts/airstrike/airstrikeout.ttf') format('truetype');
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Airstrike Platinum';
   src: url('/fonts/airstrike/airstrikeplat.ttf') format('truetype');
-}
+  font-display: swap;}
 
 /* --- Butler --- */
 @font-face {
@@ -93,49 +93,49 @@
   src: url('/fonts/butler/Butler-Free-Lgt.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Butler';
   src: url('/fonts/butler/Butler-Free-Rmn.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Butler';
   src: url('/fonts/butler/Butler-Free-Med.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Butler';
   src: url('/fonts/butler/Butler-Free-SBd.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Butler';
   src: url('/fonts/butler/Butler-Free-Bd.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Butler';
   src: url('/fonts/butler/Butler-Free-XBd.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Butler';
   src: url('/fonts/butler/Butler-Free-Blk.ttf') format('truetype');
   font-weight: 900;
   font-style: normal;
-}
+  font-display: swap;}
 
 /* --- Coolvetica --- */
 @font-face {
@@ -143,14 +143,14 @@
   src: url('/fonts/coolvetica/Coolvetica Rg.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Coolvetica';
   src: url('/fonts/coolvetica/Coolvetica Rg It.otf') format('opentype');
   font-weight: 400;
   font-style: italic;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Coolvetica Condensed';
@@ -158,7 +158,7 @@
   font-weight: 400;
   font-style: normal;
   font-stretch: condensed;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Coolvetica Crammed';
@@ -166,14 +166,14 @@
   font-weight: 400;
   font-style: normal;
   font-stretch: extra-condensed;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Coolvetica Heavy';
   src: url('/fonts/coolvetica/Coolvetica Hv Comp.otf') format('opentype');
   font-weight: 900;
   font-style: normal;
-}
+  font-display: swap;}
 
 /* --- Evanescent --- */
 @font-face {
@@ -181,14 +181,14 @@
   src: url('/fonts/evanescent/evanescent.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Evanescent';
   src: url('/fonts/evanescent/evanescent_p.ttf') format('truetype');
   font-weight: 400;
   font-style: italic;
-}
+  font-display: swap;}
 
 /* Default Local Aliases */
 @font-face {
@@ -196,7 +196,7 @@
   src: url('/fonts/butler/Butler-Free-Rmn.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'Absans';
@@ -375,21 +375,21 @@
   src: url('/fonts/butler/Butler-Free-Bd.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'LocalBodyFont';
   src: url('/fonts/coolvetica/Coolvetica Rg.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
-}
+  font-display: swap;}
 
 @font-face {
   font-family: 'LocalBodyFont';
   src: url('/fonts/coolvetica/Coolvetica Rg It.otf') format('opentype');
   font-weight: 400;
   font-style: italic;
-}
+  font-display: swap;}
 
 @custom-variant dark (&:is(.dark *));
 

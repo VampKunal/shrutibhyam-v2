@@ -1,6 +1,6 @@
 import process from "node:process";
 import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
-import { fetchWooCommerce } from "./woocommerce.functions";
+import { fetchWooCommerce } from "./wp.server";
 
 export interface CommentItem {
   id: string;

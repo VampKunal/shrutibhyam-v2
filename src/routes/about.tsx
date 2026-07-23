@@ -88,7 +88,7 @@ function About() {
 
   return (
     <SiteLayout>
-      <div ref={containerRef}>
+      <div ref={containerRef} className="overflow-x-hidden">
         {/* Hero */}
         <section className="bg-cream-bg pt-32 pb-24 overflow-hidden relative">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--color-sage-green)_0%,_transparent_70%)]" />
@@ -104,7 +104,6 @@ function About() {
         {/* 1. How we came to be (L-R) */}
         <section
           className="relative story-section left-to-right py-24 md:py-32 bg-fixed bg-center"
-
         >
           <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -128,11 +127,12 @@ function About() {
               </div>
 
               <div className="collage-img-group relative h-[400px] lg:h-[600px] w-full order-1 lg:order-2">
+                <img src="/beepng.webp" alt="" className="absolute top-0 right-8 md:right-16 -translate-y-1/2 -mt-2.5 w-48 h-48 md:w-64 md:h-64 lg:w-96 lg:h-96 z-30 object-contain" />
                 <div className="parallax-img absolute top-0 right-0 w-[70%] h-[70%] rounded-2xl overflow-hidden shadow-lg border-4 border-cream-bg z-10">
-                  <img src={IMG.hero} alt="Nature" className="w-full h-full object-cover" />
+                  <img src={IMG.pro1} alt="Nature" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="parallax-img absolute bottom-0 left-0 w-[60%] h-[60%] rounded-2xl overflow-hidden shadow-xl border-4 border-cream-bg z-20">
-                  <img src={IMG.trust} alt="Ingredients" className="w-full h-full object-cover" />
+                  <img src={IMG.img1} alt="Ingredients" className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
             </div>
@@ -142,20 +142,20 @@ function About() {
         {/* 2. What we do (R-L) */}
         <section
           className="relative story-section right-to-left py-24 md:py-32 bg-fixed bg-center"
-
         >
           <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div className="collage-img-group relative h-[400px] lg:h-[600px] w-full order-1">
+                <img src="/beepng.webp" alt="" className="absolute top-[10%] left-8 md:left-16 -translate-y-1/2 -mt-2.5 w-48 h-48 md:w-64 md:h-64 lg:w-96 lg:h-96 z-30 object-contain scale-x-[-1]" />
                 <div className="parallax-img absolute top-[10%] left-0 w-[80%] h-[80%] rounded-2xl overflow-hidden shadow-lg border-4 border-cream-bg z-10">
-                  <img src={IMG.faceOil} alt="Crafting" className="w-full h-full object-cover" />
+                  <img src={IMG.pro3} alt="Crafting" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="parallax-img absolute bottom-[-10%] right-[10%] w-[50%] h-[50%] rounded-2xl overflow-hidden shadow-xl border-4 border-cream-bg z-20">
-                  <img src={IMG.powder} alt="Herbs" className="w-full h-full object-cover" />
+                  <img src={IMG.img3} alt="Herbs" className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
 
-              <div className="story-text space-y-6 order-2">
+              <div className="story-text relative z-10 space-y-6 order-2">
                 <div className="flex items-center gap-2 text-sage-green font-semibold text-xs uppercase tracking-wider">
                   <HandHeart size={16} /> Our Craft
                 </div>
@@ -182,11 +182,10 @@ function About() {
         {/* 3. Yoga and Sound Healing (L-R) */}
         <section
           className="relative story-section left-to-right py-24 md:py-32 bg-fixed bg-center"
-
         >
           <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div className="story-text space-y-6 order-2 lg:order-1">
+              <div className="story-text relative z-10 space-y-6 order-2 lg:order-1">
                 <div className="flex items-center gap-2 text-sage-green font-semibold text-xs uppercase tracking-wider">
                   <Heart size={16} /> Practice
                 </div>
@@ -200,11 +199,12 @@ function About() {
               </div>
 
               <div className="collage-img-group relative h-[400px] lg:h-[600px] w-full order-1 lg:order-2">
+                <img src="/beepng.webp" alt="" className="absolute top-[5%] right-[10%] md:right-[15%] -translate-y-1/2 -mt-2.5 w-48 h-48 md:w-64 md:h-64 lg:w-96 lg:h-96 z-30 object-contain" />
                 <div className="parallax-img absolute top-[5%] right-[5%] w-[65%] h-[85%] rounded-2xl overflow-hidden shadow-lg border-4 border-cream-bg z-10">
-                  <img src={IMG.tea} alt="Event gathering" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                  <img src={IMG.yoga2} alt="Event gathering" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" loading="lazy" />
                 </div>
                 <div className="parallax-img absolute bottom-[10%] left-[5%] w-[45%] h-[45%] rounded-2xl overflow-hidden shadow-xl border-4 border-cream-bg z-20">
-                  <img src={IMG.yoga} alt="Meditation" className="w-full h-full object-cover" />
+                  <img src={IMG.yoga3} alt="Meditation" className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
             </div>
@@ -214,18 +214,18 @@ function About() {
         {/* 4. Pure Ethos (R-L) */}
         <section
           className="relative story-section right-to-left py-24 md:py-32 bg-fixed bg-center"
-
         >
           <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div className="collage-img-group relative h-[400px] lg:h-[600px] w-full order-1">
+                <img src="/beepng.webp" alt="" className="absolute top-[5%] right-8 md:right-16 -translate-y-1/2 -mt-2.5 w-48 h-48 md:w-64 md:h-64 lg:w-96 lg:h-96 z-30 object-contain scale-x-[-1]" />
                 <div className="parallax-img absolute inset-0 w-[90%] h-[90%] m-auto rounded-full overflow-hidden shadow-lg border-8 border-cream-bg z-10">
-                  <img src={IMG.serum} alt="Natural elements" className="w-full h-full object-cover" />
+                  <img src={IMG.pro2} alt="Natural elements" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-sage-green/20 rounded-full blur-3xl z-0" />
               </div>
 
-              <div className="story-text space-y-6 order-2">
+              <div className="story-text relative z-10 space-y-6 order-2">
                 <div className="flex items-center gap-2 text-sage-green font-semibold text-xs uppercase tracking-wider">
                   <Leaf size={16} /> Pure Ethos
                 </div>

@@ -38,7 +38,7 @@ export const Route = createFileRoute("/dashboard")({
 
 type ActiveTab = "profile" | "orders" | "wishlist" | "comments";
 
-export default function UserDashboard() {
+function UserDashboard() {
  const { tab } = Route.useSearch();
  const { user, isLoading: isAuthLoading, refreshUser } = useAuth();
  const router = useRouter();

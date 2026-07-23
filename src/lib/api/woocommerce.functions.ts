@@ -4,11 +4,8 @@ import { mapWooCommerceProduct, LocalProduct, getProductFallbackImage } from "..
 import process from "node:process";
 import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
 
-// Thin wrapper around the unified fetchWP helper, pinned to the WooCommerce v3 namespace.
-export async function fetchWooCommerce(endpoint: string, method: "GET" | "POST" | "PUT" | "DELETE" = "GET", body?: any) {
-  const { fetchWP } = await import("./wp.server");
-  return fetchWP("wc/v3", endpoint, method, body);
-}
+// Thin wrapper removed to avoid client-side import warnings.
+// We dynamically import `fetchWooCommerce` from `./wp.server` inside server functions.
 
 /**
  * Server Function: Get all products from WooCommerce.
@@ -16,7 +13,9 @@ export async function fetchWooCommerce(endpoint: string, method: "GET" | "POST" 
 export const getWooProducts = createServerFn({ method: "GET" })
   .handler(async (): Promise<LocalProduct[]> => {
     try {
-      const wpProducts = await fetchWooCommerce("products?per_page=100&status=publish&_fields=id,name,slug,price,regular_price,sale_price,on_sale,images,categories,short_description,description");
+      const { fetchWooCommerce } = await import("./wp.server");
+      // Reduced fields to reduce payload size (removed short_description, description)
+      const wpProducts = await fetchWooCommerce("products?per_page=100&status=publish&_fields=id,name,slug,price,regular_price,sale_price,on_sale,images,categories");
       if (Array.isArray(wpProducts)) {
         return wpProducts.map(mapWooCommerceProduct);
       }
@@ -34,7 +33,10 @@ export const getWooProductBySlug = createServerFn({ method: "GET" })
   .validator(z.string())
   .handler(async ({ data: slug }): Promise<LocalProduct | null> => {
     try {
-      const wpProducts = await fetchWooCommerce(`products?slug=${encodeURIComponent(slug)}&status=publish`);
+      const { fetchWooCommerce } = await import("./wp.server");
+      const t0 = performance.now();
+      const wpProducts = await fetchWooCommerce(`products?slug=${encodeURIComponent(slug)}&status=publish&_fields=id,name,slug,price,regular_price,sale_price,on_sale,images,categories,short_description,description`);
+      
       if (Array.isArray(wpProducts) && wpProducts.length > 0) {
         return mapWooCommerceProduct(wpProducts[0]);
       }
@@ -52,6 +54,7 @@ export const getCustomerProfile = createServerFn({ method: "GET" })
   .validator(z.number())
   .handler(async ({ data: userId }) => {
     try {
+      const { fetchWooCommerce } = await import("./wp.server");
       const customer = await fetchWooCommerce(`customers/${userId}`);
       return {
         phone: customer.billing?.phone || "",
@@ -82,6 +85,7 @@ export const updateCustomerProfile = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data: { userId, displayName, phone, address } }) => {
     try {
+      const { fetchWooCommerce } = await import("./wp.server");
       const parts = displayName.trim().split(/\s+/);
       const first_name = parts[0] || "";
       const last_name = parts.slice(1).join(" ") || "";
@@ -135,6 +139,7 @@ export const getCustomerOrders = createServerFn({ method: "GET" })
   .validator(z.number())
   .handler(async ({ data: userId }) => {
     try {
+      const { fetchWooCommerce } = await import("./wp.server");
       const wpOrders = await fetchWooCommerce(`orders?customer=${userId}`);
       if (Array.isArray(wpOrders)) {
         return wpOrders.map((o: any) => {

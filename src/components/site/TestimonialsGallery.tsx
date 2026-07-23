@@ -66,7 +66,7 @@ export function TestimonialsGallery() {
     <section
       className="relative py-24 overflow-hidden bg-fixed bg-center"
       style={{
-        backgroundImage: "url('/flowerdrop.png')",
+        backgroundImage: "url('/flowerdrop.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center 10%",
         backgroundRepeat: "no-repeat",
