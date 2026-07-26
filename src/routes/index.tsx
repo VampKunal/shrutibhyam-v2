@@ -11,7 +11,7 @@ import {
     PURITY,
     BESTSELLERS
 } from "@/constant";
-import { ArrowRight, Star, Quote, Instagram, Facebook, Linkedin, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Star, Quote, Instagram, Facebook, Linkedin, ChevronLeft, ChevronRight, Youtube } from "lucide-react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 import { Partners } from "@/components/site/Partners";
 import { TestimonialsGallery } from "@/components/site/TestimonialsGallery";
@@ -90,78 +90,68 @@ function Home() {
             {/* Hero */}
             <section className="relative w-full h-[60vh] md:h-[86vh] flex items-center justify-center p-4 md:px-0 lg:p-8">
                 <div className="relative w-full h-full rounded-3xl overflow-hidden group border border-soft-beige shadow-lg bg-surface-container-low">
-                    {/* Background Image Carousel with Cross-Fade */}
+
+                    {/* Background Image Carousel */}
                     {HERO_CAROUSEL.map((slide, idx) => (
                         <Link
-                            key={(slide.imgDesktop || slide.videoDesktop || "slide") + idx.toString()}
-                            to={slide.to as any}
-                            className={`absolute inset-0 w-full h-full cursor-pointer transition-opacity duration-1000 mix-blend-multiply ${idx === currentImg ? "opacity-100 z-0 pointer-events-auto" : "opacity-0 -z-10 pointer-events-none"
+                            key={(slide.imgDesktop || slide.imgMobile) + idx}
+                            to={slide.to}
+                            className={`absolute inset-0 w-full h-full cursor-pointer transition-opacity duration-1000 ${idx === currentImg
+                                ? "opacity-100 z-0 pointer-events-auto"
+                                : "opacity-0 -z-10 pointer-events-none"
                                 }`}
                         >
-                            {slide.isVideo ? (
-                                <video
-                                    ref={el => { videoRefs.current[idx] = el; }}
-                                    src={slide.videoDesktop}
-                                    muted
-                                    playsInline
-                                    onEnded={() => {
-                                        if (idx === currentImg) {
-                                            setTimeout(() => {
-                                                setCurrentImg((prev) => (prev + 1) % HERO_CAROUSEL.length);
-                                            }, 2000);
-                                        }
-                                    }}
-                                    className="w-full h-full object-cover"
+                            <picture>
+                                <source
+                                    media="(min-width: 768px)"
+                                    srcSet={slide.imgDesktop}
                                 />
-                            ) : (
-                                <picture>
-                                    <source media="(min-width: 768px)" srcSet={slide.imgDesktop} />
-                                    <img
-                                        src={slide.imgMobile}
-                                        alt="Serene wellness ritual"
-                                        className="w-full h-full object-cover"
-                                        width={1920}
-                                        height={1080}
-                                        {...(idx === 0 ? { fetchPriority: "high" } : { loading: "lazy" })}
-                                    />
-                                </picture>
-                            )}
+                                <img
+                                    src={slide.imgMobile}
+                                    alt={slide.alt || "Shrutibhyam Hero"}
+                                    className="w-full h-full object-cover"
+                                    width={1920}
+                                    height={1080}
+                                    {...(idx === 0
+                                        ? { fetchPriority: "high" }
+                                        : { loading: "lazy" })}
+                                />
+                            </picture>
                         </Link>
                     ))}
 
-                    {/* Carousel Arrows */}
+                    {/* Left / Right Arrows */}
                     <div className="absolute inset-0 flex items-center justify-between px-4 md:px-8 z-20 pointer-events-none">
                         <button
-                            onClick={(e) => { e.preventDefault(); setCurrentImg((prev) => (prev - 1 + HERO_CAROUSEL.length) % HERO_CAROUSEL.length); }}
-                            className="pointer-events-auto p-2 md:p-3  hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-sm"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentImg(
+                                    (prev) =>
+                                        (prev - 1 + HERO_CAROUSEL.length) %
+                                        HERO_CAROUSEL.length
+                                );
+                            }}
+                            className="pointer-events-auto p-2 md:p-3 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-sm"
                             aria-label="Previous slide"
                         >
                             <ChevronLeft size={32} />
                         </button>
+
                         <button
-                            onClick={(e) => { e.preventDefault(); setCurrentImg((prev) => (prev + 1) % HERO_CAROUSEL.length); }}
-                            className="pointer-events-auto p-2 md:p-3  hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-sm"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentImg(
+                                    (prev) => (prev + 1) % HERO_CAROUSEL.length
+                                );
+                            }}
+                            className="pointer-events-auto p-2 md:p-3 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-sm"
                             aria-label="Next slide"
                         >
                             <ChevronRight size={32} />
                         </button>
                     </div>
+
                 </div>
-
-                {/* <div className="relative z-10 max-w-3xl text-center px-6 py-24 space-y-6">
-                    <span className="inline-block px-4 py-1 bg-soft-beige rounded-full text-xs font-semibold uppercase tracking-[0.15em] text-deep-charcoal">Rituals Rooted in Nature - For Body, Breath & Being</span>
-                    <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight text-primary leading-[1.1]">
-                        Rooted in Tradition,<br />Crafted for Today
-                    </h1>
-                    <p className="text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-                        A slow-beauty and mindful-movement practice - handcrafted Ayurvedic skincare and traditional yoga, brought from the earth to your daily ritual.
-                    </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
-                        <Link to="/shop" className="interactive-card bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary">Shop Collection</Link>
-                        <Link to="/yoga" className="interactive-card border border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-soft-beige hover:text-primary">Explore Yoga</Link>
-                    </div>
-
-                </div> */}
             </section>
 
             {/* Marquee */}
@@ -187,49 +177,84 @@ function Home() {
             <Partners />
 
             {/* Crafted With Care / The Ingredient Story */}
-            <section className="relative py-24 bg-surface">
+            <section className="relative py-12 md:py-16 bg-[#FFFAF3]/60">
                 <div className="max-w-[1400px] mx-auto px-4 md:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                         <div>
-                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sage-green mb-4 block">The Philosophy</span>
-                            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-primary leading-tight">Crafted With Care</h2>
+                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sage-green mb-4 block">
+                                The Philosophy
+                            </span>
+                            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-primary leading-tight">
+                                Crafted With Care
+                            </h2>
                         </div>
-                        <div className="md:max-w-md">
 
+                        <div className="md:max-w-md">
                             <div className="hidden md:flex gap-4">
-                                <button onClick={() => scrollContainerLeft(craftedRef)} className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm">
+                                <button
+                                    onClick={() => scrollContainerLeft(craftedRef)}
+                                    className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm"
+                                >
                                     <ChevronLeft size={24} />
                                 </button>
-                                <button onClick={() => scrollContainerRight(craftedRef)} className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm">
+
+                                <button
+                                    onClick={() => scrollContainerRight(craftedRef)}
+                                    className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm"
+                                >
                                     <ChevronRight size={24} />
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto no-scrollbar relative group -mx-4 px-4 md:mx-0 md:px-0" ref={craftedRef}>
+                    <div
+                        className="overflow-x-auto no-scrollbar relative group -mx-4 px-4 md:mx-0 md:px-0"
+                        ref={craftedRef}
+                    >
                         <div className="flex gap-6 pb-6 snap-x snap-mandatory w-max">
                             {[...PURITY, ...PURITY, ...PURITY].map(({ icon: Icon, label }, idx) => (
-                                <div key={idx} className="snap-center shrink-0 w-[260px] md:w-[300px] bg-white rounded-2xl p-8 border border-soft-beige shadow-sm flex flex-col items-center text-center hover:border-[#BBDC12] hover:shadow-md transition-all cursor-pointer group/card">
+                                <div
+                                    key={idx}
+                                    className="snap-center shrink-0 w-[260px] md:w-[300px] bg-white rounded-2xl p-8 border border-soft-beige shadow-sm flex flex-col items-center text-center hover:border-[#BBDC12] hover:shadow-md transition-all cursor-pointer group/card"
+                                >
                                     <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center text-sage-green mb-6 border border-soft-beige group-hover/card:bg-orange-400 group-hover/card:text-white transition-colors duration-300">
                                         <Icon size={32} strokeWidth={1.5} />
                                     </div>
-                                    <h3 className="font-display text-lg text-primary mb-3 uppercase tracking-wider group-hover/card:text-sage-green transition-colors">{label}</h3>
-                                    <p className="text-xs text-on-surface-variant leading-relaxed">Carefully selected and meticulously formulated without compromise to ensure absolute purity.</p>
+
+                                    <h3 className="font-display text-lg text-primary mb-3 uppercase tracking-wider group-hover/card:text-sage-green transition-colors">
+                                        {label}
+                                    </h3>
+
+                                    <p className="text-xs text-on-surface-variant leading-relaxed">
+                                        Carefully selected and meticulously formulated without
+                                        compromise to ensure absolute purity.
+                                    </p>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
-                        <Link to="/about" className="interactive-card bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary text-center min-w-[200px]">Explore Our Story</Link>
-                        <Link to="/shop" className="interactive-card border border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-soft-beige hover:text-primary text-center min-w-[200px]">Shop Collection</Link>
+                        <Link
+                            to="/about"
+                            className="interactive-card bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary text-center min-w-[200px]"
+                        >
+                            Explore Our Story
+                        </Link>
+
+                        <Link
+                            to="/shop"
+                            className="interactive-card border border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-soft-beige hover:text-primary text-center min-w-[200px]"
+                        >
+                            Shop Collection
+                        </Link>
                     </div>
                 </div>
             </section>
 
             {/* Meet the Founder */}
-            <section className="relative py-24 bg-cream-bg">
+            <section className="relative py-12 md:py-16 bg-cream-bg">
                 <div className="max-w-[1200px] mx-auto px-4 md:px-6">
                     <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
                         {/* Text Content: Left on desktop, below on mobile */}
@@ -263,7 +288,7 @@ function Home() {
 
             {/* Products Categories */}
             <section
-                className="relative py-24 bg-fixed bg-center"
+                className="relative py-12 md:py-16 bg-fixed bg-center bg-[#FFFAF3]/60"
 
             >
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
@@ -308,7 +333,7 @@ function Home() {
                         </div>
                     </div>
 
-                    <div className="mb-6 mt-12">
+                    <div className="mb-6 mt-12 ">
                         <h3 className="font-display text-2xl text-primary mb-6">Explore More</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -383,7 +408,7 @@ function Home() {
 
             {/* Bento: Yoga + Events + About Story */}
             <section
-                className="relative py-20 bg-fixed bg-center"
+                className="relative py-12 md:py-16 bg-fixed bg-center"
 
             >
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
@@ -414,7 +439,7 @@ function Home() {
 
             {/* Social Section */}
             <section
-                className="relative py-20 bg-fixed bg-center"
+                className="relative py-12 md:py-16 bg-fixed bg-center"
 
             >
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
@@ -449,6 +474,14 @@ function Home() {
                                     className="interactive-card flex items-center justify-center gap-2 bg-transparent border border-primary text-primary text-xs font-semibold uppercase tracking-[0.12em] px-4 py-3 hover:bg-soft-beige hover:text-primary shrink-0"
                                 >
                                     <Linkedin size={16} /> LinkedIn
+                                </a>
+                                <a
+                                    href={CONTACT_INFO.youtube}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="interactive-card flex items-center justify-center gap-2 bg-transparent border border-primary text-primary text-xs font-semibold uppercase tracking-[0.12em] px-4 py-3 hover:bg-soft-beige hover:text-primary shrink-0"
+                                >
+                                    <Youtube size={16} /> YouTube
                                 </a>
                             </div>
                         </div>

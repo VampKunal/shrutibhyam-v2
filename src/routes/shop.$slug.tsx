@@ -714,6 +714,7 @@ function Product() {
                     key={p.slug}
                     to="/shop/$slug"
                     params={{ slug: p.slug }}
+                    preload="intent"
                     className="snap-start shrink-0 w-[280px] md:w-[300px] group"
                   >
                     <div className="aspect-[4/5] relative overflow-hidden rounded-xl">

@@ -26,6 +26,7 @@ export const CONTACT_INFO = {
   instagram: "https://www.instagram.com/shrutibhyamyog/",
   facebook: "https://www.facebook.com/people/Shrutibhyam/61590584156475/",
   linkedin: "https://www.linkedin.com/company/110937120",
+  youtube: "https://youtube.com/shorts/HGpwI3y-S50?si=pYuy4lfuRfCxsP4S"
 };
 
 export const IMG = {
@@ -106,7 +107,7 @@ export const MARQUEE = [
 
 // Home carousel slides
 export const HERO_CAROUSEL = [
-  { videoDesktop: IMG.video, to: "/about", isVideo: true, imgDesktop: undefined, imgMobile: undefined },
+  { imgDesktop: IMG.Home, imgMobile: IMG.Home, to: "/shop", isVideo: false, videoDesktop: undefined },
   { imgDesktop: IMG.Buy, imgMobile: IMG.Buy, to: "/shop", isVideo: false, videoDesktop: undefined },
   { imgDesktop: IMG.yog, imgMobile: IMG.trust, to: "/yoga", isVideo: false, videoDesktop: undefined },
   { imgDesktop: IMG.Home, imgMobile: IMG.Home, to: "/events", isVideo: false, videoDesktop: undefined }

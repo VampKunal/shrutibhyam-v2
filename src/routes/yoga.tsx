@@ -23,7 +23,7 @@ function Yoga() {
     <SiteLayout>
       <section className="relative min-h-[60vh] flex items-center bg-cream-bg overflow-hidden">
         <img src={"/backdrop1.webp"} alt="Yoga studio" className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-multiply" fetchPriority="high" />
-        <div className="relative max-w-[1200px] mx-auto px-4 md:px-6 py-20 text-center w-full">
+        <div className="relative max-w-[1200px] mx-auto px-4 md:px-6 py-12 md:py-16 text-center w-full">
           <span className="inline-block px-4 py-1 bg-soft-beige rounded-full text-xs font-semibold uppercase tracking-[0.15em] text-deep-charcoal mb-4">Find Your Flow</span>
           <h1 className="font-display text-4xl md:text-6xl text-primary leading-tight mb-4">Rooted in Earth,<br />Guided by Breath</h1>
           <p className="text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto mb-8">
@@ -34,7 +34,7 @@ function Yoga() {
       </section>
 
       <section
-        className="relative py-20 bg-fixed bg-center"
+        className="relative py-12 md:py-16 bg-fixed bg-center"
 
       >
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
@@ -56,7 +56,7 @@ function Yoga() {
 
 
       <section
-        className="relative py-20 bg-fixed bg-center"
+        className="relative py-12 md:py-16 bg-fixed bg-center"
 
       >
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">

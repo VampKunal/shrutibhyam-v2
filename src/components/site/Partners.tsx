@@ -39,7 +39,7 @@ export function Partners() {
   ];
 
   return (
-    <section className="bg-white py-20 "
+    <section className="bg-white py-12 md:py-16 "
       style={{
         backgroundImage: "url('/backdrop5.webp')",
         backgroundSize: "cover",
@@ -57,7 +57,7 @@ export function Partners() {
           <div className="w-16 h-px mx-auto" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 md:gap-x-8 gap-y-4 py-6 place-items-center">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-8 py-6 place-items-center">
           {partners.map(({ title, image, alt, className }) => (
             <div
               key={title}

@@ -45,7 +45,6 @@ function Shop() {
   const { selectedCategory, priceLimit, sortBy, currentPage } = useAppSelector((state) => state.shop);
 
   const routerState = useRouterState();
-  const pendingPath = routerState.status === "pending" ? (routerState as any).pendingLocation?.pathname : null;
 
   // Fetch from React Query (stale-while-revalidate), already prefetched in root!
   const { data: products = [], isLoading: productsLoading } = useQuery({
@@ -234,15 +233,9 @@ function Shop() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedProducts.map((p, idx) => {
-                  const isNavigating = pendingPath === `/shop/${p.slug}`;
                   return (
-                    <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group bg-cream-bg border border-soft-beige rounded overflow-hidden hover:shadow-sm transition relative block">
+                    <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} preload="intent" className="group bg-cream-bg border border-soft-beige rounded overflow-hidden hover:shadow-sm transition relative block">
                       <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-                        {isNavigating && (
-                          <div className="absolute inset-0 z-20 bg-white/40 backdrop-blur-[2px] flex items-center justify-center transition-all">
-                            <Loader2 className="animate-spin text-sage-green" size={32} />
-                          </div>
-                        )}
                         <ProductCardImage product={p as any} imageClassName="group-hover:scale-105" />
                         {idx === 0 && <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider px-2 py-1 z-20">New</span>}
                         <button

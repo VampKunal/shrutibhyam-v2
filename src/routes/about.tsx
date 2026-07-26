@@ -103,7 +103,7 @@ function About() {
 
         {/* 1. How we came to be (L-R) */}
         <section
-          className="relative story-section left-to-right py-24 md:py-32 bg-fixed bg-center"
+          className="relative story-section left-to-right py-12 md:py-16 bg-fixed bg-center"
         >
           <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -141,7 +141,7 @@ function About() {
 
         {/* 2. What we do (R-L) */}
         <section
-          className="relative story-section right-to-left py-24 md:py-32 bg-fixed bg-center"
+          className="relative story-section right-to-left py-12 md:py-16 bg-fixed bg-center"
         >
           <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -181,7 +181,7 @@ function About() {
 
         {/* 3. Yoga and Sound Healing (L-R) */}
         <section
-          className="relative story-section left-to-right py-24 md:py-32 bg-fixed bg-center"
+          className="relative story-section left-to-right py-12 md:py-16 bg-fixed bg-center"
         >
           <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -213,7 +213,7 @@ function About() {
 
         {/* 4. Pure Ethos (R-L) */}
         <section
-          className="relative story-section right-to-left py-24 md:py-32 bg-fixed bg-center"
+          className="relative story-section right-to-left py-12 md:py-16 bg-fixed bg-center"
         >
           <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">

@@ -4,7 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useLocation,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -20,7 +20,22 @@ import { useEffect } from "react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
 
 import appCss from "../styles.css?inline";
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";
 
+function TopProgressBar() {
+  const isLoading = useRouterState({ select: (s) => s.status === "pending" });
+  
+  useEffect(() => {
+    if (isLoading) {
+      NProgress.start();
+    } else {
+      NProgress.done();
+    }
+  }, [isLoading]);
+  
+  return null;
+}
 
 function NotFoundComponent() {
   return (
@@ -79,15 +94,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-import { Loader2 } from "lucide-react";
-
-function PendingComponent() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Loader2 className="w-8 h-8 animate-spin text-primary" />
-    </div>
-  );
-}
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -110,7 +116,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
-  pendingComponent: PendingComponent,
 });
 
 
@@ -132,8 +137,6 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-
-  const location = useLocation();
 
   useEffect(() => {
 
@@ -172,6 +175,7 @@ function RootComponent() {
           <AuthProvider>
             <CartProvider>
               <ScrollProvider>
+                <TopProgressBar />
                 {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
                 <Outlet />
                 <CartDrawer />
