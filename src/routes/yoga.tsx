@@ -23,18 +23,18 @@ function Yoga() {
     <SiteLayout>
       <section className="relative min-h-[60vh] flex items-center bg-cream-bg overflow-hidden">
         <img src={"/backdrop1.webp"} alt="Yoga studio" className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-multiply" fetchPriority="high" />
-        <div className="relative max-w-[1200px] mx-auto px-4 md:px-6 py-12 md:py-16 text-center w-full">
+        <div className="relative max-w-[1200px] mx-auto px-4 md:px-6 py-8 md:py-10 text-center w-full">
           <span className="inline-block px-4 py-1 bg-soft-beige rounded-full text-xs font-semibold uppercase tracking-[0.15em] text-deep-charcoal mb-4">Find Your Flow</span>
           <h1 className="font-display text-4xl md:text-6xl text-primary leading-tight mb-4">Rooted in Earth,<br />Guided by Breath</h1>
           <p className="text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto mb-8">
             Traditional yoga guided by Ayurvedic principles - Hatha, Ashtanga, and prop-based practice to align body, breath, and stillness.
           </p>
-          <a href="https://docs.google.com/forms/d/e/1FAIpQLScRGltMvYcmmCd2m_nEwFEy7A1_AFcaUa7uc9uf3QpAOemMiA/viewform?usp=header" target="_blank" rel="noopener noreferrer" className="inline-block bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint transition">Book Now</a>
+          <Link to="/book-yoga" className="inline-block bg-[#66BB6A] text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint transition">Book Now</Link>
         </div>
       </section>
 
       <section
-        className="relative py-12 md:py-16 bg-fixed bg-center"
+        className="relative py-8 md:py-10 bg-fixed bg-center"
 
       >
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
@@ -45,9 +45,9 @@ function Yoga() {
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-sage-green mb-3">{p.tag}</p>
                 <h3 className="font-display text-2xl text-primary mb-3">{p.name}</h3>
                 <p className="text-sm text-on-surface-variant leading-relaxed mb-6">{p.desc}</p>
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLScRGltMvYcmmCd2m_nEwFEy7A1_AFcaUa7uc9uf3QpAOemMiA/viewform?usp=header" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-xs font-semibold uppercase tracking-[0.15em] text-primary hover:text-sage-green">
+                <Link to="/book-yoga" className="inline-flex items-center text-xs font-semibold uppercase tracking-[0.15em] text-primary hover:text-sage-green">
                   Book Now <ArrowRight size={14} className="ml-2" />
-                </a>
+                </Link>
               </div>
             ))}
           </div>
@@ -56,7 +56,7 @@ function Yoga() {
 
 
       <section
-        className="relative py-12 md:py-16 bg-fixed bg-center"
+        className="relative py-8 md:py-10 bg-fixed bg-center"
 
       >
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">

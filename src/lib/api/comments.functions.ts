@@ -15,10 +15,10 @@ export const getComments = createServerFn({ method: "GET" })
  * Server Function: Get comments written by a specific user.
  */
 export const getCommentsByUser = createServerFn({ method: "GET" })
-  .validator(z.number())
-  .handler(async ({ data: userId }) => {
+  .validator(z.string())
+  .handler(async ({ data: userEmail }) => {
     const { serverGetCommentsByUser } = await import("./comments.server");
-    return serverGetCommentsByUser(userId);
+    return serverGetCommentsByUser(userEmail);
   });
 
 /**

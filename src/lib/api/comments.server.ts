@@ -94,9 +94,9 @@ export async function serverGetComments(productSlug: string): Promise<CommentIte
 /**
  * Get all comments posted by a specific user.
  */
-export async function serverGetCommentsByUser(userId: number): Promise<CommentItem[]> {
+export async function serverGetCommentsByUser(userEmail: string): Promise<CommentItem[]> {
   try {
-    const reviews = await fetchWooCommerce(`products/reviews?customer=${userId}`);
+    const reviews = await fetchWooCommerce(`products/reviews?reviewer_email=${encodeURIComponent(userEmail)}`);
     if (Array.isArray(reviews)) {
       const mapped: CommentItem[] = [];
       for (const r of reviews) {
@@ -106,7 +106,7 @@ export async function serverGetCommentsByUser(userId: number): Promise<CommentIt
       return mapped;
     }
   } catch (error) {
-    console.error(`Error fetching reviews for user ${userId}:`, error);
+    console.error(`Error fetching reviews for user email ${userEmail}:`, error);
   }
   return [];
 }

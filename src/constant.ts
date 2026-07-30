@@ -21,7 +21,7 @@ export const CONTACT_INFO = {
   name: "Shrutibhyam Wellness",
   address: "Godrej Aria, Tower D, Gurugram, Haryana, India",
   addressShort: "Godrej Aria, Gurugram, Haryana",
-  email: "customercare@shrutibhyam.com",
+  email: "care@shrutibhyam.com",
   phone: "DM us on Instagram or email us for the quickest response",
   instagram: "https://www.instagram.com/shrutibhyamyog/",
   facebook: "https://www.facebook.com/people/Shrutibhyam/61590584156475/",

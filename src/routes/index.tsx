@@ -177,7 +177,7 @@ function Home() {
             <Partners />
 
             {/* Crafted With Care / The Ingredient Story */}
-            <section className="relative py-12 md:py-16 bg-[#FFFAF3]/60">
+            <section className="relative py-8 md:py-10 bg-[#FFFAF3]/60">
                 <div className="max-w-[1400px] mx-auto px-4 md:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                         <div>
@@ -238,7 +238,7 @@ function Home() {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
                         <Link
                             to="/about"
-                            className="interactive-card bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary text-center min-w-[200px]"
+                            className="interactive-card bg-[#66BB6A] text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-[#66BB6A]/80 border border-primary text-center min-w-[200px]"
                         >
                             Explore Our Story
                         </Link>
@@ -254,7 +254,7 @@ function Home() {
             </section>
 
             {/* Meet the Founder */}
-            <section className="relative py-12 md:py-16 bg-cream-bg">
+            <section className="relative py-8 md:py-10 bg-cream-bg">
                 <div className="max-w-[1200px] mx-auto px-4 md:px-6">
                     <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
                         {/* Text Content: Left on desktop, below on mobile */}
@@ -270,7 +270,7 @@ function Home() {
                                 </p>
                             </div>
                             <div className="mt-8">
-                                <Link to="/about" className="interactive-card inline-block bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary">
+                                <Link to="/about" className="interactive-card inline-block bg-[#66BB6A] text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary">
                                     Read My Story
                                 </Link>
                             </div>
@@ -288,7 +288,7 @@ function Home() {
 
             {/* Products Categories */}
             <section
-                className="relative py-12 md:py-16 bg-fixed bg-center bg-[#FFFAF3]/60"
+                className="relative py-8 md:py-10 bg-fixed bg-center bg-[#FFFAF3]/60"
 
             >
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
@@ -379,7 +379,7 @@ function Home() {
 
             {/* Stats Section */}
             <section
-                className="relative py-16 bg-fixed bg-center"
+                className="relative py-8 md:py-10 bg-fixed bg-center"
                 style={{ backgroundImage: 'url(/backdrop1.webp)', backgroundSize: '100vw 100vh' }}
             >
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 text-primary-foreground"
@@ -408,7 +408,7 @@ function Home() {
 
             {/* Bento: Yoga + Events + About Story */}
             <section
-                className="relative py-12 md:py-16 bg-fixed bg-center"
+                className="relative py-8 md:py-10 bg-fixed bg-center"
 
             >
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
@@ -439,7 +439,7 @@ function Home() {
 
             {/* Social Section */}
             <section
-                className="relative py-12 md:py-16 bg-fixed bg-center"
+                className="relative py-8 md:py-10 bg-fixed bg-center bg-[#FFFAF3]/60"
 
             >
                 <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
@@ -485,8 +485,12 @@ function Home() {
                                 </a>
                             </div>
                         </div>
-                        <div className="relative rounded-lg overflow-hidden border border-soft-beige bg-surface">
-                            <img src="/social_grid_preview.webp" alt="Instagram grid preview" className="w-full h-auto object-cover opacity-95 hover:opacity-100 transition-opacity" loading="lazy" />
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {[IMG.img1, IMG.img2, IMG.img3, IMG.img4, IMG.img5, IMG.img6].map((img, i) => (
+                                <a key={i} href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="relative rounded-lg overflow-hidden border border-soft-beige bg-surface block aspect-square group">
+                                    <img src={img} alt={`Instagram preview ${i + 1}`} className="w-full h-full object-cover opacity-95 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" loading="lazy" />
+                                </a>
+                            ))}
                         </div>
                     </div>
                 </div>

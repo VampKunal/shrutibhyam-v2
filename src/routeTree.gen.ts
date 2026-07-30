@@ -17,6 +17,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BookYogaRouteImport } from './routes/book-yoga'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -63,6 +64,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookYogaRoute = BookYogaRouteImport.update({
+  id: '/book-yoga',
+  path: '/book-yoga',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BookRoute = BookRouteImport.update({
   id: '/book',
   path: '/book',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/book': typeof BookRoute
+  '/book-yoga': typeof BookYogaRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/book': typeof BookRoute
+  '/book-yoga': typeof BookYogaRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/book': typeof BookRoute
+  '/book-yoga': typeof BookYogaRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/events': typeof EventsRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/book'
+    | '/book-yoga'
     | '/contact'
     | '/dashboard'
     | '/events'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/book'
+    | '/book-yoga'
     | '/contact'
     | '/dashboard'
     | '/events'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/book'
+    | '/book-yoga'
     | '/contact'
     | '/dashboard'
     | '/events'
@@ -185,6 +197,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BookRoute: typeof BookRoute
+  BookYogaRoute: typeof BookYogaRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   EventsRoute: typeof EventsRoute
@@ -253,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/book-yoga': {
+      id: '/book-yoga'
+      path: '/book-yoga'
+      fullPath: '/book-yoga'
+      preLoaderRoute: typeof BookYogaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/book': {
       id: '/book'
       path: '/book'
@@ -307,6 +327,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BookRoute: BookRoute,
+  BookYogaRoute: BookYogaRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   EventsRoute: EventsRoute,

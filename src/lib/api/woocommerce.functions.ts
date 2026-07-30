@@ -135,7 +135,7 @@ export const updateCustomerProfile = createServerFn({ method: "POST" })
 /**
  * Server Function: Fetch customer orders from WooCommerce.
  */
-export const getCustomerOrders = createServerFn({ method: "GET" })
+export const getCustomerOrders = createServerFn({ method: "POST" })
   .validator(z.number())
   .handler(async ({ data: userId }) => {
     try {

@@ -91,7 +91,7 @@ function UserDashboard() {
  if (!user) return;
  setIsCommentsLoading(true);
  try {
- const data = await getCommentsByUser({ data: user.id });
+ const data = await getCommentsByUser({ data: user.email });
  setUserComments(data);
  } catch (err) {
  console.error("Error fetching user comments:", err);
