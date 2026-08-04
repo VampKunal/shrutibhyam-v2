@@ -1,5 +1,5 @@
 # WordPress & WooCommerce Integration
-
+ 
 This document outlines the current decoupled (headless) architecture between the **Shrutibhyam** frontend (built with TanStack Start, React, and Vite) and the **WordPress / WooCommerce** backend (hosted at `https://checkout.shrutibhyam.com`).
 
 It details the existing services, backend configurations required, and potential future integrations.
