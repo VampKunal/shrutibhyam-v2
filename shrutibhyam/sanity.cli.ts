@@ -5,6 +5,7 @@ export default defineCliConfig({
     projectId: 'r99t80he',
     dataset: 'production'
   },
+  studioHost: 'shrutibhyam-studio',
   deployment: {
     /**
      * Enable auto-updates for studios.

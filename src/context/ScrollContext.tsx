@@ -23,6 +23,10 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
   const readyRef = useRef(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -31,6 +35,21 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
       smoothWheel: true,
       touchMultiplier: 2,
     });
+
+    // Prevent TanStack Router's default Link behavior from immediately scrolling to (0,0)
+    // before the new page has loaded, which causes the screen to flash or jump.
+    // Our own scrollToTop function relies on scrollTop and Lenis, so ignoring this is safe.
+    const originalScrollTo = window.scrollTo;
+    window.scrollTo = function (...args: any[]) {
+      const isScrollToTop = 
+        (args.length === 2 && args[0] === 0 && args[1] === 0) ||
+        (args.length === 1 && args[0] && args[0].top === 0 && args[0].left === 0) ||
+        (args.length === 1 && args[0] && args[0].top === 0 && args[0].left === undefined);
+        
+      if (isScrollToTop) return;
+      
+      return originalScrollTo.apply(window, args as any);
+    };
 
     lenisRef.current = lenis;
     readyRef.current = true;
@@ -42,6 +61,7 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
     requestAnimationFrame(raf);
 
     return () => {
+      window.scrollTo = originalScrollTo;
       lenis.destroy();
       lenisRef.current = null;
       readyRef.current = false;

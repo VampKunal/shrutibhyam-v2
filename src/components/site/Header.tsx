@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CONTACT_INFO, MARQUEE_MSG } from "@/constant";
 import { SearchDialog } from "./SearchDialog";
 import { getSiteSettings } from "@/lib/api/sanity.functions";
@@ -41,6 +41,159 @@ export function MarqueeBar() {
     );
 }
 
+export function DealPopup() {
+    const { data: settings } = useQuery({
+        queryKey: ['siteSettings'],
+        queryFn: () => getSiteSettings(),
+    });
+
+    const [timeLeft, setTimeLeft] = useState<{ d: number, h: number, m: number, s: number } | null>(null);
+    const [isOpen, setIsOpen] = useState(true);
+
+    useEffect(() => {
+        if (!settings?.dealActive || !settings?.dealEndTime) return;
+
+        // Check if user already dismissed it in this session
+        if (sessionStorage.getItem('dealPopupDismissed')) {
+            setIsOpen(false);
+            return;
+        }
+
+        const endTime = new Date(settings.dealEndTime).getTime();
+
+        const updateTimer = () => {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                setTimeLeft(null);
+                return;
+            }
+
+            setTimeLeft({
+                d: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                s: Math.floor((distance % (1000 * 60)) / 1000),
+            });
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [settings?.dealActive, settings?.dealEndTime]);
+
+    if (!isOpen || !settings?.dealActive || !settings?.dealEndTime || !timeLeft) {
+        return null;
+    }
+
+    const handleClose = () => {
+        setIsOpen(false);
+        sessionStorage.setItem('dealPopupDismissed', 'true');
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl overflow-hidden relative flex flex-col md:flex-row">
+                
+                {/* Close Button */}
+                <button 
+                    onClick={handleClose}
+                    className="absolute top-3 right-3 bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-tint transition-colors z-10"
+                    aria-label="Close"
+                >
+                    <X size={18} />
+                </button>
+
+                {/* Left Content */}
+                <div className="w-full md:w-1/2 p-8 md:p-10 flex flex-col items-center justify-center text-center">
+                    {settings.dealTitle && (
+                        <h2 className="text-xl md:text-2xl font-bold text-primary mb-1">
+                            {settings.dealTitle}
+                        </h2>
+                    )}
+                    
+                    {settings.dealHeading && (
+                        <h3 className="text-5xl md:text-6xl font-extrabold text-primary mb-4 tracking-tight">
+                            {settings.dealHeading}
+                        </h3>
+                    )}
+                    
+                    {settings.dealSubheading && (
+                        <p className="font-semibold tracking-[0.1em] text-deep-charcoal mb-2 uppercase text-sm">
+                            {settings.dealSubheading}
+                        </p>
+                    )}
+                    
+                    {settings.dealDescription && (
+                        <p className="text-xs text-gray-500 uppercase tracking-widest mb-6">
+                            {settings.dealDescription}
+                        </p>
+                    )}
+
+                    {/* Timer */}
+                    <div className="flex gap-3 justify-center mb-8">
+                        <div className="flex flex-col items-center">
+                            <div className="bg-pink-50 text-primary text-2xl font-bold w-14 h-14 flex items-center justify-center rounded">
+                                {timeLeft.d.toString().padStart(2, '0')}
+                            </div>
+                            <span className="text-[10px] text-gray-400 mt-2 uppercase tracking-wider">Days</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <div className="bg-pink-50 text-primary text-2xl font-bold w-14 h-14 flex items-center justify-center rounded">
+                                {timeLeft.h.toString().padStart(2, '0')}
+                            </div>
+                            <span className="text-[10px] text-gray-400 mt-2 uppercase tracking-wider">Hrs</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <div className="bg-pink-50 text-primary text-2xl font-bold w-14 h-14 flex items-center justify-center rounded">
+                                {timeLeft.m.toString().padStart(2, '0')}
+                            </div>
+                            <span className="text-[10px] text-gray-400 mt-2 uppercase tracking-wider">Min</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <div className="bg-pink-50 text-primary text-2xl font-bold w-14 h-14 flex items-center justify-center rounded">
+                                {timeLeft.s.toString().padStart(2, '0')}
+                            </div>
+                            <span className="text-[10px] text-gray-400 mt-2 uppercase tracking-wider">Sec</span>
+                        </div>
+                    </div>
+
+                    <Link 
+                        to={(settings.dealButtonLink as any) || "/shop"}
+                        onClick={handleClose}
+                        className="w-full bg-primary text-white font-bold py-3 px-6 hover:bg-surface-tint transition-colors text-sm uppercase tracking-wider"
+                    >
+                        {settings.dealButtonText || "Shop The Flash Sale Now"}
+                    </Link>
+
+                    <button 
+                        onClick={handleClose}
+                        className="mt-4 text-xs font-semibold text-gray-400 hover:text-deep-charcoal transition-colors uppercase tracking-wider"
+                    >
+                        No, Thanks!
+                    </button>
+                </div>
+
+                {/* Right Image */}
+                <div className="w-full md:w-1/2 bg-pink-50 min-h-[300px] md:min-h-full order-first md:order-last relative">
+                    {settings.dealPopupImage ? (
+                        <img 
+                            src={settings.dealPopupImage} 
+                            alt="Flash Sale" 
+                            className="absolute inset-0 w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                            Image from Sanity
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export function Header() {
     const { toggleCart, cartCount } = useCart();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,6 +207,7 @@ export function Header() {
     return (
         <>
             <MarqueeBar />
+            <DealPopup />
             <header className="bg-surface sticky top-0 z-50">
                 <div className="max-w-[1200px] mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
                     <Link to="/" className="flex items-center">

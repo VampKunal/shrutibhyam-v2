@@ -35,7 +35,7 @@ function Events() {
               : "Discover our upcoming gatherings and past events."}
           </p>
           <a
-            href={CONTACT_INFO.instagram}
+            href={CONTACT_INFO.instagram2}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block mt-8 bg-[#66BB6A] text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint"
@@ -71,7 +71,7 @@ function Events() {
                   </div>
                 </div>
                 <a
-                  href={e.link || CONTACT_INFO.instagram}
+                  href={e.link || CONTACT_INFO.instagram2}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-6 py-3 hover:bg-surface-tint text-center"

@@ -24,6 +24,7 @@ export const CONTACT_INFO = {
   email: "care@shrutibhyam.com",
   phone: "DM us on Instagram or email us for the quickest response",
   instagram: "https://www.instagram.com/shrutibhyamyog/",
+  instagram2: "https://www.instagram.com/shrutibhyam/",
   facebook: "https://www.facebook.com/people/Shrutibhyam/61590584156475/",
   linkedin: "https://www.linkedin.com/company/110937120",
   youtube: "https://youtube.com/shorts/HGpwI3y-S50?si=pYuy4lfuRfCxsP4S"
@@ -51,7 +52,7 @@ export const IMG = {
   lavender1: "/productg/lavender1.avif",
   lavender2: "/productg/lavender2.avif",
   lavender3: "/productg/lavnender3.avif",
-  Home: "/extras/Home .png",
+  Home: "/extras/home.png",
   pro1: "/productg/Beige Beauty Skincare Product Fe.webp",
   pro2: "/productg/Earthy Turmeric Ingredients.webp",
   pro3: "/productg/Lavender Soap Ingredients.webp",

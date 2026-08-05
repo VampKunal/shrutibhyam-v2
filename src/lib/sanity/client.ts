@@ -39,7 +39,10 @@ export const queries = {
   // Get site-wide FAQs
   faqs: `*[_type == "faq"] | order(order asc)`,
   // Site settings / configuration
-  siteSettings: `*[_type == "siteSettings"][0]`,
+  siteSettings: `*[_type == "siteSettings"][0] {
+    ...,
+    "dealPopupImage": dealPopupImage.asset->url
+  }`,
   // Get active events
   events: `*[_type == "event" && isActive == true] | order(order asc, date desc) {
     ...,

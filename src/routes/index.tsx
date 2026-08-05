@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
             { title: "Shrutibhyam Wellness — Rooted in Ayurvedic Purity" },
             { name: "description", content: "Discover slow-beauty Ayurvedic skincare, mindful yoga, and holistic events." },
             { property: "og:title", content: "Shrutibhyam Wellness" },
-            { property: "og:image", content: IMG.hero },
+            { property: "og:image", content: IMG.Home },
         ],
         links: [
             { rel: "preload", as: "image", href: HERO_CAROUSEL[0].imgDesktop, fetchPriority: "high", media: "(min-width: 768px)" },
@@ -176,6 +176,93 @@ function Home() {
             {/* Partners Logos */}
             <Partners />
 
+            {/* Products Categories */}
+            <section
+                className="relative py-8 md:py-10 bg-fixed bg-center bg-[#FFFAF3]/60"
+
+            >
+                <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
+                    <div className="text-center mb-12">
+                        <h2 className="font-display text-3xl md:text-4xl text-primary mb-4">Products</h2>
+                        <div className="w-16 h-px bg-sage-green mx-auto mb-12" />
+                    </div>
+
+                    {/* Bestsellers Carousel */}
+                    <div className="mb-20">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-display text-2xl text-primary">Bestsellers</h3>
+                            <div className="flex gap-2 items-center">
+                                <span className="text-xs text-on-surface-variant md:hidden uppercase tracking-widest mr-2">Swipe</span>
+                                <button onClick={() => scrollContainerLeft(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
+                                    <ChevronLeft size={20} />
+                                </button>
+                                <button onClick={() => scrollContainerRight(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
+                                    <ChevronRight size={20} />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="overflow-x-auto no-scrollbar relative group -mx-4 px-4 md:mx-0 md:px-0" ref={bestsellerRef}>
+                            <div className="flex gap-6 pb-6 snap-x snap-mandatory w-max">
+                                {bestsellers.map((product, idx) => (
+                                    <Link key={idx} to={`/shop/${product.slug}` as any} className="snap-center shrink-0 w-[240px] md:w-[280px] flex flex-col group/item cursor-pointer">
+                                        <div className="aspect-[4/5] relative overflow-hidden mb-4 rounded bg-surface-container-low">
+                                            <ProductCardImage product={product as any} imageClassName="group-hover/item:scale-105" />
+                                            {product.tag && (
+                                                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur px-2 py-1 text-[10px] uppercase tracking-widest text-primary border border-soft-beige font-semibold rounded z-20">
+                                                    {product.tag}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <h4 className="font-display text-lg text-primary mb-1 group-hover/item:text-sage-green transition-colors">{product.name}</h4>
+                                        <div className="mt-1">
+                                            <PriceDisplay price={product.price} regularPrice={product.regularPrice} onSale={product.onSale} />
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mb-6 mt-12 ">
+                        <h3 className="font-display text-2xl text-primary mb-6">Explore More</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Link to="/shop" search={{ category: "Skincare" } as any} className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
+                            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
+                                <img src={IMG.pro1} alt="Skincare" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+                            </div>
+                            <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
+                                <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Skincare</h3>
+                                <p className="text-sm text-on-surface-variant">Cold-process soap bars made by hand</p>
+                            </div>
+                        </Link>
+                        <Link to="/yoga" className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
+                            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
+                                <img src={IMG.yoga2} alt="Yoga Products" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+                            </div>
+                            <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
+                                <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Yoga</h3>
+                                <p className="text-sm text-on-surface-variant">Hatha, Ashtanga and prop-based practice</p>
+                            </div>
+                        </Link>
+                        <a href={CONTACT_INFO.instagram2} target="_blank" rel="noopener noreferrer" className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
+                            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
+                                <img src={IMG.pro5} alt="Sound Healing" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+                            </div>
+                            <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
+                                <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Coming Soon..</h3>
+
+                            </div>
+                        </a>
+                    </div>
+                    <div className="text-center mt-12">
+                        <Link to="/shop" className="border-b border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] pb-1 hover:text-sage-green hover:border-sage-green transition-colors">
+                            View All Products
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
             {/* Crafted With Care / The Ingredient Story */}
             <section className="relative py-8 md:py-10 bg-[#FFFAF3]/60">
                 <div className="max-w-[1400px] mx-auto px-4 md:px-8">
@@ -286,92 +373,7 @@ function Home() {
                 </div>
             </section>
 
-            {/* Products Categories */}
-            <section
-                className="relative py-8 md:py-10 bg-fixed bg-center bg-[#FFFAF3]/60"
 
-            >
-                <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6">
-                    <div className="text-center mb-12">
-                        <h2 className="font-display text-3xl md:text-4xl text-primary mb-4">Products</h2>
-                        <div className="w-16 h-px bg-sage-green mx-auto mb-12" />
-                    </div>
-
-                    {/* Bestsellers Carousel */}
-                    <div className="mb-20">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-display text-2xl text-primary">Bestsellers</h3>
-                            <div className="flex gap-2 items-center">
-                                <span className="text-xs text-on-surface-variant md:hidden uppercase tracking-widest mr-2">Swipe</span>
-                                <button onClick={() => scrollContainerLeft(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
-                                    <ChevronLeft size={20} />
-                                </button>
-                                <button onClick={() => scrollContainerRight(bestsellerRef)} className="hidden md:flex w-10 h-10 rounded-full border border-soft-beige items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer text-primary bg-white shadow-sm">
-                                    <ChevronRight size={20} />
-                                </button>
-                            </div>
-                        </div>
-                        <div className="overflow-x-auto no-scrollbar relative group -mx-4 px-4 md:mx-0 md:px-0" ref={bestsellerRef}>
-                            <div className="flex gap-6 pb-6 snap-x snap-mandatory w-max">
-                                {bestsellers.map((product, idx) => (
-                                    <Link key={idx} to={`/shop/${product.slug}` as any} className="snap-center shrink-0 w-[240px] md:w-[280px] flex flex-col group/item cursor-pointer">
-                                        <div className="aspect-[4/5] relative overflow-hidden mb-4 rounded bg-surface-container-low">
-                                            <ProductCardImage product={product as any} imageClassName="group-hover/item:scale-105" />
-                                            {product.tag && (
-                                                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur px-2 py-1 text-[10px] uppercase tracking-widest text-primary border border-soft-beige font-semibold rounded z-20">
-                                                    {product.tag}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <h4 className="font-display text-lg text-primary mb-1 group-hover/item:text-sage-green transition-colors">{product.name}</h4>
-                                        <div className="mt-1">
-                                            <PriceDisplay price={product.price} regularPrice={product.regularPrice} onSale={product.onSale} />
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mb-6 mt-12 ">
-                        <h3 className="font-display text-2xl text-primary mb-6">Explore More</h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Link to="/shop" search={{ category: "Skincare" } as any} className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
-                            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-                                <img src={IMG.pro1} alt="Skincare" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-                            </div>
-                            <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
-                                <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Skincare</h3>
-                                <p className="text-sm text-on-surface-variant">Cold-process soap bars made by hand</p>
-                            </div>
-                        </Link>
-                        <Link to="/yoga" className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
-                            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-                                <img src={IMG.yoga2} alt="Yoga Products" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-                            </div>
-                            <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
-                                <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Yoga</h3>
-                                <p className="text-sm text-on-surface-variant">Hatha, Ashtanga and prop-based practice</p>
-                            </div>
-                        </Link>
-                        <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="interactive-card group bg-cream-bg border border-soft-beige rounded overflow-hidden">
-                            <div className="aspect-square relative overflow-hidden bg-surface-container-low">
-                                <img src={IMG.pro5} alt="Sound Healing" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-                            </div>
-                            <div className="p-6 text-center group-hover:bg-surface-container-low transition-colors">
-                                <h3 className="font-display text-xl text-primary mb-1 group-hover:text-sage-green transition-colors">Coming Soon..</h3>
-
-                            </div>
-                        </a>
-                    </div>
-                    <div className="text-center mt-12">
-                        <Link to="/shop" className="border-b border-primary text-primary text-xs font-semibold uppercase tracking-[0.15em] pb-1 hover:text-sage-green hover:border-sage-green transition-colors">
-                            View All Products
-                        </Link>
-                    </div>
-                </div>
-            </section>
 
             {/* Testimonials */}
             <TestimonialsGallery />
@@ -452,7 +454,7 @@ function Home() {
                             </p>
                             <div className="flex flex-col sm:flex-row gap-3 pt-2">
                                 <a
-                                    href={CONTACT_INFO.instagram}
+                                    href={CONTACT_INFO.instagram2}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="interactive-card flex items-center justify-center gap-2 bg-transparent border border-primary text-primary text-xs font-semibold uppercase tracking-[0.12em] px-4 py-3 hover:bg-soft-beige hover:text-primary shrink-0"
@@ -487,7 +489,7 @@ function Home() {
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {[IMG.img1, IMG.img2, IMG.img3, IMG.img4, IMG.img5, IMG.img6].map((img, i) => (
-                                <a key={i} href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="relative rounded-lg overflow-hidden border border-soft-beige bg-surface block aspect-square group">
+                                <a key={i} href={CONTACT_INFO.instagram2} target="_blank" rel="noopener noreferrer" className="relative rounded-lg overflow-hidden border border-soft-beige bg-surface block aspect-square group">
                                     <img src={img} alt={`Instagram preview ${i + 1}`} className="w-full h-full object-cover opacity-95 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" loading="lazy" />
                                 </a>
                             ))}

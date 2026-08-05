@@ -71,3 +71,22 @@ export const faq = {
     { name: 'order', title: 'Order', type: 'number' }
   ]
 };
+
+export const siteSettings = {
+  name: 'siteSettings',
+  title: 'Site Settings',
+  type: 'document',
+  fields: [
+    { name: 'discountMarquee', title: 'Discount Marquee Text', type: 'string' },
+    { name: 'dealActive', title: 'Is Deal Popup Active?', type: 'boolean' },
+    { name: 'dealPopupImage', title: 'Popup Image', type: 'image' },
+    { name: 'dealTitle', title: 'Deal Title (e.g. Flash Sale)', type: 'string' },
+    { name: 'dealHeading', title: 'Deal Heading (e.g. 50% OFF)', type: 'string' },
+    { name: 'dealSubheading', title: 'Deal Subheading', type: 'string' },
+    { name: 'dealDescription', title: 'Deal Description', type: 'string' },
+    { name: 'dealEndTime', title: 'Deal End Time', type: 'datetime' },
+    { name: 'dealButtonText', title: 'Button Text', type: 'string' },
+    { name: 'dealButtonLink', title: 'Button Link', type: 'string' }
+  ]
+};
+
