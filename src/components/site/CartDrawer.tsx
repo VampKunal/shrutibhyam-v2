@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { getMultiProductCheckoutUrl } from "@/lib/woocommerce";
+import { getCheckoutLoginUrl } from "@/lib/api/woocommerce.functions";
 import { X, Minus, Plus, Trash2, ShoppingBag, LogIn, UserCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useOverlay } from "@/hooks/useOverlay";
@@ -10,15 +11,41 @@ export function CartDrawer() {
   const { cartItems, isOpen, toggleCart, updateQuantity, removeFromCart, cartTotal } = useCart();
   const { user, setLoginOpen } = useAuth();
   const [showGuestPrompt, setShowGuestPrompt] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useOverlay({ isOpen, onClose: () => toggleCart(false) });
 
-  const proceedToCheckout = () => {
+  const proceedToCheckout = async () => {
+    setIsNavigating(true);
     const checkoutItems = cartItems.map((item) => ({
       wooId: item.product.wooId,
       quantity: item.quantity,
     }));
-    window.location.href = getMultiProductCheckoutUrl(checkoutItems);
+    
+    // For single item fallback if length is 1, standard woo behavior
+    if (checkoutItems.length === 1) {
+       const url = getMultiProductCheckoutUrl(checkoutItems);
+       if (!user) {
+         window.location.href = url;
+         return;
+       }
+    }
+
+    const cartQuery = checkoutItems.map(item => `${item.wooId}:${item.quantity}`).join(",");
+
+    try {
+      if (user) {
+        // Securely bridge auth session
+        const res = await getCheckoutLoginUrl({ data: { cartQuery } });
+        window.location.href = res.url;
+      } else {
+        // Guest direct
+        window.location.href = getMultiProductCheckoutUrl(checkoutItems);
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      window.location.href = getMultiProductCheckoutUrl(checkoutItems);
+    }
   };
 
   const handleCheckout = () => {
@@ -190,9 +217,10 @@ export function CartDrawer() {
                 <button
                   id="cart-checkout-btn"
                   onClick={handleCheckout}
-                  className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors flex items-center justify-center cursor-pointer animate-fade-in"
+                  disabled={isNavigating}
+                  className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors flex items-center justify-center cursor-pointer animate-fade-in disabled:opacity-70"
                 >
-                  {user ? "Proceed to Checkout" : "Checkout"}
+                  {isNavigating ? "Redirecting..." : (user ? "Proceed to Checkout" : "Checkout")}
                 </button>
               )}
               <button

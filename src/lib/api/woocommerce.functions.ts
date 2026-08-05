@@ -8,6 +8,49 @@ import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
 // We dynamically import `fetchWooCommerce` from `./wp.server` inside server functions.
 
 /**
+ * Server Function: Generate a secure WooCommerce checkout URL that auto-logs the user in.
+ */
+export const getCheckoutLoginUrl = createServerFn({ method: "POST" })
+  .validator(z.object({
+    cartQuery: z.string(),
+  }))
+  .handler(async ({ data: { cartQuery } }) => {
+    const { getCookie } = await import("@tanstack/react-start/server");
+    const token = getCookie("wp_jwt_token");
+    const siteUrl = process.env.WOOCOMMERCE_URL || WOOCOMMERCE_DEFAULT_URL;
+    const base = siteUrl.replace(/\/$/, "");
+
+    if (!token) {
+      return { url: `${base}/checkout/?add-to-cart=${cartQuery}&clear-cart=1` };
+    }
+
+    try {
+      const res = await fetch(`${base}/wp-json/auth/v1/checkout-token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          redirect: `/checkout/?add-to-cart=${cartQuery}&clear-cart=1`,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.redirect_url) {
+          return { url: data.redirect_url };
+        }
+      }
+    } catch (err) {
+      console.error("Error generating checkout login URL:", err);
+    }
+
+    // Fallback: direct checkout if auth bridge fails
+    return { url: `${base}/checkout/?add-to-cart=${cartQuery}&clear-cart=1` };
+  });
+
+/**
  * Server Function: Get all products from WooCommerce.
  */
 export const getWooProducts = createServerFn({ method: "GET" })
