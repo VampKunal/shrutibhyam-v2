@@ -10,7 +10,7 @@ import { PriceDisplay } from "@/components/ui/PriceDisplay";
 export function CartDrawer() {
   const { cartItems, isOpen, toggleCart, updateQuantity, removeFromCart, cartTotal } = useCart();
   const { user, setLoginOpen } = useAuth();
-  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
+  // GUEST_CHECKOUT: const [showGuestPrompt, setShowGuestPrompt] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
 
   useOverlay({ isOpen, onClose: () => toggleCart(false) });
@@ -50,8 +50,9 @@ export function CartDrawer() {
 
   const handleCheckout = () => {
     if (!user) {
-      // Show guest vs sign-in prompt instead of forcing login
-      setShowGuestPrompt(true);
+      // GUEST_CHECKOUT: Prompt disabled — show login modal directly
+      // To re-enable guest checkout, replace with: setShowGuestPrompt(true);
+      setLoginOpen(true);
       return;
     }
     proceedToCheckout();
@@ -190,41 +191,21 @@ export function CartDrawer() {
               Shipping & taxes calculated at checkout. Rooted in purity.
             </p>
             <div className="space-y-3">
-              {/* Guest checkout prompt — shown when unauthenticated user taps Checkout */}
-              {showGuestPrompt && !user ? (
-                <div className="border border-soft-beige rounded-sm bg-cream-bg p-4 space-y-3 animate-fade-in">
-                  <p className="text-xs text-on-surface-variant leading-relaxed text-center">
-                    Sign in to unlock{" "}
-                    <span className="text-primary font-semibold">member-only coupons</span>
-                    {" "}&amp; exclusive offers.
-                  </p>
-                  <button
-                    id="cart-signin-checkout-btn"
-                    onClick={handleSignInThenCheckout}
-                    className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-3.5 hover:bg-surface-tint transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <LogIn size={14} /> Sign In &amp; Checkout
-                  </button>
-                  <button
-                    id="cart-guest-checkout-btn"
-                    onClick={proceedToCheckout}
-                    className="w-full border border-soft-beige text-primary text-xs font-semibold uppercase tracking-[0.15em] py-3.5 hover:bg-white transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <UserCheck size={14} /> Continue as Guest
-                  </button>
-                </div>
-              ) : (
-                <button
-                  id="cart-checkout-btn"
-                  onClick={handleCheckout}
-                  disabled={isNavigating}
-                  className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors flex items-center justify-center cursor-pointer animate-fade-in disabled:opacity-70"
-                >
-                  {isNavigating ? "Redirecting..." : (user ? "Proceed to Checkout" : "Checkout")}
-                </button>
-              )}
+              {/* GUEST_CHECKOUT: Prompt disabled. To re-enable:
+                - Restore: const [showGuestPrompt, setShowGuestPrompt] = useState(false);
+                - Restore: setShowGuestPrompt(true) in handleCheckout
+                - Restore the showGuestPrompt && !user block below
+              */}
               <button
-                onClick={() => { toggleCart(false); setShowGuestPrompt(false); }}
+                id="cart-checkout-btn"
+                onClick={handleCheckout}
+                disabled={isNavigating}
+                className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint transition-colors flex items-center justify-center cursor-pointer animate-fade-in disabled:opacity-70"
+              >
+                {isNavigating ? "Redirecting..." : (user ? "Proceed to Checkout" : "Sign In to Checkout")}
+              </button>
+              <button
+                onClick={() => { toggleCart(false); /* GUEST_CHECKOUT: setShowGuestPrompt(false); */ }}
                 className="w-full border border-soft-beige text-primary text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-cream-bg transition-colors"
               >
                 Continue Shopping

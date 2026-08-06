@@ -23,6 +23,7 @@ export const CONTACT_INFO = {
   addressShort: "Godrej Aria, Gurugram, Haryana",
   email: "care@shrutibhyam.com",
   phone: "DM us on Instagram or email us for the quickest response",
+  whatsapp: "8884399876",
   instagram: "https://www.instagram.com/shrutibhyamyog/",
   instagram2: "https://www.instagram.com/shrutibhyam/",
   facebook: "https://www.facebook.com/people/Shrutibhyam/61590584156475/",

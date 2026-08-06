@@ -99,24 +99,7 @@ function Events() {
         </div>
       </section>
 
-      <section
-        className="relative py-20"
-      >
-        <div className="relative z-10 max-w-[1100px] mx-auto px-4 md:px-6">
-          <div className="text-center mb-10">
-            <h2 className="font-display text-3xl md:text-4xl text-primary mb-2">Memories & Kind Words</h2>
-            <p className="text-on-surface-variant">Reflections from our community on their journey towards balance.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {EVENT_TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-cream-bg border border-soft-beige rounded p-6">
-                <p className="italic text-sm text-on-surface-variant mb-3 leading-relaxed">"{t.q}"</p>
-                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-primary">— {t.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
     </SiteLayout>
   );
 }

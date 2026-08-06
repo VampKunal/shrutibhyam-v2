@@ -134,5 +134,8 @@ export const productEnrichment = {
                 },
             ],
         },
+        { name: 'estimatedDeliveryText', title: 'Estimated Delivery Text', type: 'string', description: 'e.g., 3-5 Business Days' },
+        { name: 'returnPolicyText', title: 'Return Policy Text', type: 'string', description: 'e.g., 48-hr damage reporting' },
+        { name: 'secureCheckoutText', title: 'Secure Checkout Text', type: 'string', description: 'e.g., Secure Checkout' },
     ],
 };

@@ -1,4 +1,4 @@
-export function Partners() {
+export function Partners({ logos }: { logos?: string[] | null }) {
   const partners = [
     {
       title: "Capgemini",
@@ -58,20 +58,34 @@ export function Partners() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-8 py-6 place-items-center">
-          {partners.map(({ title, image, alt, className }) => (
-            <div
-              key={title}
-              title={title}
-              className="transition-all duration-500 hover:scale-[1.03] cursor-pointer flex items-center justify-center w-full"
-            >
-              <img
-                src={image}
-                alt={alt}
-                className={className}
-                loading="lazy"
-              />
-            </div>
-          ))}
+          {logos
+            ? logos.map((src, i) => (
+                <div
+                  key={i}
+                  className="transition-all duration-500 hover:scale-[1.03] cursor-pointer flex items-center justify-center w-full"
+                >
+                  <img
+                    src={src}
+                    alt={`Partner ${i + 1}`}
+                    className="h-16 w-auto object-contain"
+                    loading="lazy"
+                  />
+                </div>
+              ))
+            : partners.map(({ title, image, alt, className }) => (
+                <div
+                  key={title}
+                  title={title}
+                  className="transition-all duration-500 hover:scale-[1.03] cursor-pointer flex items-center justify-center w-full"
+                >
+                  <img
+                    src={image}
+                    alt={alt}
+                    className={className}
+                    loading="lazy"
+                  />
+                </div>
+              ))}
         </div>
       </div>
     </section>

@@ -11,13 +11,15 @@ import {
     PURITY,
     BESTSELLERS
 } from "@/constant";
-import { ArrowRight, Star, Quote, Instagram, Facebook, Linkedin, ChevronLeft, ChevronRight, Youtube } from "lucide-react";
+import { ArrowRight, Star, Quote, Instagram, Facebook, Linkedin, ChevronLeft, ChevronRight, Youtube, Leaf } from "lucide-react";
 import { getWooProducts } from "@/lib/api/woocommerce.functions";
+import { getHomeData } from "@/lib/api/sanity.functions";
 import { Partners } from "@/components/site/Partners";
 import { TestimonialsGallery } from "@/components/site/TestimonialsGallery";
 import { ProductCardImage } from "@/components/site/ProductCardImage";
 import { scrollContainerLeft, scrollContainerRight } from "@/lib/scroll";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
+import { PortableText } from "@portabletext/react";
 
 
 export const Route = createFileRoute("/")({
@@ -35,16 +37,18 @@ export const Route = createFileRoute("/")({
     }),
     loader: async () => {
         const products = await getWooProducts();
-        return { products };
+        const homeData = await getHomeData();
+        return { products, homeData };
     },
     staleTime: 1000 * 60 * 5,
     component: Home,
 });
 
 function Home() {
-    const { products: wooProducts } = Route.useLoaderData();
+    const { products: wooProducts, homeData } = Route.useLoaderData();
     const products = wooProducts && wooProducts.length > 0 ? wooProducts : PRODUCTS;
     const [currentImg, setCurrentImg] = useState(0);
+    const [craftedIndex, setCraftedIndex] = useState(0);
 
     const craftedRef = useRef<HTMLDivElement>(null);
     const bestsellerRef = useRef<HTMLDivElement>(null);
@@ -63,14 +67,61 @@ function Home() {
         }));
     }, [products]);
 
+    // Data handling — must be above useEffect
+    const heroCarousel = homeData?.heroCarousel?.length > 0
+        ? homeData.heroCarousel.map((h: any) => ({
+            imgDesktop: h.desktopImage,
+            imgMobile: h.mobileImage || h.desktopImage,
+            to: h.link || "/shop"
+        }))
+        : HERO_CAROUSEL;
+
+    const partnersLogos = homeData?.partnersLogos?.length > 0 ? homeData.partnersLogos : null;
+
+    const craftedWithCareCards = homeData?.craftedWithCare?.length > 0
+        ? homeData.craftedWithCare
+        : [
+            { mainImage: IMG.img1, subImage1: IMG.img2, subImage2: IMG.img3 },
+            { mainImage: IMG.img4, subImage1: IMG.img5, subImage2: IMG.img6 },
+            { mainImage: IMG.pro1, subImage1: IMG.pro2, subImage2: IMG.pro3 },
+        ];
+
+    const stats = homeData?.stats?.length > 0
+        ? homeData.stats
+        : [
+            { value: "4", label: "Signature Bars" },
+            { value: "100%", label: "Handcrafted" },
+            { value: "AYUSH", label: "Certified Yoga" },
+            { value: "0%", label: "Synthetics" }
+        ];
+
+    const socialRituals = homeData?.socialRituals?.heading
+        ? homeData.socialRituals
+        : {
+            heading: "Follow Our Journey",
+            description: "We share daily inspiration, Ayurvedic wisdom, slow-beauty rituals, and updates from Gurugram. Join our community online.",
+            images: [
+                { image: IMG.img1, link: CONTACT_INFO.instagram2 },
+                { image: IMG.img2, link: CONTACT_INFO.instagram2 },
+                { image: IMG.img3, link: CONTACT_INFO.instagram2 },
+                { image: IMG.img4, link: CONTACT_INFO.instagram2 },
+                { image: IMG.img5, link: CONTACT_INFO.instagram2 },
+                { image: IMG.img6, link: CONTACT_INFO.instagram2 }
+            ]
+        };
+
+    const craftedWithIntention = homeData?.craftedWithIntention || null;
+    const communityData = homeData?.communityExperiences || null;
+
 
     useEffect(() => {
-        const currentSlide = HERO_CAROUSEL[currentImg];
+        const currentSlide = heroCarousel[currentImg];
+        if (!currentSlide) return;
         let timer: ReturnType<typeof setTimeout>;
 
         if (!currentSlide.isVideo) {
             timer = setTimeout(() => {
-                setCurrentImg((prev) => (prev + 1) % HERO_CAROUSEL.length);
+                setCurrentImg((prev) => (prev + 1) % heroCarousel.length);
             }, 8000);
         } else {
             const videoEl = videoRefs.current[currentImg];
@@ -83,7 +134,7 @@ function Home() {
         return () => {
             if (timer) clearTimeout(timer);
         };
-    }, [currentImg]);
+    }, [currentImg, homeData]);
 
     return (
         <SiteLayout>
@@ -92,7 +143,7 @@ function Home() {
                 <div className="relative w-full h-full rounded-3xl overflow-hidden group border border-soft-beige shadow-lg bg-surface-container-low">
 
                     {/* Background Image Carousel */}
-                    {HERO_CAROUSEL.map((slide, idx) => (
+                    {heroCarousel.map((slide: any, idx: number) => (
                         <Link
                             key={(slide.imgDesktop || slide.imgMobile) + idx}
                             to={slide.to}
@@ -121,35 +172,38 @@ function Home() {
                     ))}
 
                     {/* Left / Right Arrows */}
-                    <div className="absolute inset-0 flex items-center justify-between px-4 md:px-8 z-20 pointer-events-none">
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setCurrentImg(
-                                    (prev) =>
-                                        (prev - 1 + HERO_CAROUSEL.length) %
-                                        HERO_CAROUSEL.length
-                                );
-                            }}
-                            className="pointer-events-auto p-2 md:p-3 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-sm"
-                            aria-label="Previous slide"
-                        >
-                            <ChevronLeft size={32} />
-                        </button>
+                    {heroCarousel.length > 1 && (
+                        <div className="absolute inset-0 flex items-center justify-between px-4 md:px-8 z-20 pointer-events-none">
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setCurrentImg(
+                                        (prev) =>
+                                            (prev - 1 + heroCarousel.length) %
+                                            heroCarousel.length
+                                    );
+                                }}
+                                className="pointer-events-auto p-2 md:p-3 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-sm"
+                                aria-label="Previous slide"
+                            >
+                                <ChevronLeft size={32} />
+                            </button>
 
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setCurrentImg(
-                                    (prev) => (prev + 1) % HERO_CAROUSEL.length
-                                );
-                            }}
-                            className="pointer-events-auto p-2 md:p-3 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-sm"
-                            aria-label="Next slide"
-                        >
-                            <ChevronRight size={32} />
-                        </button>
-                    </div>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setCurrentImg(
+                                        (prev) => (prev + 1) % heroCarousel.length
+                                    );
+                                }}
+                                className="pointer-events-auto p-2 md:p-3 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-sm"
+                                aria-label="Next slide"
+                            >
+                                <ChevronRight size={32} />
+                            </button>
+                        </div>
+
+                    )}
 
                 </div>
             </section>
@@ -174,7 +228,7 @@ function Home() {
             </div>
 
             {/* Partners Logos */}
-            <Partners />
+            <Partners logos={partnersLogos} />
 
             {/* Products Categories */}
             <section
@@ -266,59 +320,31 @@ function Home() {
             {/* Crafted With Care / The Ingredient Story */}
             <section className="relative py-8 md:py-10 bg-[#FFFAF3]/60">
                 <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-                        <div>
-                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sage-green mb-4 block">
-                                The Philosophy
-                            </span>
-                            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-primary leading-tight">
-                                Crafted With Care
-                            </h2>
-                        </div>
-
-                        <div className="md:max-w-md">
-                            <div className="hidden md:flex gap-4">
-                                <button
-                                    onClick={() => scrollContainerLeft(craftedRef)}
-                                    className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm"
-                                >
-                                    <ChevronLeft size={24} />
-                                </button>
-
-                                <button
-                                    onClick={() => scrollContainerRight(craftedRef)}
-                                    className="w-12 h-12 rounded-full border border-soft-beige flex items-center justify-center hover:bg-white hover:text-primary transition-colors cursor-pointer text-sage-green bg-white shadow-sm"
-                                >
-                                    <ChevronRight size={24} />
-                                </button>
-                            </div>
-                        </div>
+                    <div className="mb-16">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sage-green mb-4 block">
+                            The Philosophy
+                        </span>
+                        <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-primary leading-tight">
+                            Crafted With Care
+                        </h2>
                     </div>
 
-                    <div
-                        className="overflow-x-auto no-scrollbar relative group -mx-4 px-4 md:mx-0 md:px-0"
-                        ref={craftedRef}
-                    >
-                        <div className="flex gap-6 pb-6 snap-x snap-mandatory w-max">
-                            {[...PURITY, ...PURITY, ...PURITY].map(({ icon: Icon, label }, idx) => (
-                                <div
-                                    key={idx}
-                                    className="snap-center shrink-0 w-[260px] md:w-[300px] bg-white rounded-2xl p-8 border border-soft-beige shadow-sm flex flex-col items-center text-center hover:border-[#BBDC12] hover:shadow-md transition-all cursor-pointer group/card"
-                                >
-                                    <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center text-sage-green mb-6 border border-soft-beige group-hover/card:bg-orange-400 group-hover/card:text-white transition-colors duration-300">
-                                        <Icon size={32} strokeWidth={1.5} />
-                                    </div>
-
-                                    <h3 className="font-display text-lg text-primary mb-3 uppercase tracking-wider group-hover/card:text-sage-green transition-colors">
-                                        {label}
-                                    </h3>
-
-                                    <p className="text-xs text-on-surface-variant leading-relaxed">
-                                        Carefully selected and meticulously formulated without
-                                        compromise to ensure absolute purity.
-                                    </p>
+                    <div className="flex flex-col md:flex-row gap-6">
+                        <div className="relative flex-1 group cursor-pointer overflow-hidden rounded-xl border border-soft-beige" onClick={() => setCraftedIndex(prev => (prev + 1) % craftedWithCareCards.length)}>
+                            <img src={craftedWithCareCards[craftedIndex]?.mainImage} className="w-full h-[250px] md:h-[600px] object-cover transition-all duration-500" loading="lazy" />
+                            <div className="absolute inset-0 flex items-center justify-end pr-6 md:pr-8 opacity-0 group-hover:opacity-100 bg-black/10 transition-opacity duration-300">
+                                <div className="bg-white/20 backdrop-blur-md rounded-full p-4 text-white transform scale-90 group-hover:scale-100 transition-transform border border-white/30">
+                                    <ArrowRight size={32} />
                                 </div>
-                            ))}
+                            </div>
+                        </div>
+                        <div className="flex-1 flex flex-row gap-3 md:gap-6">
+                            <div className="flex-1 relative overflow-hidden rounded-xl border border-soft-beige h-[250px] md:h-auto">
+                                <img src={craftedWithCareCards[craftedIndex]?.subImage1} className="absolute inset-0 w-full h-full object-cover transition-all duration-500" loading="lazy" />
+                            </div>
+                            <div className="flex-1 relative overflow-hidden rounded-xl border border-soft-beige h-[250px] md:h-auto">
+                                <img src={craftedWithCareCards[craftedIndex]?.subImage2} className="absolute inset-0 w-full h-full object-cover transition-all duration-500" loading="lazy" />
+                            </div>
                         </div>
                     </div>
 
@@ -347,14 +373,18 @@ function Home() {
                         {/* Text Content: Left on desktop, below on mobile */}
                         <div className="order-2 md:order-1 flex-1 text-center md:text-left">
                             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sage-green mb-4 block">Meet The Founder</span>
-                            <h2 className="font-display text-4xl md:text-5xl text-primary leading-tight mb-6">Crafted with Intention</h2>
+                            <h2 className="font-display text-4xl md:text-5xl text-primary leading-tight mb-6">
+                                {craftedWithIntention?.heading || "Crafted with Intention"}
+                            </h2>
                             <div className="text-sm text-on-surface-variant leading-relaxed space-y-4">
-                                <p>
-                                    Welcome to Shrutibhyam. My journey began with a simple need: to find skincare that was truly pure, free from synthetic shortcuts, and rooted in the deep wisdom of Ayurveda.
-                                </p>
-                                <p>
-                                    Every bar of soap, every formulation you see here is a labor of love—cold-processed by hand, cured slowly, and designed to honor your skin and well-being.
-                                </p>
+                                {craftedWithIntention?.description ? (
+                                    <PortableText value={craftedWithIntention.description} />
+                                ) : (
+                                    <>
+                                        <p>Welcome to Shrutibhyam. My journey began with a simple need: to find skincare that was truly pure, free from synthetic shortcuts, and rooted in the deep wisdom of Ayurveda.</p>
+                                        <p>Every bar of soap, every formulation you see here is a labor of love—cold-processed by hand, cured slowly, and designed to honor your skin and well-being.</p>
+                                    </>
+                                )}
                             </div>
                             <div className="mt-8">
                                 <Link to="/about" className="interactive-card inline-block bg-[#66BB6A] text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] px-8 py-4 hover:bg-surface-tint border border-primary">
@@ -366,7 +396,7 @@ function Home() {
                         {/* Image Content: Right on desktop, above on mobile */}
                         <div className="order-1 md:order-2 flex-1 w-full max-w-md mx-auto">
                             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-soft-beige shadow-lg">
-                                <img src={IMG.Home} alt="Founder" className="w-full h-full object-cover" loading="lazy" />
+                                <img src={craftedWithIntention?.image || IMG.Home} alt="Founder" className="w-full h-full object-cover" loading="lazy" />
                             </div>
                         </div>
                     </div>
@@ -376,7 +406,7 @@ function Home() {
 
 
             {/* Testimonials */}
-            <TestimonialsGallery />
+            <TestimonialsGallery communityData={communityData} />
 
 
             {/* Stats Section */}
@@ -388,22 +418,12 @@ function Home() {
                 >
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
                     >
-                        <div className="space-y-2">
-                            <p className="font-display text-4xl md:text-5xl font-bold text-amber-500">4</p>
-                            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black">Signature Bars</p>
-                        </div>
-                        <div className="space-y-2">
-                            <p className="font-display text-4xl md:text-5xl font-bold text-amber-500">100%</p>
-                            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black">Handcrafted</p>
-                        </div>
-                        <div className="space-y-2">
-                            <p className="font-display text-4xl md:text-5xl font-bold text-amber-500">AYUSH</p>
-                            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black">Certified Yoga</p>
-                        </div>
-                        <div className="space-y-2">
-                            <p className="font-display text-4xl md:text-5xl font-bold text-amber-500">0%</p>
-                            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black">Synthetics</p>
-                        </div>
+                        {stats.map((s: any, idx: number) => (
+                            <div key={idx} className="space-y-2">
+                                <p className="font-display text-4xl md:text-5xl font-bold text-amber-500">{s.value}</p>
+                                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black">{s.label}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -448,9 +468,9 @@ function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-12 items-center">
                         <div className="space-y-6">
                             <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sage-green block">Social Rituals</span>
-                            <h2 className="font-display text-3xl md:text-4xl text-primary leading-tight">Follow Our Journey</h2>
+                            <h2 className="font-display text-3xl md:text-4xl text-primary leading-tight">{socialRituals.heading}</h2>
                             <p className="text-sm text-on-surface-variant leading-relaxed">
-                                We share daily inspiration, Ayurvedic wisdom, slow-beauty rituals, and updates from Gurugram. Join our community online.
+                                {socialRituals.description}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-3 pt-2">
                                 <a
@@ -488,9 +508,9 @@ function Home() {
                             </div>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {[IMG.img1, IMG.img2, IMG.img3, IMG.img4, IMG.img5, IMG.img6].map((img, i) => (
-                                <a key={i} href={CONTACT_INFO.instagram2} target="_blank" rel="noopener noreferrer" className="relative rounded-lg overflow-hidden border border-soft-beige bg-surface block aspect-square group">
-                                    <img src={img} alt={`Instagram preview ${i + 1}`} className="w-full h-full object-cover opacity-95 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" loading="lazy" />
+                            {socialRituals.images.map((imgData: any, i: number) => (
+                                <a key={i} href={imgData.link} target="_blank" rel="noopener noreferrer" className="relative rounded-lg overflow-hidden border border-soft-beige bg-surface block aspect-square group">
+                                    <img src={imgData.image} alt={`Instagram preview ${i + 1}`} className="w-full h-full object-cover opacity-95 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" loading="lazy" />
                                 </a>
                             ))}
                         </div>

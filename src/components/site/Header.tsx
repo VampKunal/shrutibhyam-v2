@@ -60,6 +60,10 @@ export function DealPopup() {
         }
 
         const endTime = new Date(settings.dealEndTime).getTime();
+        if (isNaN(endTime)) {
+            setTimeLeft(null);
+            return;
+        }
 
         const updateTimer = () => {
             const now = new Date().getTime();
@@ -159,13 +163,15 @@ export function DealPopup() {
                         </div>
                     </div>
 
-                    <Link 
-                        to={(settings.dealButtonLink as any) || "/shop"}
-                        onClick={handleClose}
-                        className="w-full bg-primary text-white font-bold py-3 px-6 hover:bg-surface-tint transition-colors text-sm uppercase tracking-wider"
-                    >
-                        {settings.dealButtonText || "Shop The Flash Sale Now"}
-                    </Link>
+                    {settings.dealButtonText && (
+                        <Link 
+                            to={(settings.dealButtonLink as any) || "/shop"}
+                            onClick={handleClose}
+                            className="w-full bg-primary text-white font-bold py-3 px-6 hover:bg-surface-tint transition-colors text-sm uppercase tracking-wider text-center"
+                        >
+                            {settings.dealButtonText}
+                        </Link>
+                    )}
 
                     <button 
                         onClick={handleClose}

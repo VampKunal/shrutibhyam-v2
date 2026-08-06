@@ -5,6 +5,8 @@ import { Leaf, HandHeart, MapPin, Flower2, Heart } from "lucide-react";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getAboutData } from "@/lib/api/sanity.functions";
+import { PortableText } from "@portabletext/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,10 +17,15 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "Learn the real Shrutibhyam story: founder-led Ayurvedic soap, yoga, and sound healing from Gurugram." },
     ],
   }),
+  loader: async () => {
+    const aboutData = await getAboutData();
+    return { aboutData };
+  },
   component: About,
 });
 
 function About() {
+  const { aboutData } = Route.useLoaderData();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -90,13 +97,20 @@ function About() {
     <SiteLayout>
       <div ref={containerRef} className="overflow-x-hidden">
         {/* Hero */}
-        <section className="bg-cream-bg pt-32 pb-24 overflow-hidden relative">
+        <section 
+          className="bg-cream-bg pt-32 pb-24 overflow-hidden relative bg-cover bg-center"
+          style={aboutData?.hero?.backgroundImage ? { backgroundImage: `url(${aboutData.hero.backgroundImage})` } : {}}
+        >
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--color-sage-green)_0%,_transparent_70%)]" />
           <div className="max-w-[1000px] mx-auto px-4 md:px-6 text-center relative z-10">
             <span className="hero-text inline-block px-4 py-1 bg-soft-beige rounded-full text-xs font-semibold uppercase tracking-[0.15em] text-deep-charcoal mb-6">Our Journey</span>
-            <h1 className="hero-text font-display text-5xl md:text-7xl text-primary mb-6 leading-tight">Rooted in <i className="text-sage-green">Nature</i></h1>
+            <h1 className="hero-text font-display text-5xl md:text-7xl text-primary mb-6 leading-tight">
+              {aboutData?.hero?.heading || (
+                <>Rooted in <i className="text-sage-green">Nature</i></>
+              )}
+            </h1>
             <p className="hero-text text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-              A slow-beauty and mindful-movement practice - handcrafted Ayurvedic skincare and traditional yoga, brought from the earth to your daily ritual.
+              {aboutData?.hero?.description || "A slow-beauty and mindful-movement practice - handcrafted Ayurvedic skincare and traditional yoga, brought from the earth to your daily ritual."}
             </p>
           </div>
         </section>
@@ -113,26 +127,34 @@ function About() {
                   <div className="flex items-center gap-2 text-sage-green font-semibold text-xs uppercase tracking-wider">
                     <MapPin size={16} /> The Origin
                   </div>
-                  <h2 className="font-display text-4xl text-primary leading-tight">How We Came To Be</h2>
-                  <p className="text-base text-on-surface-variant leading-relaxed">
-                    Shrutibhyam began with one woman's own health journey. A shift toward mindful eating and yoga led our founder to question everything she put on - and in - her body. As she trained to become a certified yoga instructor under the Ministry of AYUSH, one realisation stayed with her: our skin breathes, and whatever touches it eventually makes its way into our body too.
-                  </p>
-                  <p className="text-base text-on-surface-variant leading-relaxed">
-                    That thought sent her looking for a gentler way to cleanse - one without harsh chemicals, synthetic fragrance, or artificial additives. Months of research into cold-pressed oils and pure essential oils later, the first Shrutibhyam bar was handcrafted in Gurugram, the way skincare used to be made.
-                  </p>
-                  <p className="text-base text-on-surface-variant leading-relaxed">
-                    Shrutibhyam is not just skincare. It is a return to simplicity, purity, and honesty.
-                  </p>
+                  <h2 className="font-display text-4xl text-primary leading-tight">{aboutData?.origin?.heading || "How We Came To Be"}</h2>
+                  {aboutData?.origin?.text ? (
+                    <div className="text-base text-on-surface-variant leading-relaxed space-y-4">
+                      <PortableText value={aboutData.origin.text} />
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-base text-on-surface-variant leading-relaxed">
+                        Shrutibhyam began with one woman's own health journey. A shift toward mindful eating and yoga led our founder to question everything she put on - and in - her body. As she trained to become a certified yoga instructor under the Ministry of AYUSH, one realisation stayed with her: our skin breathes, and whatever touches it eventually makes its way into our body too.
+                      </p>
+                      <p className="text-base text-on-surface-variant leading-relaxed">
+                        That thought sent her looking for a gentler way to cleanse - one without harsh chemicals, synthetic fragrance, or artificial additives. Months of research into cold-pressed oils and pure essential oils later, the first Shrutibhyam bar was handcrafted in Gurugram, the way skincare used to be made.
+                      </p>
+                      <p className="text-base text-on-surface-variant leading-relaxed">
+                        Shrutibhyam is not just skincare. It is a return to simplicity, purity, and honesty.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
 
               <div className="collage-img-group relative h-[400px] lg:h-[600px] w-full order-1 lg:order-2">
                 <img src="/beepng.webp" alt="" className="absolute top-0 right-8 md:right-16 -translate-y-1/2 -mt-2.5 w-48 h-48 md:w-64 md:h-64 lg:w-96 lg:h-96 z-30 object-contain" />
                 <div className="parallax-img absolute top-0 right-0 w-[70%] h-[70%] rounded-2xl overflow-hidden shadow-lg border-4 border-cream-bg z-10">
-                  <img src={IMG.pro1} alt="Nature" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={aboutData?.origin?.image1 || IMG.pro1} alt="Nature" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="parallax-img absolute bottom-0 left-0 w-[60%] h-[60%] rounded-2xl overflow-hidden shadow-xl border-4 border-cream-bg z-20">
-                  <img src={IMG.img1} alt="Ingredients" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={aboutData?.origin?.image2 || IMG.img1} alt="Ingredients" className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
             </div>
@@ -148,10 +170,10 @@ function About() {
               <div className="collage-img-group relative h-[400px] lg:h-[600px] w-full order-1">
                 <img src="/beepng.webp" alt="" className="absolute top-[10%] left-8 md:left-16 -translate-y-1/2 -mt-2.5 w-48 h-48 md:w-64 md:h-64 lg:w-96 lg:h-96 z-30 object-contain scale-x-[-1]" />
                 <div className="parallax-img absolute top-[10%] left-0 w-[80%] h-[80%] rounded-2xl overflow-hidden shadow-lg border-4 border-cream-bg z-10">
-                  <img src={IMG.pro3} alt="Crafting" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={aboutData?.whatWeDo?.image1 || IMG.pro3} alt="Crafting" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="parallax-img absolute bottom-[-10%] right-[10%] w-[50%] h-[50%] rounded-2xl overflow-hidden shadow-xl border-4 border-cream-bg z-20">
-                  <img src={IMG.img3} alt="Herbs" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={aboutData?.whatWeDo?.image2 || IMG.img3} alt="Herbs" className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
 
@@ -159,16 +181,22 @@ function About() {
                 <div className="flex items-center gap-2 text-sage-green font-semibold text-xs uppercase tracking-wider">
                   <HandHeart size={16} /> Our Craft
                 </div>
-                <h2 className="font-display text-4xl text-primary leading-tight">What We Do</h2>
-                <p className="text-base text-on-surface-variant leading-relaxed">
-                  We handcraft Ayurvedic soap using the traditional cold-process method, which preserves natural glycerin for gentle, lasting moisture. Every bar is made with cold-pressed coconut, olive, almond, castor, and neem oils, vitamin E, and pure essential oils - cedarwood, ylang ylang, geranium, frankincense, lavender, and patchouli. Never synthetic fragrance. Never synthetic colour.
-                </p>
+                <h2 className="font-display text-4xl text-primary leading-tight">{aboutData?.whatWeDo?.heading || "What We Do"}</h2>
+                {aboutData?.whatWeDo?.text ? (
+                  <div className="text-base text-on-surface-variant leading-relaxed space-y-4">
+                    <PortableText value={aboutData.whatWeDo.text} />
+                  </div>
+                ) : (
+                  <p className="text-base text-on-surface-variant leading-relaxed">
+                    We handcraft Ayurvedic soap using the traditional cold-process method, which preserves natural glycerin for gentle, lasting moisture. Every bar is made with cold-pressed coconut, olive, almond, castor, and neem oils, vitamin E, and pure essential oils - cedarwood, ylang ylang, geranium, frankincense, lavender, and patchouli. Never synthetic fragrance. Never synthetic colour.
+                  </p>
+                )}
                 <ul className="space-y-4 pt-4">
-                  {[
+                  {(aboutData?.whatWeDo?.points || [
                     "Cold-process, hand-poured soap bars, cured over weeks",
                     "Traditional Hatha, Ashtanga and prop-based yoga instruction",
                     "Immersive sound healing sessions with Arahat Sound Dwellness"
-                  ].map((item, i) => (
+                  ]).map((item: string, i: number) => (
                     <li key={i} className="flex items-start gap-3 text-sm text-on-surface-variant">
                       <span className="text-sage-green mt-0.5">✦</span> {item}
                     </li>
@@ -189,22 +217,30 @@ function About() {
                 <div className="flex items-center gap-2 text-sage-green font-semibold text-xs uppercase tracking-wider">
                   <Heart size={16} /> Practice
                 </div>
-                <h2 className="font-display text-4xl text-primary leading-tight">Yoga & Sound Healing</h2>
-                <p className="text-base text-on-surface-variant leading-relaxed">
-                  Yoga is at the heart of the Shrutibhyam philosophy - not as a fitness routine, but as a daily return to breath and stillness. Our founder teaches Hatha, Ashtanga, and prop-based sessions at Godrej Aria Clubhouse, Gurugram, for every level.
-                </p>
-                <p className="text-base text-on-surface-variant leading-relaxed">
-                  We also host sound healing sessions in collaboration with Arahat Sound Dwellness - immersive sound baths designed to slow the nervous system and restore quiet.
-                </p>
+                <h2 className="font-display text-4xl text-primary leading-tight">{aboutData?.yoga?.heading || "Yoga & Sound Healing"}</h2>
+                {aboutData?.yoga?.text ? (
+                  <div className="text-base text-on-surface-variant leading-relaxed space-y-4">
+                    <PortableText value={aboutData.yoga.text} />
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-base text-on-surface-variant leading-relaxed">
+                      Yoga is at the heart of the Shrutibhyam philosophy - not as a fitness routine, but as a daily return to breath and stillness. Our founder teaches Hatha, Ashtanga, and prop-based sessions at Godrej Aria Clubhouse, Gurugram, for every level.
+                    </p>
+                    <p className="text-base text-on-surface-variant leading-relaxed">
+                      We also host sound healing sessions in collaboration with Arahat Sound Dwellness - immersive sound baths designed to slow the nervous system and restore quiet.
+                    </p>
+                  </>
+                )}
               </div>
 
               <div className="collage-img-group relative h-[400px] lg:h-[600px] w-full order-1 lg:order-2">
                 <img src="/beepng.webp" alt="" className="absolute top-[5%] right-[10%] md:right-[15%] -translate-y-1/2 -mt-2.5 w-48 h-48 md:w-64 md:h-64 lg:w-96 lg:h-96 z-30 object-contain" />
                 <div className="parallax-img absolute top-[5%] right-[5%] w-[65%] h-[85%] rounded-2xl overflow-hidden shadow-lg border-4 border-cream-bg z-10">
-                  <img src={IMG.yoga2} alt="Event gathering" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" loading="lazy" />
+                  <img src={aboutData?.yoga?.image1 || IMG.yoga2} alt="Event gathering" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" loading="lazy" />
                 </div>
                 <div className="parallax-img absolute bottom-[10%] left-[5%] w-[45%] h-[45%] rounded-2xl overflow-hidden shadow-xl border-4 border-cream-bg z-20">
-                  <img src={IMG.yoga3} alt="Meditation" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={aboutData?.yoga?.image2 || IMG.yoga3} alt="Meditation" className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
             </div>
@@ -220,7 +256,7 @@ function About() {
               <div className="collage-img-group relative h-[400px] lg:h-[600px] w-full order-1">
                 <img src="/beepng.webp" alt="" className="absolute top-[5%] right-8 md:right-16 -translate-y-1/2 -mt-2.5 w-48 h-48 md:w-64 md:h-64 lg:w-96 lg:h-96 z-30 object-contain scale-x-[-1]" />
                 <div className="parallax-img absolute inset-0 w-[90%] h-[90%] m-auto rounded-full overflow-hidden shadow-lg border-8 border-cream-bg z-10">
-                  <img src={IMG.pro2} alt="Natural elements" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={aboutData?.pureEthos?.image || IMG.pro2} alt="Natural elements" className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-sage-green/20 rounded-full blur-3xl z-0" />
               </div>
@@ -229,13 +265,21 @@ function About() {
                 <div className="flex items-center gap-2 text-sage-green font-semibold text-xs uppercase tracking-wider">
                   <Leaf size={16} /> Pure Ethos
                 </div>
-                <h2 className="font-display text-4xl text-primary leading-tight">How & Why We Are Natural</h2>
-                <p className="text-base text-on-surface-variant leading-relaxed">
-                  We believe that whatever you put on your skin eventually enters your bloodstream - which is why we never use synthetic fragrances, artificial hardeners, or chemical preservatives.
-                </p>
-                <p className="text-base text-on-surface-variant leading-relaxed">
-                  Every ingredient is ethically sourced, and every product is cruelty-free, never tested on animals. Nature, time, and care guide the work. Never rushed.
-                </p>
+                <h2 className="font-display text-4xl text-primary leading-tight">{aboutData?.pureEthos?.heading || "How & Why We Are Natural"}</h2>
+                {aboutData?.pureEthos?.text ? (
+                  <div className="text-base text-on-surface-variant leading-relaxed space-y-4">
+                    <PortableText value={aboutData.pureEthos.text} />
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-base text-on-surface-variant leading-relaxed">
+                      We believe that whatever you put on your skin eventually enters your bloodstream - which is why we never use synthetic fragrances, artificial hardeners, or chemical preservatives.
+                    </p>
+                    <p className="text-base text-on-surface-variant leading-relaxed">
+                      Every ingredient is ethically sourced, and every product is cruelty-free, never tested on animals. Nature, time, and care guide the work. Never rushed.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>

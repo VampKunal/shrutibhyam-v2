@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { getWooProductBySlug, getWooProducts } from "@/lib/api/woocommerce.functions";
-import { getProductEnrichment } from "@/lib/api/sanity.functions";
+import { getProductEnrichment, getSiteSettings } from "@/lib/api/sanity.functions";
 import {
   DEFAULT_ACCORDIONS,
   PURITY,
@@ -53,6 +53,7 @@ export const Route = createFileRoute("/shop/$slug")({
     const enrichmentPromise = getProductEnrichment({ data: slug });
     const commentsPromise = getComments({ data: slug });
     const allProductsPromise = getWooProducts();
+    const siteSettingsPromise = getSiteSettings();
 
     // Only await the critical product data
     const product = await productPromise;
@@ -63,7 +64,8 @@ export const Route = createFileRoute("/shop/$slug")({
       product,
       deferredEnrichment: defer(enrichmentPromise.catch(() => null)),
       deferredComments: defer(commentsPromise.catch(() => [])),
-      deferredProducts: defer(allProductsPromise.catch(() => []))
+      deferredProducts: defer(allProductsPromise.catch(() => [])),
+      deferredSettings: defer(siteSettingsPromise.catch(() => null))
     };
   },
   head: ({ loaderData }) => ({
@@ -95,7 +97,7 @@ export const Route = createFileRoute("/shop/$slug")({
 });
 
 function Product() {
-  const { product, deferredEnrichment, deferredComments, deferredProducts } = Route.useLoaderData();
+  const { product, deferredEnrichment, deferredComments, deferredProducts, deferredSettings } = Route.useLoaderData();
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -115,6 +117,12 @@ function Product() {
   const { data: enrichment, isLoading: enrichmentLoading } = useQuery({
     queryKey: ["enrichment", product.slug],
     queryFn: () => deferredEnrichment,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { data: siteSettings } = useQuery({
+    queryKey: ["siteSettings"],
+    queryFn: () => deferredSettings,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -390,27 +398,33 @@ function Product() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-xs font-medium text-primary">
-                <div className="flex items-start gap-3 bg-soft-beige/30 p-3 rounded-lg">
-                  <Truck className="text-sage-green shrink-0 mt-0.5" size={18} />
-                  <div>
-                    <span className="block font-bold mb-0.5">Estimated Delivery</span>
-                    <span className="text-on-surface-variant">3-5 Business Days</span>
+                {enrichment?.estimatedDeliveryText && (
+                  <div className="flex items-start gap-3 bg-soft-beige/30 p-3 rounded-lg">
+                    <Truck className="text-sage-green shrink-0 mt-0.5" size={18} />
+                    <div>
+                      <span className="block font-bold mb-0.5">Estimated Delivery</span>
+                      <span className="text-on-surface-variant">{enrichment.estimatedDeliveryText}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-3 bg-soft-beige/30 p-3 rounded-lg">
-                  <RotateCcw className="text-sage-green shrink-0 mt-0.5" size={18} />
-                  <div>
-                    <span className="block font-bold mb-0.5">Return Policy</span>
-                    <span className="text-on-surface-variant">48-hr damage reporting</span>
+                )}
+                {enrichment?.returnPolicyText && (
+                  <div className="flex items-start gap-3 bg-soft-beige/30 p-3 rounded-lg">
+                    <RotateCcw className="text-sage-green shrink-0 mt-0.5" size={18} />
+                    <div>
+                      <span className="block font-bold mb-0.5">Return Policy</span>
+                      <span className="text-on-surface-variant">{enrichment.returnPolicyText}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-3 bg-soft-beige/30 p-3 rounded-lg col-span-2 justify-center">
-                  <ShieldCheck className="text-sage-green shrink-0" size={18} />
-                  <span className="font-bold mr-2">Secure Checkout</span>
-                  <div className="flex gap-2">
-                    <CreditCard size={18} className="text-on-surface-variant" />
+                )}
+                {enrichment?.secureCheckoutText && (
+                  <div className="flex items-start gap-3 bg-soft-beige/30 p-3 rounded-lg col-span-2 justify-center">
+                    <ShieldCheck className="text-sage-green shrink-0" size={18} />
+                    <span className="font-bold mr-2">{enrichment.secureCheckoutText}</span>
+                    <div className="flex gap-2">
+                      <CreditCard size={18} className="text-on-surface-variant" />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

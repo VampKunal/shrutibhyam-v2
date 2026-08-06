@@ -46,3 +46,36 @@ export const getEvents = createServerFn({ method: "GET" })
       return [];
     }
   });
+
+export const getHomeData = createServerFn({ method: "GET" })
+  .handler(async () => {
+    try {
+      const home = await sanityClient.fetch(queries.home);
+      return home || null;
+    } catch (error) {
+      console.error("Error fetching home from Sanity:", error);
+      return null;
+    }
+  });
+
+export const getAboutData = createServerFn({ method: "GET" })
+  .handler(async () => {
+    try {
+      const about = await sanityClient.fetch(queries.about);
+      return about || null;
+    } catch (error) {
+      console.error("Error fetching about from Sanity:", error);
+      return null;
+    }
+  });
+
+export const getYogaData = createServerFn({ method: "GET" })
+  .handler(async () => {
+    try {
+      const yoga = await sanityClient.fetch(queries.yoga);
+      return yoga || null;
+    } catch (error) {
+      console.error("Error fetching yoga from Sanity:", error);
+      return null;
+    }
+  });

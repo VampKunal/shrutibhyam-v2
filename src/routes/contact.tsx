@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/Layout";
-import { Mail, MapPin, Phone, Star } from "lucide-react";
+import { Mail, MapPin, Phone, Star, MessageCircle } from "lucide-react";
 import { CONTACT_INFO } from "@/constant";
 
 export const Route = createFileRoute("/contact")({
@@ -17,8 +17,22 @@ export const Route = createFileRoute("/contact")({
 
 
 function Contact() {
- const [open, setOpen] = useState<number | null>(0);
- return (
+  const [open, setOpen] = useState<number | null>(0);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const subjectRaw = formData.get("subject") as string;
+    const message = formData.get("message") as string;
+
+    const subject = `${subjectRaw} - ${name}`;
+    const body = `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`;
+
+    window.location.href = `mailto:${CONTACT_INFO.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+  
+  return (
  <SiteLayout>
  <section
  className="relative bg-fixed bg-center"
@@ -37,20 +51,22 @@ function Contact() {
 
  >
  <div className="relative z-10 max-w-[1100px] mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-2 gap-12">
- <form className="bg-surface border border-soft-beige rounded p-8 space-y-5" onSubmit={(e) => e.preventDefault()}>
- <Field label="Name"><input type="text" className="form-input" /></Field>
- <Field label="Email"><input type="email" className="form-input" /></Field>
+ <form className="bg-surface border border-soft-beige rounded p-8 space-y-5" onSubmit={handleSubmit}>
+ <Field label="Name"><input type="text" name="name" required className="form-input" /></Field>
+ <Field label="Email"><input type="email" name="email" required className="form-input" /></Field>
  <Field label="Subject">
- <select className="form-input">
- <option>General Inquiry</option>
- <option>Product Question</option>
- <option>Yoga Sessions</option>
- <option>Sound Healing</option>
- <option>Customer Support</option>
+ <select className="form-input" name="subject" required>
+ <option value="General Inquiry">General Inquiry</option>
+ <option value="Product Question">Product Question</option>
+ <option value="Yoga Sessions">Yoga Sessions</option>
+ <option value="Sound Healing">Sound Healing</option>
+ <option value="Customer Support">Customer Support</option>
  </select>
  </Field>
- <Field label="Message"><textarea rows={5} className="form-input" /></Field>
- <button className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint">Send Message</button>
+ <Field label="Message"><textarea rows={5} name="message" required className="form-input" /></Field>
+ <button type="submit" className="w-full bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.15em] py-4 hover:bg-surface-tint">
+  Send Message
+ </button>
  </form>
 
  <aside className="space-y-6">
@@ -58,6 +74,7 @@ function Contact() {
  <InfoRow icon={MapPin} title={CONTACT_INFO.name} body={CONTACT_INFO.address} />
  <InfoRow icon={Mail} title="Email Us" body={CONTACT_INFO.email} />
  <InfoRow icon={Phone} title="Reach Us" body={CONTACT_INFO.phone} />
+ <InfoRow icon={MessageCircle} title="WhatsApp" body={CONTACT_INFO.whatsapp} />
  <div className="bg-cream-bg border border-soft-beige rounded p-6 mt-6">
  <div className="flex text-sage-green mb-3">
  {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} />)}
