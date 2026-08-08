@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "deploy": "npm run build && wrangler deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "postinstall": "node patch.cjs && node patch-vite.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
