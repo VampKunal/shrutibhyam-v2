@@ -80,7 +80,6 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.51.0",
     "@eslint/js": "^9.32.0",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
