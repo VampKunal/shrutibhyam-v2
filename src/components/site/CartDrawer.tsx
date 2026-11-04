@@ -58,10 +58,11 @@ export function CartDrawer() {
     proceedToCheckout();
   };
 
-  const handleSignInThenCheckout = () => {
-    setShowGuestPrompt(false);
-    setLoginOpen(true);
-  };
+  // GUEST_CHECKOUT:
+  // const handleSignInThenCheckout = () => {
+  //   setShowGuestPrompt(false);
+  //   setLoginOpen(true);
+  // };
 
   return (
     <div

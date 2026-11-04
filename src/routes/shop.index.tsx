@@ -31,14 +31,15 @@ export const Route = createFileRoute("/shop/")({
     ],
   }),
   loader: async () => {
-    // We let the client-side useQuery fetch the products so the page renders immediately.
-    return {};
+    const products = await getWooProducts();
+    return { products };
   },
   staleTime: 1000 * 60 * 5, // 5 minutes cache
   component: Shop,
 });
 
 function Shop() {
+  const { products: initialProducts } = Route.useLoaderData();
   const searchParams = Route.useSearch();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const dispatch = useAppDispatch();
@@ -46,10 +47,11 @@ function Shop() {
 
   const routerState = useRouterState();
 
-  // Fetch from React Query (stale-while-revalidate), already prefetched in root!
-  const { data: products = [], isLoading: productsLoading } = useQuery({
+  // Fetch from React Query (stale-while-revalidate), with SSR initialData
+  const { data: products = initialProducts || [], isLoading: productsLoading } = useQuery({
     queryKey: ["products"],
     queryFn: () => getWooProducts(),
+    initialData: initialProducts,
     staleTime: 1000 * 60 * 10,
   });
 

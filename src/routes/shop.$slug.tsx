@@ -22,6 +22,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { DiwaliProductView } from "@/components/site/DiwaliProductView";
 import { getWooProductBySlug, getWooProducts } from "@/lib/api/woocommerce.functions";
 import { getProductEnrichment, getSiteSettings } from "@/lib/api/sanity.functions";
 import {
@@ -125,6 +126,10 @@ function Product() {
     queryFn: () => deferredSettings,
     staleTime: 1000 * 60 * 5,
   });
+
+  if (product.slug === "diwali-gift-box") {
+    return <DiwaliProductView product={product} allProducts={allProducts} />;
+  }
 
   const similarProducts = allProducts.filter((p: any) => p.slug !== product.slug).slice(0, 4);
 

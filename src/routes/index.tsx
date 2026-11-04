@@ -68,13 +68,24 @@ function Home() {
     }, [products]);
 
     // Data handling — must be above useEffect
-    const heroCarousel = homeData?.heroCarousel?.length > 0
-        ? homeData.heroCarousel.map((h: any) => ({
-            imgDesktop: h.desktopImage,
-            imgMobile: h.mobileImage || h.desktopImage,
-            to: h.link || "/shop"
-        }))
-        : HERO_CAROUSEL;
+    const heroCarousel = useMemo(() => {
+        const diwaliSlide = HERO_CAROUSEL[0];
+        if (homeData?.heroCarousel?.length > 0) {
+            const cmsSlides = homeData.heroCarousel.map((h: any) => ({
+                imgDesktop: h.desktopImage,
+                imgMobile: h.mobileImage || h.desktopImage,
+                to: h.link || "/shop",
+                isVideo: false,
+                videoDesktop: undefined,
+            }));
+            // If the CMS slides already include diwali, don't duplicate
+            if (cmsSlides.some((s: any) => s.to?.includes("diwali"))) {
+                return cmsSlides;
+            }
+            return [diwaliSlide, ...cmsSlides];
+        }
+        return HERO_CAROUSEL;
+    }, [homeData]);
 
     const partnersLogos = homeData?.partnersLogos?.length > 0 ? homeData.partnersLogos : null;
 
@@ -147,12 +158,12 @@ function Home() {
                         <Link
                             key={(slide.imgDesktop || slide.imgMobile) + idx}
                             to={slide.to}
-                            className={`absolute inset-0 w-full h-full cursor-pointer transition-opacity duration-1000 ${idx === currentImg
+                            className={`absolute inset-0 w-full h-full cursor-pointer transition-opacity duration-1000 ${slide.bgClass || "bg-surface-container-low"} ${idx === currentImg
                                 ? "opacity-100 z-0 pointer-events-auto"
                                 : "opacity-0 -z-10 pointer-events-none"
                                 }`}
                         >
-                            <picture>
+                            <picture className="w-full h-full flex items-center justify-center">
                                 <source
                                     media="(min-width: 768px)"
                                     srcSet={slide.imgDesktop}
@@ -160,7 +171,7 @@ function Home() {
                                 <img
                                     src={slide.imgMobile}
                                     alt={slide.alt || "Shrutibhyam Hero"}
-                                    className="w-full h-full object-cover"
+                                    className={`w-full h-full ${slide.imgClass || "object-cover"}`}
                                     width={1920}
                                     height={1080}
                                     {...(idx === 0

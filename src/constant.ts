@@ -68,10 +68,24 @@ export const IMG = {
   img4: "/productg/IMG_9827.PNG",
   img5: "/productg/IMG_9828.PNG",
   img6: "/productg/IMG_9829.PNG",
+  diwaliHorizontal: "/horizontal_diwali.PNG",
+  diwaliHorizontal2: "/horizontal_diwali2.PNG",
+  diwaliVertical: "/vertical_diwali.PNG",
 };
 
 // Local product catalog fallbacks
 export const PRODUCTS = [
+  {
+    slug: "diwali-gift-box",
+    name: "Shrutibhyam Diwali Gift Box",
+    tag: "Festive Gifting",
+    subtitle: "Roshni ghar mein, glow chehre pe ✨",
+    price: 1199,
+    regularPrice: 1500,
+    onSale: true,
+    image: "/vertical_diwali.PNG",
+    wooId: 187,
+  },
   { slug: "shrutibhyam-neem-handmade-soap", name: "Shrutibhyam Neem Handmade Soap", tag: "Skincare", subtitle: "Pure Care, Naturally", price: 350, regularPrice: 500, onSale: true, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-3.avif", wooId: 40 },
   { slug: "shrutibhyam-haldi-handmade-soap", name: "Shrutibhyam Haldi Handmade Soap", tag: "Skincare", subtitle: "Brightening & Nourishing Care", price: 350, regularPrice: 500, onSale: true, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/2-2.avif", wooId: 36 },
   { slug: "shrutibhyam-lavender-handmade-soap", name: "Shrutibhyam Lavender Handmade Soap", tag: "Skincare", subtitle: "Soothing & Nourishing Care", price: 350, regularPrice: 500, onSale: true, image: "https://checkout.shrutibhyam.com/wp-content/uploads/2026/06/1-1.avif", wooId: 32 },
@@ -109,6 +123,7 @@ export const MARQUEE = [
 
 // Home carousel slides
 export const HERO_CAROUSEL = [
+  { imgDesktop: "/horizontal_diwali2.PNG", imgMobile: "/vertical_diwali.PNG", to: "/shop/diwali-gift-box", isVideo: false, videoDesktop: undefined, imgClass: "object-contain bg-[#FAF5F2]", bgClass: "bg-[#FAF5F2]" },
   { imgDesktop: IMG.Home, imgMobile: IMG.Home, to: "/shop", isVideo: false, videoDesktop: undefined },
   { imgDesktop: IMG.Buy, imgMobile: IMG.Buy, to: "/shop", isVideo: false, videoDesktop: undefined },
   { imgDesktop: IMG.yog, imgMobile: IMG.trust, to: "/yoga", isVideo: false, videoDesktop: undefined },

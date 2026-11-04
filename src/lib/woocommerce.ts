@@ -37,6 +37,7 @@ function extractFirstImageFromHtml(html: string): string | null {
  */
 export function getProductFallbackImage(nameOrSlug: string): string {
   const lower = nameOrSlug.toLowerCase();
+  if (lower.includes("diwali")) return "/vertical_diwali.PNG";
   if (lower.includes("neem")) return IMG.faceOil;
   if (lower.includes("haldi")) return IMG.faceOil;
   if (lower.includes("lavender")) return IMG.serum;
@@ -70,7 +71,12 @@ export function mapWooCommerceProduct(wpProduct: any): LocalProduct {
     : extractFirstImageFromHtml(wpProduct.description)
     || extractFirstImageFromHtml(wpProduct.short_description);
 
-  if (!image) {
+  const isDiwali = wpProduct.slug === "diwali-gift-box" || (wpProduct.name && wpProduct.name.toLowerCase().includes("diwali"));
+  if (isDiwali) {
+    image = "/vertical_diwali.PNG";
+    if (!galleryImages.includes("/vertical_diwali.PNG")) galleryImages.unshift("/vertical_diwali.PNG");
+    if (!galleryImages.includes("/horizontal_diwali2.PNG")) galleryImages.push("/horizontal_diwali2.PNG");
+  } else if (!image) {
     image = getProductFallbackImage(wpProduct.slug || wpProduct.name || "");
   }
 

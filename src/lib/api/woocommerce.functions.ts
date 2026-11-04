@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { mapWooCommerceProduct, LocalProduct, getProductFallbackImage } from "../woocommerce";
 import process from "node:process";
-import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
+import { WOOCOMMERCE_DEFAULT_URL, PRODUCTS } from "@/constant";
 
 // Thin wrapper removed to avoid client-side import warnings.
 // We dynamically import `fetchWooCommerce` from `./wp.server` inside server functions.
@@ -60,12 +60,35 @@ export const getWooProducts = createServerFn({ method: "GET" })
       // Reduced fields to reduce payload size (removed short_description, description)
       const wpProducts = await fetchWooCommerce("products?per_page=100&status=publish&_fields=id,name,slug,price,regular_price,sale_price,on_sale,images,categories");
       if (Array.isArray(wpProducts)) {
-        return wpProducts.map(mapWooCommerceProduct);
+        const mapped = wpProducts.map(mapWooCommerceProduct);
+        const diwaliIndex = mapped.findIndex(p => p.slug === "diwali-gift-box");
+        if (diwaliIndex > 0) {
+          const [diwali] = mapped.splice(diwaliIndex, 1);
+          mapped.unshift(diwali);
+        } else if (diwaliIndex === -1) {
+          const fallback = PRODUCTS.find(p => p.slug === "diwali-gift-box");
+          if (fallback) {
+            mapped.unshift({
+              ...fallback,
+              categories: ["Festive Gifting", "Handcrafted"],
+              galleryImages: ["/vertical_diwali.PNG", "/horizontal_diwali2.PNG"],
+            });
+          }
+        }
+        return mapped;
       }
-      return [];
+      return PRODUCTS.map(p => ({
+        ...p,
+        categories: [p.tag],
+        galleryImages: p.slug === "diwali-gift-box" ? ["/vertical_diwali.PNG", "/horizontal_diwali2.PNG"] : [p.image],
+      }));
     } catch (error) {
       console.error("Error in getWooProducts server function:", error);
-      return [];
+      return PRODUCTS.map(p => ({
+        ...p,
+        categories: [p.tag],
+        galleryImages: p.slug === "diwali-gift-box" ? ["/vertical_diwali.PNG", "/horizontal_diwali2.PNG"] : [p.image],
+      }));
     }
   });
 
@@ -83,9 +106,25 @@ export const getWooProductBySlug = createServerFn({ method: "GET" })
       if (Array.isArray(wpProducts) && wpProducts.length > 0) {
         return mapWooCommerceProduct(wpProducts[0]);
       }
+      const fallback = PRODUCTS.find(p => p.slug === slug);
+      if (fallback) {
+        return {
+          ...fallback,
+          categories: [fallback.tag],
+          galleryImages: fallback.slug === "diwali-gift-box" ? ["/vertical_diwali.PNG", "/horizontal_diwali2.PNG"] : [fallback.image],
+        };
+      }
       return null;
     } catch (error) {
       console.error(`Error in getWooProductBySlug for slug "${slug}":`, error);
+      const fallback = PRODUCTS.find(p => p.slug === slug);
+      if (fallback) {
+        return {
+          ...fallback,
+          categories: [fallback.tag],
+          galleryImages: fallback.slug === "diwali-gift-box" ? ["/vertical_diwali.PNG", "/horizontal_diwali2.PNG"] : [fallback.image],
+        };
+      }
       return null;
     }
   });

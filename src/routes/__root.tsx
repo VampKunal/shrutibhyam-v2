@@ -157,18 +157,27 @@ function RootComponent() {
 
     // Defer Facebook pixel loading
     const loadFBPixel = () => {
-      if ((window as any).fbq) return;
-      !function(f,b,e,v,n,t,s) {
-        if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        if(s.parentNode) s.parentNode.insertBefore(t,s)
-      }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      const win = window as any;
+      if (win.fbq) return;
+      (function(f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
+        if (f.fbq) return;
+        n = f.fbq = function() {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = true;
+        n.version = '2.0';
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = true;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        if (s && s.parentNode) s.parentNode.insertBefore(t, s);
+      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
       
-      (window as any).fbq('init', '4384383748495446');
-      (window as any).fbq('track', 'PageView');
+      win.fbq('init', '4384383748495446');
+      win.fbq('track', 'PageView');
     };
 
     // Load after a slight delay to ensure it doesn't block critical render
