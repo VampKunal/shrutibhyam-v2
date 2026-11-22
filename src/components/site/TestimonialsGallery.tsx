@@ -22,7 +22,7 @@ function ensureMinLength<T>(arr: T[], min = 8): T[] {
 }
 
 export function TestimonialsGallery({ communityData }: { communityData?: CommunityExperiencesData | null }) {
-  const [activeTab, setActiveTab] = useState<TabType>("text");
+  const [activeTab, setActiveTab] = useState<TabType>("screenshots");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // Use Sanity data if available, else fallback to constants
@@ -148,16 +148,6 @@ export function TestimonialsGallery({ communityData }: { communityData?: Communi
         <div className="flex justify-center mb-12 px-4">
           <div className="bg-surface border border-soft-beige p-1.5 rounded-full flex gap-2 shadow-sm">
             <button
-              onClick={() => setActiveTab("text")}
-              className={`interactive-card flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-[0.12em] ${activeTab === "text"
-                ? "bg-primary text-primary-foreground shadow-sm border border-primary"
-                : "text-on-surface-variant hover:text-primary hover:bg-cream-bg border border-transparent"
-                }`}
-            >
-              <Heart size={14} className={activeTab === "text" ? "fill-current" : ""} />
-              Kind Words
-            </button>
-            <button
               onClick={() => setActiveTab("screenshots")}
               className={`interactive-card flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-[0.12em] ${activeTab === "screenshots"
                 ? "bg-primary text-primary-foreground shadow-sm border border-primary"
@@ -166,6 +156,16 @@ export function TestimonialsGallery({ communityData }: { communityData?: Communi
             >
               <MessageSquare size={14} />
               Verified Reviews
+            </button>
+            <button
+              onClick={() => setActiveTab("text")}
+              className={`interactive-card flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-[0.12em] ${activeTab === "text"
+                ? "bg-primary text-primary-foreground shadow-sm border border-primary"
+                : "text-on-surface-variant hover:text-primary hover:bg-cream-bg border border-transparent"
+                }`}
+            >
+              <Heart size={14} className={activeTab === "text" ? "fill-current" : ""} />
+              Kind Words
             </button>
           </div>
         </div>

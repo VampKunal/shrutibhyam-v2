@@ -188,9 +188,31 @@ export const SHOP_REVIEWS = [
 ];
 
 export const SCREENSHOT_TESTIMONIALS = [
-  "/testimonials/d41930fd-3ce2-41bf-9aae-44d2e5201913.webp",
-  "/testimonials/ec52fb5b-3e99-41cc-bd4c-21f856dabcaa.webp",
-  "/testimonials/f95a9437-c35a-4c40-aaac-fdfa32df34f7.webp"
+  "/testimonials/898382c3-df2c-49cf-a163-8913ba6f48f4.jpg",
+  "/testimonials/d41930fd-3ce2-41bf-9aae-44d2e5201913.jpg",
+  "/testimonials/e5cadb5a-d707-40a6-883e-d04fc99db9a1.jpg",
+  "/testimonials/ee04c667-0925-49c2-9ad5-5e2218e13f00.jpg",
+  "/testimonials/f95a9437-c35a-4c40-aaac-fdfa32df34f7.jpg",
+  "/testimonials/1992b673-1a85-415b-b692-0f43910bdf50.webp",
+  "/testimonials/38d30a0f-119b-44d7-ba6b-0c9e63abb164.webp",
+  "/testimonials/4f50649d-5bc6-4f66-89c0-12a65e3db490.webp",
+  "/testimonials/76efa728-5ded-4050-8bf4-b30ae3d08d2a.webp",
+  "/testimonials/910588ce-5d8a-48c8-b001-2590c0281077.webp",
+  "/testimonials/a73def99-901e-43e5-a059-2651827d4204.webp",
+  "/testimonials/ac2f5aaa-ca1d-4ec6-b4e1-6842c453f530.webp",
+  "/testimonials/d278bb31-7851-4e74-a591-a160ff8042b3.webp",
+  "/testimonials/df758d99-108c-4144-8186-57f683ba0912.webp",
+  "/testimonials/fd30c560-932d-491c-b516-cc9bd65e5b7c.webp",
+  "/testimonials/IMG_8922.webp",
+  "/testimonials/IMG_8923.webp",
+  "/testimonials/IMG_8924.webp",
+  "/testimonials/IMG_8925.webp",
+  "/testimonials/IMG_8945.webp",
+  "/testimonials/IMG_8946.webp",
+  "/testimonials/IMG_8948.webp",
+  "/testimonials/IMG_8949.webp",
+  "/testimonials/IMG_8950.webp",
+  "/testimonials/IMG_8951.webp"
 ];
 
 
