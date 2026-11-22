@@ -1,5 +1,5 @@
 import process from "node:process";
-import { WOOCOMMERCE_DEFAULT_URL } from "@/constant";
+import { WOOCOMMERCE_DEFAULT_URL, SOAP_FEEDBACK_COMMENTS } from "@/constant";
 import { fetchWooCommerce } from "./wp.server";
 
 export interface CommentItem {
@@ -38,6 +38,7 @@ async function getWooIdBySlug(slug: string): Promise<number | null> {
     "shrutibhyam-haldi-handmade-soap": 36,
     "shrutibhyam-lavender-handmade-soap": 32,
     "shrutibhyam-french-clay-handmade-soap": 24,
+    "diwali-gift-box": 187,
   };
   if (staticMap[slug]) return staticMap[slug];
 
@@ -61,6 +62,7 @@ async function getSlugByWooId(wooId: number): Promise<string> {
     36: "shrutibhyam-haldi-handmade-soap",
     32: "shrutibhyam-lavender-handmade-soap",
     24: "shrutibhyam-french-clay-handmade-soap",
+    187: "diwali-gift-box",
   };
   if (reverseStaticMap[wooId]) return reverseStaticMap[wooId];
 
@@ -77,18 +79,25 @@ async function getSlugByWooId(wooId: number): Promise<string> {
  * Get comments for a specific product.
  */
 export async function serverGetComments(productSlug: string): Promise<CommentItem[]> {
+  const defaultComments: CommentItem[] = SOAP_FEEDBACK_COMMENTS.map((c, i) => ({
+    ...c,
+    id: `${productSlug}-review-${i + 1}`,
+    productSlug,
+  }));
+
   const wooId = await getWooIdBySlug(productSlug);
-  if (!wooId) return [];
+  if (!wooId) return defaultComments;
 
   try {
     const reviews = await fetchWooCommerce(`products/reviews?product=${wooId}`);
-    if (Array.isArray(reviews)) {
-      return reviews.map((r) => mapReview(r, productSlug));
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      const wooMapped = reviews.map((r) => mapReview(r, productSlug));
+      return [...wooMapped, ...defaultComments];
     }
   } catch (error) {
     console.error(`Error fetching reviews for slug ${productSlug}:`, error);
   }
-  return [];
+  return defaultComments;
 }
 
 /**

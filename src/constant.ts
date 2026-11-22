@@ -178,13 +178,15 @@ export const EVENT_TESTIMONIALS = [
 ];
 
 export const SHOP_TESTIMONIAL = {
-  quote: HOME_TESTIMONIALS[0].quote,
-  author: HOME_TESTIMONIALS[0].name,
-  role: HOME_TESTIMONIALS[0].role,
+  quote: "Shruti, your handmade soaps are truly amazing! I could feel the difference within just two days of using them. Consider me a loyal customer from now on.",
+  author: "Shehnaaz",
+  role: "Verified Customer",
 };
 
 export const SHOP_REVIEWS = [
-  { stars: 5, q: "Small-batch, handmade, and still shaped by real customer feedback.", name: "Team Shrutibhyam" },
+  { stars: 5, q: "Soaps are very good. Good quality and truly natural and organic.", name: "Vivek" },
+  { stars: 5, q: "I am in love with the haldi soap! It's so gentle and feels amazing on the skin.", name: "Sapna" },
+  { stars: 5, q: "Fragrance is so fresh and long-lasting. Made my skin feel soft and fresh.", name: "Akrati" },
 ];
 
 export const SCREENSHOT_TESTIMONIALS = [
@@ -320,27 +322,116 @@ export const PRODUCT_STATS = [
   { value: "3x", label: "Longer lasting moisture" }
 ];
 
+
+export interface SoapFeedbackComment {
+  id: string;
+  userId: number;
+  userName: string;
+  userEmail: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+export const SOAP_FEEDBACK_COMMENTS: SoapFeedbackComment[] = [
+  {
+    id: "soap-fb-1",
+    userId: 101,
+    userName: "Shehnaaz",
+    userEmail: "shehnaaz@customer.shrutibhyam.com",
+    rating: 5,
+    comment: "Shruti, your handmade soaps are truly amazing! I could feel the difference within just two days of using them. Even Zaheer was impressed and liked them. Consider me a loyal customer from now on. I'll be relying on your soaps for all my skincare needs.",
+    date: "2026-10-15T10:00:00.000Z",
+  },
+  {
+    id: "soap-fb-2",
+    userId: 102,
+    userName: "Sapna",
+    userEmail: "sapna@customer.shrutibhyam.com",
+    rating: 5,
+    comment: "I am in love with the haldi soap! It's so gentle and feels amazing on the skin. I believe it has some very gentle exfoliating particles that felt like love on the skin. Thank you so much for getting these soaps in our life. Love love love it.",
+    date: "2026-10-18T14:30:00.000Z",
+  },
+  {
+    id: "soap-fb-3",
+    userId: 103,
+    userName: "Akrati",
+    userEmail: "akrati@customer.shrutibhyam.com",
+    rating: 5,
+    comment: "I absolutely loved the handcrafted Haldi Soap from Shrutibhyam. The fragrance is so fresh and long-lasting, even the bathroom smells amazing after use. It made my skin feel soft and fresh. Would definitely love to try the other variants once this one is consumed. Thank you for creating such a lovely product!",
+    date: "2026-10-22T09:15:00.000Z",
+  },
+  {
+    id: "soap-fb-4",
+    userId: 104,
+    userName: "Shaily Arya",
+    userEmail: "shaily@customer.shrutibhyam.com",
+    rating: 5,
+    comment: "It's a very good soap. I have tried the haldi and neem ones, both were very good. Especially the aroma, and it was very gentle on the skin. I definitely recommend this. Also the packing is very true to the product. Natural and raw, just like the soap.",
+    date: "2026-10-26T16:45:00.000Z",
+  },
+  {
+    id: "soap-fb-5",
+    userId: 105,
+    userName: "Priyanka",
+    userEmail: "priyanka@customer.shrutibhyam.com",
+    rating: 5,
+    comment: "Really happy with Shrutibhyam soaps, especially neem and haldi. It feels gentle on my sensitive skin and doesn't dry it out at all. Leaves my skin soft, fresh, and comfortable after every wash. I love that I can use it multiple times a day without my skin feeling dry or irritated. Definitely a good choice for daily use.",
+    date: "2026-10-30T11:20:00.000Z",
+  },
+  {
+    id: "soap-fb-6",
+    userId: 106,
+    userName: "Vivek",
+    userEmail: "vivek@customer.shrutibhyam.com",
+    rating: 5,
+    comment: "Soaps are very good. Good quality and truly natural and organic.",
+    date: "2026-11-02T13:10:00.000Z",
+  },
+];
+
 export const CUSTOMER_STORIES = [
   {
-    name: "Aarti S.",
-    image: IMG.faceOil,
+    name: "Shehnaaz",
+    image: IMG.haldi1,
     video: false,
     rating: 5,
-    text: "This handmade soap completely transformed my morning routine. The natural scent is divine and my skin feels so soft without that tight, dry feeling. Knowing it's cold-pressed and pure makes all the difference."
+    text: "Shruti, your handmade soaps are truly amazing! I could feel the difference within just two days of using them. Even Zaheer was impressed and liked them. Consider me a loyal customer from now on. I'll be relying on your soaps for all my skincare needs."
   },
   {
-    name: "Neha M.",
-    image: IMG.powder,
+    name: "Sapna",
+    image: IMG.haldi2,
     video: false,
     rating: 5,
-    text: "I was skeptical about artisanal soaps, but Shrutibhyam's products are magical. The texture, the lather, and the way it leaves my skin glowing – I've stopped using commercial body washes altogether."
+    text: "I am in love with the haldi soap! It's so gentle and feels amazing on the skin. I believe it has some very gentle exfoliating particles that felt like love on the skin. Thank you so much for getting these soaps in our life. Love love love it."
   },
   {
-    name: "Rohan K.",
-    image: IMG.serum,
+    name: "Akrati",
+    image: IMG.neem1,
     video: false,
     rating: 5,
-    text: "Finally, a brand that actually delivers on its '100% natural' promise. No artificial colors, no synthetic fragrances. Just pure, earthy goodness that works wonders for my sensitive skin."
+    text: "I absolutely loved the handcrafted Haldi Soap from Shrutibhyam. The fragrance is so fresh and long-lasting, even the bathroom smells amazing after use. It made my skin feel soft and fresh. Would definitely love to try the other variants once this one is consumed. Thank you for creating such a lovely product!"
+  },
+  {
+    name: "Shaily Arya",
+    image: IMG.neem2,
+    video: false,
+    rating: 5,
+    text: "It's a very good soap. I have tried the haldi and neem ones, both were very good. Especially the aroma, and it was very gentle on the skin. I definitely recommend this. Also the packing is very true to the product. Natural and raw, just like the soap."
+  },
+  {
+    name: "Priyanka",
+    image: IMG.lavender1,
+    video: false,
+    rating: 5,
+    text: "Really happy with Shrutibhyam soaps, especially neem and haldi. It feels gentle on my sensitive skin and doesn't dry it out at all. Leaves my skin soft, fresh, and comfortable after every wash. I love that I can use it multiple times a day without my skin feeling dry or irritated. Definitely a good choice for daily use."
+  },
+  {
+    name: "Vivek",
+    image: IMG.frenchclay1,
+    video: false,
+    rating: 5,
+    text: "Soaps are very good. Good quality and truly natural and organic."
   }
 ];
 
