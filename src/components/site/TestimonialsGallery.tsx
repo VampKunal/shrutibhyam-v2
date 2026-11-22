@@ -27,7 +27,7 @@ export function TestimonialsGallery({ communityData }: { communityData?: Communi
 
   // Use Sanity data if available, else fallback to constants
   const rawTextReviews = communityData?.kindWords?.length ? communityData.kindWords : HOME_TESTIMONIALS;
-  const rawScreenshots = communityData?.verifiedReviews?.length ? communityData.verifiedReviews : SCREENSHOT_TESTIMONIALS;
+  const rawScreenshots = SCREENSHOT_TESTIMONIALS;
   const sectionHeading = communityData?.heading || "Community Experiences";
   const sectionSubheading = communityData?.subheading || "Real stories of alignment, skincare transformations, and mindful living from those who journey with us.";
 

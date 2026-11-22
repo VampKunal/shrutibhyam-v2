@@ -197,6 +197,7 @@ export const SCREENSHOT_TESTIMONIALS = [
   "/testimonials/38d30a0f-119b-44d7-ba6b-0c9e63abb164.webp",
   "/testimonials/4f50649d-5bc6-4f66-89c0-12a65e3db490.webp",
   "/testimonials/76efa728-5ded-4050-8bf4-b30ae3d08d2a.webp",
+  "/testimonials/898382c3-df2c-49cf-a163-8913ba6f48f4.webp",
   "/testimonials/910588ce-5d8a-48c8-b001-2590c0281077.webp",
   "/testimonials/a73def99-901e-43e5-a059-2651827d4204.webp",
   "/testimonials/ac2f5aaa-ca1d-4ec6-b4e1-6842c453f530.webp",
