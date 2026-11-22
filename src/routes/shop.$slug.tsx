@@ -800,6 +800,13 @@ function ReviewsSection({ productSlug, comments, isLoading }: ReviewsSectionProp
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState("");
   const [editingRating, setEditingRating] = useState(5);
+  // Pagination state (limit 4)
+  const [currentPage, setCurrentPage] = useState(1);
+  const COMMENTS_PER_PAGE = 4;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [productSlug]);
 
   if (isLoading) {
     return (
@@ -817,6 +824,11 @@ function ReviewsSection({ productSlug, comments, isLoading }: ReviewsSectionProp
   }
 
   const reviewCount = comments.length;
+  const totalPages = Math.ceil(reviewCount / COMMENTS_PER_PAGE);
+  const validCurrentPage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
+  const startIndex = (validCurrentPage - 1) * COMMENTS_PER_PAGE;
+  const endIndex = startIndex + COMMENTS_PER_PAGE;
+  const paginatedComments = comments.slice(startIndex, endIndex);
   const averageRating =
     reviewCount > 0
       ? parseFloat((comments.reduce((sum, c) => sum + c.rating, 0) / reviewCount).toFixed(1))
@@ -1055,7 +1067,7 @@ function ReviewsSection({ productSlug, comments, isLoading }: ReviewsSectionProp
               </div>
             ) : (
               <div className="space-y-6">
-                {comments.map((c) => {
+                {paginatedComments.map((c) => {
                   const isAuthor = user && (user.id === c.userId || user.email === c.userEmail);
                   const isEditing = editingId === c.id;
 
@@ -1148,8 +1160,50 @@ function ReviewsSection({ productSlug, comments, isLoading }: ReviewsSectionProp
                     </div>
                   );
                 })}
-              </div>
-            )}
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pt-6 border-t border-soft-beige flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                  <span className="text-xs text-on-surface-variant font-medium">
+                    Showing <strong className="text-primary">{startIndex + 1}</strong>–<strong className="text-primary">{Math.min(endIndex, reviewCount)}</strong> of <strong className="text-primary">{reviewCount}</strong> reviews
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      disabled={validCurrentPage === 1}
+                      className="p-2 rounded-lg border border-soft-beige text-primary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-cream-bg transition-colors cursor-pointer"
+                      aria-label="Previous reviews page"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+                          page === validCurrentPage
+                            ? "bg-primary text-white border-primary shadow-xs"
+                            : "bg-white text-on-surface-variant border-soft-beige hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                      disabled={validCurrentPage === totalPages}
+                      className="p-2 rounded-lg border border-soft-beige text-primary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-cream-bg transition-colors cursor-pointer"
+                      aria-label="Next reviews page"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           </div>
         </div>
       </div>
