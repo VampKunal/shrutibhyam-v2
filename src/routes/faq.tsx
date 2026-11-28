@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { FAQ as CONSTANT_FAQS } from "@/constant";
+import { FAQ as CONSTANT_FAQS, SHIPPING_FAQ } from "@/constant";
 import { SiteLayout } from "@/components/site/Layout";
 import { getFaqs } from "@/lib/api/sanity.functions";
 
@@ -23,7 +23,12 @@ function Faq() {
  const { sanityFaqs } = Route.useLoaderData();
  const [openFaq, setOpenFaq] = useState<number | null>(0);
  
- const displayFaqs = sanityFaqs?.length ? sanityFaqs.map((f: any) => ({ q: f.question, a: f.answer })) : CONSTANT_FAQS;
+ const cmsFaqs = sanityFaqs?.length
+   ? sanityFaqs
+       .map((f: { question: string; answer: string }) => ({ q: f.question, a: f.answer }))
+       .filter((item: { q: string; a: string }) => !/shipping|delivery|courier/i.test(item.q))
+   : CONSTANT_FAQS.filter((item) => item.q !== SHIPPING_FAQ.q);
+ const displayFaqs = [...cmsFaqs, SHIPPING_FAQ];
 
  return (
  <SiteLayout>

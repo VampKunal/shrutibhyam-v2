@@ -14,7 +14,9 @@ import {
 // WooCommerce configuration defaults
 export const WOOCOMMERCE_DEFAULT_URL = "https://your-woocommerce-store.com";
 
-export const MARQUEE_MSG = "Sign up to get 10% off on your first order | Free shipping on all orders above ₹399/-";
+export const FIRST_ORDER_PROMO_MSG = "Sign up to get 10% off on your first order";
+export const SHIPPING_PROMO_MSG = "Free Razorpay shipping on 2+ soaps and Diwali packs | COD shipping ₹60";
+export const MARQUEE_MSG = `${FIRST_ORDER_PROMO_MSG} | ${SHIPPING_PROMO_MSG}`;
 
 // Shared Contact details
 export const CONTACT_INFO = {
@@ -130,12 +132,18 @@ export const HERO_CAROUSEL = [
   { imgDesktop: IMG.Home, imgMobile: IMG.Home, to: "/events", isVideo: false, videoDesktop: undefined }
 ];
 
+export const SHIPPING_FAQ = {
+  q: "How does shipping work?",
+  a: "One soap ships for ₹60. Buy 2 or more soaps for free shipping with Razorpay. Diwali packs ship free with Razorpay. COD shipping is ₹60.",
+};
+
 // Home Frequently Asked Questions
 export const FAQ = [
   { q: "Are your products truly cold-pressed?", a: "Yes — we adhere strictly to traditional Ayurvedic cold-pressing methods to preserve vital nutrients, enzymes, and natural aromas." },
   { q: "Do you ship internationally?", a: "We ship within India and to select international destinations including the US, UK, and UAE." },
   { q: "How can I book a private Yoga session?", a: "Use the form on our contact page and select 'Yoga Sessions' as your subject. A master practitioner will follow up." },
   { q: "What is your return policy?", a: "Due to the artisanal nature of our products we do not accept returns, but please contact us within 48 hours of delivery if your order arrives damaged." },
+  SHIPPING_FAQ,
 ];
 
 // Upcoming Events and Retreats
@@ -268,7 +276,7 @@ export const PRODUCT_DETAILS: Record<string, DetailContent> = {
 export const COMMON_ACCORDIONS = [
   { title: "Specifications", body: `Weight: 100g. Handcrafted in small batches. Shelf life: 24 months.` },
   { title: "Care Instructions", body: "Store in a cool, dry place away from direct sunlight. Use a well-draining soap dish." },
-  { title: "Shipping", body: "Dispatched within 24-48 hours. Free delivery on orders over ₹1000." },
+  { title: "Shipping", body: "Dispatched within 24-48 hours. One soap ships for ₹60. Buy 2 or more soaps for free shipping with Razorpay. Diwali packs ship free with Razorpay. COD shipping is ₹60." },
 
 ];
 

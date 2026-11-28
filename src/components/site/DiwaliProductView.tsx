@@ -107,7 +107,7 @@ export function DiwaliProductView({ product, allProducts = [] }: DiwaliProductVi
         <span className="hidden sm:inline text-amber-400/80">•</span>
         <span className="hidden sm:inline">🪔 Diwali price ₹1,199 valid till 8th November</span>
         <span className="hidden sm:inline text-amber-400/80">•</span>
-        <span className="hidden md:inline">🚚 Free shipping across India</span>
+        <span className="hidden md:inline">🚚 Free shipping with Razorpay · COD shipping ₹60</span>
         <Sparkles size={14} className="text-amber-300 animate-pulse shrink-0" />
       </div>
 
@@ -225,7 +225,7 @@ export function DiwaliProductView({ product, allProducts = [] }: DiwaliProductVi
                   </p>
                   <p className="text-emerald-700 flex items-center gap-2 font-medium">
                     <Truck size={14} className="text-emerald-700 shrink-0" />
-                    <span><strong>Free shipping</strong> across India</span>
+                    <span><strong>Free shipping with Razorpay.</strong> COD shipping is ₹60.</span>
                   </p>
                 </div>
               </div>

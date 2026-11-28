@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { getMultiProductCheckoutUrl } from "@/lib/woocommerce";
+import { getMultiProductCheckoutUrl, isDiwaliProduct, isSoapProduct } from "@/lib/woocommerce";
 import { getCheckoutLoginUrl } from "@/lib/api/woocommerce.functions";
 import { X, Minus, Plus, Trash2, ShoppingBag, LogIn, UserCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -12,6 +12,18 @@ export function CartDrawer() {
   const { user, setLoginOpen } = useAuth();
   // GUEST_CHECKOUT: const [showGuestPrompt, setShowGuestPrompt] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const soapQuantity = cartItems.reduce(
+    (count, item) => count + (isSoapProduct(item.product) ? item.quantity : 0),
+    0,
+  );
+  const hasDiwaliPack = cartItems.some((item) => isDiwaliProduct(item.product));
+  const shippingMessage = hasDiwaliPack
+    ? `The Diwali pack ships free with Razorpay. COD shipping is ₹60.${soapQuantity === 1 ? " Add one more soap for free Razorpay shipping." : soapQuantity >= 2 ? " Your soaps also qualify for free Razorpay shipping." : ""}`
+    : soapQuantity >= 2
+      ? "Free shipping is available with Razorpay. Choose Courier shipping – ₹60 for COD."
+      : soapQuantity === 1
+        ? "One soap ships for ₹60. Add one more soap for free shipping with Razorpay. COD shipping is ₹60."
+        : "COD shipping is ₹60. Shipping is confirmed at checkout.";
 
   useOverlay({ isOpen, onClose: () => toggleCart(false) });
 
@@ -188,6 +200,9 @@ export function CartDrawer() {
                 ₹{cartTotal.toLocaleString("en-IN")}
               </span>
             </div>
+            <p aria-live="polite" className="rounded-lg border border-soft-beige bg-cream-bg px-3 py-3 text-xs leading-relaxed text-primary mb-3">
+              {shippingMessage}
+            </p>
             <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
               Shipping & taxes calculated at checkout. Rooted in purity.
             </p>

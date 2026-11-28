@@ -39,7 +39,7 @@ import {
   deleteComment,
 } from "@/lib/api/comments.functions";
 import { useAuth } from "@/context/AuthContext";
-import { parseProductDescription } from "@/lib/woocommerce";
+import { isSoapProduct, parseProductDescription } from "@/lib/woocommerce";
 import { useWishlist } from "@/hooks/useWishlist";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { StarRating } from "@/components/ui/StarRating";
@@ -381,6 +381,13 @@ function Product() {
                     Buy Now
                   </button>
                 </div>
+
+                {isSoapProduct(product) && (
+                  <div className="flex items-start gap-3 rounded-lg border border-soft-beige bg-cream-bg p-4 text-xs leading-relaxed text-primary">
+                    <Truck className="mt-0.5 shrink-0 text-sage-green" size={18} />
+                    <p>One soap ships for ₹60. Buy 2 or more soaps for free shipping with Razorpay. COD shipping is ₹60.</p>
+                  </div>
+                )}
 
                 <div className="flex justify-between pt-4 border-t border-soft-beige">
                   <button

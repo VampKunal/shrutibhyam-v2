@@ -21,6 +21,7 @@ export interface LocalProduct {
   image: string;
   galleryImages: string[];
   wooId: number;
+  shippingClass?: string;
   descriptionHtml?: string;
   shortDescriptionHtml?: string;
 }
@@ -92,9 +93,30 @@ export function mapWooCommerceProduct(wpProduct: any): LocalProduct {
     image: image,
     galleryImages: galleryImages,
     wooId: wpProduct.id,
+    shippingClass: wpProduct.shipping_class || "",
     descriptionHtml: wpProduct.description || "",
     shortDescriptionHtml: wpProduct.short_description || "",
   };
+}
+
+export function isDiwaliProduct(product: Pick<LocalProduct, "slug" | "name">): boolean {
+  return `${product.slug} ${product.name}`.toLowerCase().includes("diwali");
+}
+
+export function isSoapProduct(product: LocalProduct): boolean {
+  if (isDiwaliProduct(product)) return false;
+
+  const productText = [
+    product.name,
+    product.slug,
+    product.tag,
+    ...product.categories,
+    product.subtitle,
+    product.shortDescriptionHtml || "",
+    product.descriptionHtml || "",
+  ].join(" ").toLowerCase();
+
+  return product.shippingClass?.toLowerCase() === "soap" || /\bsoap\b/.test(productText);
 }
 
 

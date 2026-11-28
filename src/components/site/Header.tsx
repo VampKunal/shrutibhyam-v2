@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useState, useEffect } from "react";
-import { CONTACT_INFO, MARQUEE_MSG } from "@/constant";
+import { CONTACT_INFO, FIRST_ORDER_PROMO_MSG, MARQUEE_MSG, SHIPPING_PROMO_MSG } from "@/constant";
 import { SearchDialog } from "./SearchDialog";
 import { getSiteSettings } from "@/lib/api/sanity.functions";
 import { useQuery } from "@tanstack/react-query";
@@ -23,7 +23,13 @@ export function MarqueeBar() {
         queryKey: ['siteSettings'],
         queryFn: () => getSiteSettings(),
     });
-    const msg = settings?.discountMarquee || MARQUEE_MSG;
+    const customSegments = settings?.discountMarquee
+        ?.split("|")
+        .map((segment: string) => segment.trim())
+        .filter((segment: string) => segment && !/shipping|delivery/i.test(segment));
+    const msg = settings?.discountMarquee
+        ? `${(customSegments?.length ? customSegments : [FIRST_ORDER_PROMO_MSG]).join(" | ")} | ${SHIPPING_PROMO_MSG}`
+        : MARQUEE_MSG;
     return (
         <div className="bg-[#BBDC12] py-2 border-b border-sage-green/20 overflow-hidden">
             <div className="animate-marquee whitespace-nowrap">
